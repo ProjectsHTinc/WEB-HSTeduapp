@@ -48,7 +48,7 @@ class Timetable extends CI_Controller {
 				$datas['resterms'] = $this->yearsmodel->getall_terms();
 			 if($user_type==1){
 	 		 $this->load->view('header');
-	 		 $this->load->view('timetable/add',$datas);
+	 		 $this->load->view('timetable/add_timetable',$datas);
 	 		 $this->load->view('footer');
 	 		 }
 	 		 else{
