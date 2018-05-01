@@ -806,6 +806,19 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
             }
           }
 
+
+// Update Teacher OD
+          function update_teachers_od($od_id,$status){
+            $year_id=$this->getYear();
+						
+           	$update_sql = "UPDATE edu_on_duty SET status = '$status' WHERE id='$od_id'";
+			$update_result = $this->db->query($update_sql);
+
+			$response = array("status" => "sucess", "msg" => "Onduty Updated");
+			return $response;
+          }
+
+
             // GET Teacher Leaves
           function get_teachers_leaves($user_id){
             $year_id=$this->getYear();
@@ -819,6 +832,18 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
               $data=array("status"=>"success","msg"=>"leavesfound","leaveDetails"=>$result);
               return $data;
             }
+          }
+
+
+  // Update Teacher Leaves
+          function update_teachers_leaves($leave_id,$status){
+            $year_id=$this->getYear();
+						
+           	$update_sql = "UPDATE edu_user_leave SET status = '$status' WHERE leave_id='$leave_id'";
+			$update_result = $this->db->query($update_sql);
+
+			$response = array("status" => "sucess", "msg" => "Leave Updated");
+			return $response;
           }
 
 

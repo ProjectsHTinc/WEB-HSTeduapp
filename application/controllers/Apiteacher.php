@@ -707,6 +707,37 @@ class Apiteacher extends CI_Controller {
 
 //-----------------------------------------------//
 
+//-----------------------------------------------//
+
+	public function view_Examduty()
+	{
+		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "View Examduty";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+		
+		$teacher_id = '';
+
+		$teacher_id = $this->input->post("teacher_id");
+        
+		$data['result']=$this->apiteachermodel->viewExamduty($teacher_id);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+//-----------------------------------------------//
 
 //-----------------------------------------------//
 
@@ -745,6 +776,7 @@ class Apiteacher extends CI_Controller {
 		echo json_encode($response);
 	}
 //-----------------------------------------------//
+
 
 
 //-----------------------------------------------//

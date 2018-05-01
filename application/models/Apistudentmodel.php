@@ -349,7 +349,10 @@ class Apistudentmodel extends CI_Model {
 
 			return $response;		
 	}
-//#################### Communication End ####################//
+//#################### Fees End ####################//
+
+
+
 
 }
 

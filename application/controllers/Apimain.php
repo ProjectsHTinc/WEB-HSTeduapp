@@ -669,4 +669,78 @@ class Apimain extends CI_Controller {
 	}
 
 //-----------------------------------------------//
+
+
+//-----------------------------------------------//
+
+	public function disp_Leaves()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "Leave List";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+
+		$user_type = '';
+		$class_id = '';
+		$sec_id = '';
+		$class_sec_id = '';
+		
+		$user_type = $this->input->post("user_type");
+		$class_id = $this->input->post("class_id");
+		$sec_id = $this->input->post("sec_id");
+	  	$class_sec_id = $this->input->post("class_sec_id");
+
+		$data['result']=$this->apimainmodel->dispLeaves($user_type,$class_id,$sec_id,$class_sec_id);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function disp_upcomingLeaves()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "Upcoming Leave List";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+
+		$user_type = $this->input->post("user_type");
+		$class_id = $this->input->post("class_id");
+		$sec_id = $this->input->post("sec_id");
+	  	$class_sec_id = $this->input->post("class_sec_id");
+		
+		$data['result']=$this->apimainmodel->disp_upcomingLeaves($user_type,$class_id,$sec_id,$class_sec_id);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
 }

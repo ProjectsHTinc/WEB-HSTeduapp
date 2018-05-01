@@ -1414,6 +1414,117 @@ class Apimainmodel extends CI_Model {
 	}
 //#################### View Group Messages End ####################//
 
+//#################### Leave Details ####################//
+	public function dispLeaves ($user_type,$class_id,$sec_id,$class_sec_id)
+	{
+			$year_id = $this->getYear();
+	
+			if ($user_type == '1') { 
+				$class_query = "SELECT * from edu_classmaster WHERE class='$class_id' AND section = '$sec_id'";
+				$class_res = $this->db->query($class_query);
+				$class_result = $class_res->result();
+		
+					foreach($class_result as $rows){ 
+						$class_sec_id = $rows->class_sec_id;
+					}
+			} 
+
+		     $leave_query = "SELECT * FROM (SELECT
+								el.leave_date AS START,
+								el.days AS day,
+								el.leaves_name AS title,
+								lm.leave_type AS description,
+								lm.status
+							FROM
+								edu_leavemaster AS lm,
+								edu_leaves AS el
+							WHERE
+								lm.leave_id = el.leave_mas_id AND lm.leave_type = 'Special Holiday' AND FIND_IN_SET('$class_sec_id', lm.leave_classes) AND lm.status = 'Active'
+								
+							UNION
+							
+							SELECT
+								eh.leave_list_date AS START,
+								eh.day,
+								lm.leave_type AS title,
+								lm.leave_type AS description,
+								lm.status
+							FROM
+								edu_holidays_list_history AS eh
+							LEFT OUTER JOIN edu_leavemaster AS lm
+							ON
+								lm.leave_id = eh.leave_masid
+							WHERE
+								FIND_IN_SET('$class_sec_id', lm.leave_classes) AND lm.status = 'Active') val ORDER by START";
+			
+			$leave_res = $this->db->query($leave_query);
+			$leave_result= $leave_res->result();
+			
+			 if($leave_res->num_rows()==0){
+				 $response = array("status" => "error", "msg" => "Leaves Not Found");
+			}else{
+				$response = array("status" => "success", "msg" => "View Leaves", "leaveDetails"=>$leave_result);
+			} 
+
+			return $response;		
+	}
+//#################### Leaves End ####################//
+
+//#################### Leave Details ####################//
+	public function disp_upcomingLeaves ($user_type,$class_id,$sec_id,$class_sec_id)
+	{
+			$year_id = $this->getYear();
+			
+			if ($user_type == '1') { 
+				$class_query = "SELECT * from edu_classmaster WHERE class='$class_id' AND section = '$sec_id'";
+				$class_res = $this->db->query($class_query);
+				$class_result = $class_res->result();
+		
+					foreach($class_result as $rows){ 
+						$class_sec_id = $rows->class_sec_id;
+					}
+			} 
+			
+		     $leave_query = "SELECT * FROM ( SELECT
+							el.leave_date AS START,
+							el.days AS day,
+							el.leaves_name AS title,
+							lm.leave_type AS description,
+							lm.status
+						FROM
+							edu_leavemaster AS lm,
+							edu_leaves AS el
+						WHERE
+							lm.leave_id = el.leave_mas_id AND lm.leave_type = 'Special Holiday' AND FIND_IN_SET('$class_sec_id', lm.leave_classes) AND lm.status = 'Active'  AND el.leave_date >=CURDATE()
+							
+						UNION
+						
+						SELECT
+							eh.leave_list_date AS START,
+							eh.day,
+							lm.leave_type AS title,
+							lm.leave_type AS description,
+							lm.status
+						FROM
+							edu_holidays_list_history AS eh
+						LEFT OUTER JOIN edu_leavemaster AS lm
+						ON
+							lm.leave_id = eh.leave_masid
+						WHERE
+							FIND_IN_SET('$class_sec_id', lm.leave_classes) AND lm.status = 'Active' AND eh.leave_list_date >=CURDATE()) val ORDER by START";
+			
+			$leave_res = $this->db->query($leave_query);
+			$leave_result= $leave_res->result();
+			
+			 if($leave_res->num_rows()==0){
+				 $response = array("status" => "error", "msg" => "Leaves Not Found");
+			}else{
+				$response = array("status" => "success", "msg" => "View Leaves", "upcomingleavesDetails"=>$leave_result);
+			} 
+
+			return $response;		
+	}
+//#################### Leaves End ####################//
 }
 
 ?>

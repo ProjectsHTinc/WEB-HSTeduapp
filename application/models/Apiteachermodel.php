@@ -956,6 +956,42 @@ class Apiteachermodel extends CI_Model {
 //#################### Add Reminder End ####################//
 
 
+//#################### View Teachers Exam Duty ####################//
+	public function viewExamduty ($teacher_id)
+	{
+			$year_id = $this->getYear();
+			
+			 $exam_query = "SELECT
+							ex.exam_name,
+							s.subject_name,
+							CONCAT(ed.exam_date,' - ', ed.times) AS exam_datetime,
+							CONCAT(c.class_name,' ', se.sec_name) AS class_section
+						FROM
+							edu_exam_details AS ed,
+							edu_examination AS ex,
+							edu_subject AS s,
+							edu_teachers AS t,
+							edu_classmaster AS cm,
+							edu_class AS c,
+							edu_sections AS se
+						WHERE
+							ed.teacher_id = '$teacher_id' AND ex.exam_id = ed.exam_id AND t.teacher_id = ed.teacher_id AND ed.subject_id = s.subject_id AND cm.class_sec_id = ed.classmaster_id AND cm.class = c.class_id AND cm.section = se.sec_id AND ed.status = 'Active' AND ed.exam_date > CURDATE()
+						ORDER BY
+							ed.exam_date";
+			$exam_res = $this->db->query($exam_query);
+			$exam_result = $exam_res->result();
+			
+		    if($exam_res->num_rows()==0){
+				 $response = array("status" => "error", "msg" => "Exam Duty Not Found");
+			}else{
+				$response = array("status" => "success", "msg" => "View Exam Duty", "examdutyDetails"=>$exam_result);
+			}
+
+			return $response;	
+	}
+//#################### Exam Duty End ####################//
+
+
 //#################### Add Timetablereview for Teachers ####################//
 	public function addTimetablereview ($time_date,$class_id,$subject_id,$period_id,$user_type,$user_id,$comments,$created_at)
 	{
