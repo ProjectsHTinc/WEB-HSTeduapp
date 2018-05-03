@@ -55,6 +55,25 @@ class Timetable extends CI_Controller {
 	 				redirect('/');
 	 		 }
 	 	}
+		public function add(){
+				$datas=$this->session->userdata();
+				$user_id=$this->session->userdata('user_id');
+				$user_type=$this->session->userdata('user_type');
+
+				$datas['getall_class']=$this->class_manage->getall_class();
+				$datas['subres'] = $this->subjectmodel->getsubject();
+				$datas['teacheres'] = $this->teachermodel->get_all_teacher();
+				$datas['years'] = $this->timetablemodel->getall_years();
+				$datas['resterms'] = $this->yearsmodel->getall_terms();
+			 if($user_type==1){
+			 $this->load->view('header');
+			 $this->load->view('timetable/add',$datas);
+			 $this->load->view('footer');
+			 }
+			 else{
+					redirect('/');
+			 }
+		}
 
 		public function create_timetable()
 		{
