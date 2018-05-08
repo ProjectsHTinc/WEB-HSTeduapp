@@ -255,8 +255,7 @@ Class Timetablemodel extends CI_Model
     {
         $term_id = $this->getTerm();
         $year_id = $this->getYear();
-        $query  = "SELECT tt.table_id,tt.class_id,tt.subject_id,s.subject_name,tt.teacher_id,t.name,tt.day,tt.period FROM edu_timetable AS tt LEFT JOIN edu_subject AS s ON tt.subject_id=s.subject_id LEFT JOIN edu_teachers AS t ON tt.teacher_id=t.teacher_id WHERE tt.class_id='$class_sec_id' AND tt.term_id='$term_id'
-        AND tt.year_id='$year_id' ORDER BY tt.table_id ASC";
+         $query  = "SELECT tt.table_id,tt.class_id,tt.subject_id,s.subject_name,tt.teacher_id,t.name,tt.day_id,tt.period,tt.from_time,tt.to_time,tt.is_break FROM edu_timetable AS tt LEFT JOIN edu_subject AS s ON tt.subject_id=s.subject_id LEFT JOIN edu_teachers AS t ON tt.teacher_id=t.teacher_id WHERE tt.class_id='$class_sec_id' AND tt.term_id='$term_id' AND tt.year_id='$year_id' ORDER BY tt.table_id ASC";
         $result = $this->db->query($query);
         $time   = $result->result();
         if ($result->num_rows() == 0) {
@@ -327,10 +326,10 @@ Class Timetablemodel extends CI_Model
 
     //Save Review
 
-    function save_review($class_id, $user_id, $user_type, $subject_id, $cur_date, $comments, $period_id)
+    function save_review($class_id, $user_id, $user_type, $subject_id, $cur_date, $comments, $period_id,$from_time,$to_time)
     {
         $year_id   = $this->getYear();
-        $query     = "INSERT INTO edu_timetable_review (time_date,year_id,class_id,subject_id,period_id,user_type,user_id,comments,status,created_at,updated_at) VALUES ('$cur_date','$year_id','$class_id','$subject_id','$period_id','$user_type','$user_id','$comments','Active',NOW(),NOW())";
+         $query     = "INSERT INTO edu_timetable_review (time_date,year_id,class_id,subject_id,period_id,from_time,to_time,user_type,user_id,comments,status,created_at,updated_at) VALUES ('$cur_date','$year_id','$class_id','$subject_id','$period_id','$from_time','$to_time','$user_type','$user_id','$comments','Active',NOW(),NOW())";
         $resultset = $this->db->query($query);
         if ($resultset) {
             $data = array(
@@ -408,10 +407,10 @@ Class Timetablemodel extends CI_Model
         foreach ($resultset->result() as $rows) {
         }
         $teacher_id = $rows->teacher_id;
-        $query      = "SELECT tt.table_id,tt.class_id,tt.subject_id,s.subject_name,tt.teacher_id,t.name,tt.day,dd.list_day,tt.period,ss.sec_name,c.class_name
+        $query      = "SELECT tt.table_id,tt.class_id,tt.subject_id,s.subject_name,tt.teacher_id,t.name,tt.day_id,dd.list_day,tt.period,ss.sec_name,c.class_name,tt.is_break,tt.from_time,tt.to_time
                 FROM edu_timetable AS tt LEFT JOIN edu_subject AS s ON tt.subject_id=s.subject_id LEFT JOIN edu_teachers AS t ON tt.teacher_id=t.teacher_id
                 INNER JOIN edu_classmaster AS cm ON tt.class_id=cm.class_sec_id INNER JOIN edu_class AS c ON cm.class=c.class_id INNER JOIN edu_sections AS ss ON cm.section=ss.sec_id
-                INNER JOIN edu_days AS dd ON tt.day=dd.d_id WHERE  tt.teacher_id='$teacher_id' AND tt.year_id='$year_id' AND tt.term_id='$term_id' ORDER BY tt.period ASC";
+                INNER JOIN edu_days AS dd ON tt.day_id=dd.d_id WHERE  tt.teacher_id='$teacher_id' AND tt.year_id='$year_id' AND tt.term_id='$term_id' ORDER BY tt.table_id ASC";
         $result     = $this->db->query($query);
         return $result->result();
     }

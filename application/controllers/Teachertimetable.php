@@ -89,8 +89,10 @@ class Teachertimetable extends CI_Controller {
 				 $data['restime']=$datas['restime']['time'];
 				 $data['class_id']=$class_sec_id;
 				 $data['user_id']=$user_id;$data['user_type']=$user_type;
+				 $class_id=$class_sec_id;
+				 $data['get_name_class']=$this->class_manage->edit_cs($class_id);
 				 $this->load->view('adminteacher/teacher_header');
-				 $this->load->view('adminteacher/timetable/view',$data);
+				 $this->load->view('adminteacher/timetable/view_timetable_for_class',$data);
 				 $this->load->view('adminteacher/teacher_footer');
 			 }
 
@@ -108,13 +110,15 @@ class Teachertimetable extends CI_Controller {
 			$class_id=$this->input->post('class_id');
 			$user_id=$this->input->post('user_id');
 			$subject_id=$this->input->post('subject_id');
+		 	$from_time=$this->input->post('from_time');
 			$period_id=$this->input->post('period_id');
+			$to_time=$this->input->post('to_time');
 			$user_type=$this->input->post('user_type');
 		 	$cur_date1=$this->input->post('cur_date');
 			$cls_date = new DateTime($cur_date1);
 			$cur_date= $cls_date->format('Y-m-d h:i:s');
 			 $comments=$this->input->post('comments');
-			 $data=$this->timetablemodel->save_review($class_id,$user_id,$user_type,$subject_id,$cur_date,$comments,$period_id);
+			 $data=$this->timetablemodel->save_review($class_id,$user_id,$user_type,$subject_id,$cur_date,$comments,$period_id,$from_time,$to_time);
 			 if($data['status']=="success"){
 				 echo "success";
 			 }else{

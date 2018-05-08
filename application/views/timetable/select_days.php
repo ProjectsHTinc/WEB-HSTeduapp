@@ -163,6 +163,8 @@
                             echo "Break";
                           } else{
                             echo $rows->subject_name;
+                            echo "<br>";
+                            echo $rows->name;
                            }?></td>
                        </tr>
                        <?php  $i++; }else{
@@ -202,6 +204,8 @@
                             echo "Break";
                           } else{
                             echo $rows->subject_name;
+                            echo "<br>";
+                            echo $rows->name;
                            }?></td>
                        </tr>
                        <?php  $i++; }else{
@@ -242,6 +246,8 @@
                             echo "Break";
                           } else{
                             echo $rows->subject_name;
+                            echo "<br>";
+                            echo $rows->name;
                            }?></td>
                        </tr>
                        <?php  $i++; }else{
@@ -281,6 +287,8 @@
                             echo "Break";
                           } else{
                             echo $rows->subject_name;
+                            echo "<br>";
+                            echo $rows->name;
                            }?></td>
                        </tr>
                        <?php  $i++; }else{
@@ -320,6 +328,8 @@
                             echo "Break";
                           } else{
                             echo $rows->subject_name;
+                            echo "<br>";
+                            echo $rows->name;
                            }?></td>
                        </tr>
                        <?php  $i++; }else{
@@ -561,8 +571,8 @@ $(document).ready(function() {
 
         });
 
-        $('#from_time').clockpicker({ placement: 'top', align: 'left',twelvehour: true, donetext: 'Done'});
-        $('#to_time').clockpicker({ placement: 'top', align: 'left',twelvehour: true, donetext: 'Done'});
+        $('#from_time').clockpicker({ placement: 'top', align: 'left', donetext: 'Done'});
+        $('#to_time').clockpicker({ placement: 'top', align: 'left', donetext: 'Done'});
         $('#break_id').on('change', function() {
             // From the other examples
 
