@@ -27,6 +27,7 @@
 	    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/jquery.dataTables.min.css">
 		<link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/buttons.dataTables.min.css">
 
+
 	  <script src="<?php echo base_url(); ?>assets/js/jquery.dataTables.min.js" type="text/javascript"></script>
       <script src="<?php echo base_url(); ?>assets/js/pdfmake.min.js" type="text/javascript"></script>
 	  <script src="<?php echo base_url(); ?>assets/js/vfs_fonts.js" type="text/javascript"></script>
@@ -312,8 +313,8 @@
                   </a>
                   <div class="collapse" id="timetablemenu">
                      <ul class="nav">
-                        <li id="time1"><a href="<?php echo base_url(); ?>timetable/home">Add TimeTable</a></li>
-                        <li id="time2"><a href="<?php echo base_url(); ?>timetable/manage">View TimeTable</a></li>
+                        <li id="time1"><a href="<?php echo base_url(); ?>timetable/select_term">Create TimeTable</a></li>
+                        <li id="time2"><a href="<?php echo base_url(); ?>timetable/view_term">View TimeTable</a></li>
                      </ul>
                   </div>
                </li>

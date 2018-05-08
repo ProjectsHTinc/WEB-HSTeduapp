@@ -38,43 +38,120 @@ Class Timetablemodel extends CI_Model
         }
     }
     //Create timetable
+    function create_timetable($year_id,$term_id,$class_id,$subject_id,$teacher_id,$day_id,$period_id,$break_id,$from_time,$to_time){
+       $sqlYear     = "SELECT IFNULL(max(to_time), '0') as max_time FROM edu_timetable WHERE class_id = '$class_id' AND day_id='$day_id' AND term_id = '$term_id' AND year_id='$year_id'";
+      $term_result = $this->db->query($sqlYear);
+       $ress_max   = $term_result->result();
+       foreach($ress_max as $rows){}
+         $max = $rows->max_time;
+         if($max=='0'){
+           $query     = "INSERT INTO edu_timetable (year_id,term_id,class_id,from_time,to_time,is_break,subject_id,teacher_id,day_id,period,status,created_at,updated_at) VALUES('$year_id','$term_id','$class_id','$from_time','$to_time','$break_id','$subject_id','$teacher_id','$day_id','$period_id','Active',NOW(),NOW())";
+             $resultset = $this->db->query($query);
+             if ($resultset) {
+                 echo "success";
+             } else {
+                 echo "failure";
+             }
+         }else{
+           if(strtotime($from_time)>=strtotime($max)) {
+             $query     = "INSERT INTO edu_timetable (year_id,term_id,class_id,from_time,to_time,is_break,subject_id,teacher_id,day_id,period,status,created_at,updated_at) VALUES('$year_id','$term_id','$class_id','$from_time','$to_time','$break_id','$subject_id','$teacher_id','$day_id','$period_id','Active',NOW(),NOW())";
+               $resultset = $this->db->query($query);
+               if ($resultset) {
+                   echo "success";
+               } else {
+                   echo "failure";
+               }
+           }else{
+              echo "already added for this period";
+           }
+         }
+      }
 
-    function create_timetable($year_id, $term_id, $class_id, $subject_id, $teacher_id, $day_id, $period_id)
-    {
-        $check   = "SELECT * FROM edu_timetable WHERE class_id='$class_id' AND year_id='$year_id' AND term_id='$term_id'";
-        $result1 = $this->db->query($check);
-        if ($result1->num_rows() >= 1) {
-            $data = array(
-                "status" => "Already"
-            );
-            return $data;
-        }
-        //  exit;
 
-        $count_name = count($teacher_id);
-        for ($i = 0; $i < $count_name; $i++) {
-            $day       = $day_id[$i];
-            $period    = $period_id[$i];
-            $classid   = $class_id;
-            $termid    = $term_id;
-            $yearid    = $year_id;
-            $subjectid = $subject_id[$i];
-            $teacherid = $teacher_id[$i];
-            $query     = "INSERT INTO edu_timetable (year_id,term_id,class_id,subject_id,teacher_id,day,period,status,created_at,updated_at) VALUES ('$yearid','$termid','$classid','$subjectid','$teacherid','$day','$period','Active',NOW(),NOW())";
-            $resultset = $this->db->query($query);
-        }
-        if ($resultset) {
-            $data = array(
-                "status" => "success"
-            );
-            return $data;
-        } else {
-            $data = array(
-                "status" => "failure"
-            );
-            return $data;
-        }
-    }
+      function timetable_for_class($term_id,$class_id){
+        $year_id = $this->getYear();
+        $query      = "SELECT tt.table_id,tt.class_id,tt.subject_id,s.subject_name,tt.teacher_id,t.name,tt.day_id,dd.list_day,tt.period,ss.sec_name,c.class_name,tt.from_time,tt.to_time,tt.is_break
+                FROM edu_timetable AS tt LEFT JOIN edu_subject AS s ON tt.subject_id=s.subject_id LEFT JOIN edu_teachers AS t ON tt.teacher_id=t.teacher_id
+                INNER JOIN edu_classmaster AS cm ON tt.class_id=cm.class_sec_id INNER JOIN edu_class AS c ON cm.class=c.class_id INNER JOIN edu_sections AS ss ON cm.section=ss.sec_id
+                INNER JOIN edu_days AS dd ON tt.day_id=dd.d_id WHERE tt.class_id='$class_id' AND tt.year_id='$year_id' AND tt.term_id='$term_id' ORDER BY tt.table_id ASC";
+        $result     = $this->db->query($query);
+        return $result->result();
+      }
+
+      function view_timetable_day($term_id,$class_id,$day_id){
+        $year_id = $this->getYear();
+        $query      = "SELECT tt.table_id,tt.class_id,tt.subject_id,s.subject_name,tt.teacher_id,t.name,tt.day_id,dd.list_day,tt.period,ss.sec_name,c.class_name,tt.from_time,tt.to_time,tt.is_break
+                FROM edu_timetable AS tt LEFT JOIN edu_subject AS s ON tt.subject_id=s.subject_id LEFT JOIN edu_teachers AS t ON tt.teacher_id=t.teacher_id
+                INNER JOIN edu_classmaster AS cm ON tt.class_id=cm.class_sec_id INNER JOIN edu_class AS c ON cm.class=c.class_id INNER JOIN edu_sections AS ss ON cm.section=ss.sec_id
+                INNER JOIN edu_days AS dd ON tt.day_id=dd.d_id WHERE tt.class_id='$class_id' AND tt.day_id='$day_id' AND tt.year_id='$year_id' AND tt.term_id='$term_id' ORDER BY tt.table_id ASC";
+        $result     = $this->db->query($query);
+        return $result->result();
+      }
+
+
+      function edit_time_table($table_id){
+        $query      = "SELECT tt.table_id,tt.class_id,tt.subject_id,s.subject_name,tt.teacher_id,t.name,tt.day_id,dd.list_day,tt.period,ss.sec_name,c.class_name,tt.from_time,tt.to_time,tt.is_break
+                FROM edu_timetable AS tt LEFT JOIN edu_subject AS s ON tt.subject_id=s.subject_id LEFT JOIN edu_teachers AS t ON tt.teacher_id=t.teacher_id
+                INNER JOIN edu_classmaster AS cm ON tt.class_id=cm.class_sec_id INNER JOIN edu_class AS c ON cm.class=c.class_id INNER JOIN edu_sections AS ss ON cm.section=ss.sec_id
+                INNER JOIN edu_days AS dd ON tt.day_id=dd.d_id WHERE tt.table_id='$table_id'";
+        $result     = $this->db->query($query);
+        return $result->result();
+      }
+
+      function update_timetable_for_class($subject_id,$teacher_id,$table_id,$is_break,$user_id){
+              if($is_break==1){
+                $subject_id_period='0';
+                $teacher_id_period='0';
+              }else{
+                $subject_id_period=$subject_id;
+                $teacher_id_period=$teacher_id;
+              }
+           $query="UPDATE edu_timetable SET subject_id='$subject_id_period',teacher_id='$teacher_id_period',is_break='$is_break' WHERE table_id='$table_id'";
+          $result     = $this->db->query($query);
+          if ($result) {
+              echo "success";
+          } else {
+              echo "failure";
+          }
+      }
+
+
+    // function create_timetable($year_id, $term_id, $class_id, $subject_id, $teacher_id, $day_id, $period_id)
+    // {
+    //     $check   = "SELECT * FROM edu_timetable WHERE class_id='$class_id' AND year_id='$year_id' AND term_id='$term_id'";
+    //     $result1 = $this->db->query($check);
+    //     if ($result1->num_rows() >= 1) {
+    //         $data = array(
+    //             "status" => "Already"
+    //         );
+    //         return $data;
+    //     }
+    //     //  exit;
+    //
+    //     $count_name = count($teacher_id);
+    //     for ($i = 0; $i < $count_name; $i++) {
+    //         $day       = $day_id[$i];
+    //         $period    = $period_id[$i];
+    //         $classid   = $class_id;
+    //         $termid    = $term_id;
+    //         $yearid    = $year_id;
+    //         $subjectid = $subject_id[$i];
+    //         $teacherid = $teacher_id[$i];
+    //         $query     = "INSERT INTO edu_timetable (year_id,term_id,class_id,subject_id,teacher_id,day,period,status,created_at,updated_at) VALUES ('$yearid','$termid','$classid','$subjectid','$teacherid','$day','$period','Active',NOW(),NOW())";
+    //         $resultset = $this->db->query($query);
+    //     }
+    //     if ($resultset) {
+    //         $data = array(
+    //             "status" => "success"
+    //         );
+    //         return $data;
+    //     } else {
+    //         $data = array(
+    //             "status" => "failure"
+    //         );
+    //         return $data;
+    //     }
+    // }
 
     //GET ALL Class assisgned for time table
 
@@ -100,6 +177,23 @@ Class Timetablemodel extends CI_Model
         return $result->result();
     }
 
+      function get_all_days(){
+        $query   = "SELECT * FROM edu_days where d_id!='7'";
+        $result  = $this->db->query($query);
+        return $result->result();
+
+      }
+      function check_timetable_day($class_id,$year_id,$term_id,$day_id){
+       $query   = "SELECT * FROM edu_timetable WHERE class_id='$class_id' AND year_id='$year_id' AND term_id='$term_id' AND day_id='$day_id'";
+        $result  = $this->db->query($query);
+        if ($result->num_rows()==0) {
+          $data = array("status" => "success");
+          return $data;
+        }else{
+          $data = array("status" => "already");
+          return $data;
+        }
+      }
     function getall_years()
     {
         $get_year = "SELECT * FROM edu_academic_year WHERE CURDATE() >= from_month AND CURDATE() <= to_month";
@@ -342,10 +436,10 @@ Class Timetablemodel extends CI_Model
 
 
     //Delete timetable
-    function delete_time($class_sec_id, $termid)
+    function delete_time($class_id,$term_id,$day_id)
     {
         $year_id = $this->getYear();
-        $query   = "DELETE FROM edu_timetable WHERE class_id='$class_sec_id' AND term_id='$termid' AND year_id='$year_id'";
+        $query   = "DELETE FROM edu_timetable WHERE class_id='$class_id' AND term_id='$term_id' AND day_id='$day_id' AND year_id='$year_id'";
         $result  = $this->db->query($query);
         if ($result) {
             $data = array(

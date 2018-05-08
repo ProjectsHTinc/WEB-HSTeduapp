@@ -2,7 +2,7 @@
           <div class="container-fluid">
 
               <p class="copyright pull-right">
-                  &copy; 2017 <a href="">ENSIFY</a> </p>
+                  &copy; <?php echo date("Y"); ?> <a href="https://ensyfi.com/" target="_blank">ENSIFY</a> </p>
           </div>
       </footer>
 </div>
@@ -11,6 +11,7 @@
 
 <!--  Plugin for Date Time Picker and Full Calendar Plugin-->
 <script src="<?php echo base_url(); ?>assets/js/moment.min.js"></script>
+
 
   <!--  Date Time Picker Plugin is included in this js file -->
   <script src="<?php echo base_url(); ?>assets/js/bootstrap-datetimepicker.js"></script>
