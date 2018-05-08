@@ -262,7 +262,53 @@ class Apimainmodel extends CI_Model {
 						}
 
 
-						$timetable_query = "SELECT tt.table_id,tt.class_id,tt.subject_id,s.subject_name,tt.teacher_id,t.name,tt.day,tt.period,ss.sec_name,c.class_name FROM edu_timetable AS tt LEFT JOIN edu_subject AS s ON tt.subject_id=s.subject_id LEFT JOIN edu_teachers AS t ON tt.teacher_id=t.teacher_id INNER JOIN edu_classmaster AS cm ON tt.class_id=cm.class_sec_id INNER JOIN edu_class AS c ON cm.class=c.class_id INNER JOIN edu_sections AS ss ON cm.section=ss.sec_id WHERE tt.teacher_id ='$teacher_id' AND tt.year_id='$year_id' AND tt.term_id='$term_id' ORDER BY tt.day, tt.period";
+
+						$sqldays = "SELECT A.day_id, B.list_day FROM `edu_timetable` A, `edu_days` B WHERE A.day_id = B.d_id AND A.teacher_id = '$teacher_id' AND A.year_id = '$year_id' AND A.term_id = '$term_id' GROUP BY day_id ORDER BY A.day_id";
+						$day_res = $this->db->query($sqldays);
+						
+						if($day_res->num_rows()==0){
+							 $day_result = array("status" => "error", "msg" => "TimeTable days not found");
+
+						}else{
+							 $day_result = array("status" => "success", "msg" => "TimeTable Days","data"=> $day_res->result());
+						}
+
+						$timetable_query = "SELECT
+									tt.table_id,
+									tt.class_id,
+									c.class_name,
+									ss.sec_name,
+									tt.subject_id,
+									tt.teacher_id,
+									tt.day_id,
+									tt.period,
+									t.name,
+									s.subject_name,
+									tt.from_time,
+									tt.to_time,
+									tt.is_break
+								FROM
+									edu_timetable AS tt
+								LEFT JOIN edu_subject AS s
+								ON
+									tt.subject_id = s.subject_id
+								LEFT JOIN edu_teachers AS t
+								ON
+									tt.teacher_id = t.teacher_id
+								INNER JOIN edu_classmaster AS cm
+								ON
+									tt.class_id = cm.class_sec_id
+								INNER JOIN edu_class AS c
+								ON
+									cm.class = c.class_id
+								INNER JOIN edu_sections AS ss
+								ON
+									cm.section = ss.sec_id
+								WHERE
+									tt.teacher_id = '$teacher_id' AND tt.year_id = '$year_id' AND tt.term_id = '$term_id'
+								ORDER BY
+									tt.day_id,
+									tt.period";
 						$timetable_res = $this->db->query($timetable_query);
 
 						 if($timetable_res->num_rows()==0){
@@ -294,9 +340,7 @@ class Apimainmodel extends CI_Model {
 
 						 if($stud_res->num_rows()==0){
 							 $stud_result = array("status" => "error", "msg" => "Student not found");
-
 						}else{
-
 							 $stud_result = array("status" => "success", "msg" => "Student found","data"=>$stud_result= $stud_res->result());
 						}
 
@@ -356,9 +400,7 @@ class Apimainmodel extends CI_Model {
 
 						 if($exam_res->num_rows()==0){
 							 $exam_result = array("status" => "error", "msg" => "Exams not found");
-
 						}else{
-
 							 $exam_result = array("status" => "success", "msg" => "Exams found","data"=>$exam_result= $exam_res->result());
 						}
 
@@ -371,9 +413,7 @@ class Apimainmodel extends CI_Model {
 
 						 if($examdetail_res->num_rows()==0){
 							 $examdetail_result = array("status" => "error", "msg" => "Exams not found");
-
 						}else{
-
 							 $examdetail_result = array("status" => "success", "msg" => "Exams found","data"=>$examdetail_result= $examdetail_res->result());
 						}
 
@@ -409,7 +449,7 @@ class Apimainmodel extends CI_Model {
 
                           $academic_marks=array("internals"=>$internal_marks,"externals"=>$external_marks);
 
-						$response = array("status" => "loggedIn", "msg" => "User loggedIn successfully", "userData" => $userData,"teacherProfile" =>$teacher_profile,"classSubject"=>$class_sub_result,"timeTable"=>$timetable_result,"studDetails"=>$stud_result,"Exams"=>$exam_result,"examDetails"=>$examdetail_result,"homeWork"=>$hw_result,"Reminders"=>$reminder_result, "year_id" => $year_id, "academic_month" => $month,"academic_marks"=>$academic_marks);
+						$response = array("status" => "loggedIn", "msg" => "User loggedIn successfully", "userData" => $userData,"teacherProfile" =>$teacher_profile,"classSubject"=>$class_sub_result,"timeTabledays"=>$day_result,"timeTable"=>$timetable_result,"studDetails"=>$stud_result,"Exams"=>$exam_result,"examDetails"=>$examdetail_result,"homeWork"=>$hw_result,"Reminders"=>$reminder_result, "year_id" => $year_id, "academic_month" => $month,"academic_marks"=>$academic_marks);
 						return $response;
 				  }
 				  else if ($user_type==3) {
@@ -1032,7 +1072,7 @@ class Apimainmodel extends CI_Model {
 //#################### View Groups End ####################//
 
 //#################### Send Group Message ####################//
-	public function sendGroupmessageold ($group_title_id,$message_type,$message_details,$created_by)
+/*	public function sendGroupmessageold ($group_title_id,$message_type,$message_details,$created_by)
 	{
 			$year_id = $this->getYear();
 
@@ -1276,7 +1316,7 @@ class Apimainmodel extends CI_Model {
 			}
 
 			return $response;
-	}
+	}*/
 //#################### Group Message End ####################//
 
 //#################### Send Group Message ####################//
@@ -1306,22 +1346,7 @@ class Apimainmodel extends CI_Model {
 
 
                 if($messagetype_sms != 0){
-/*
-					//$number1='9789108819,9865905230,9942297930';
-					$number1='9840111100,9841401896,9841401877,9444008809,9841322331,9444124618,9841460166,98940159304,9840091224,9841460161,9841401855';
-					$textmsg = urlencode($message_details);
-					$smsGatewayUrl = 'http://173.45.76.227/send.aspx?';
-					$api_element = 'username=kvmhss&pass=kvmhss123&route=trans1&senderid=KVMHSS';
-					$api_params = $api_element.'&numbers='.$number1.'&message='.$textmsg;
-					$smsgatewaydata = $smsGatewayUrl.$api_params;
-					$url1 = $smsgatewaydata;
-					$ch = curl_init();
-					curl_setopt($ch, CURLOPT_POST, false);
-					curl_setopt($ch, CURLOPT_URL, $url1);
-					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-					$output = curl_exec($ch);
-					curl_close($ch);
-*/
+
                     $mobile_query = "SELECT egm.group_member_id, ep.mobile FROM edu_grouping_members AS egm LEFT JOIN edu_users AS eu ON eu.user_id = egm.group_member_id LEFT JOIN edu_admission AS ea ON ea.admission_id = eu.user_master_id LEFT JOIN edu_parents AS ep ON FIND_IN_SET( ea.admission_id,ep.admission_id)WHERE egm.group_title_id = '$group_title_id' AND ep.primary_flag = 'Yes'";
                 	$mobile_res = $this->db->query($mobile_query);
                     $mobile_result = $mobile_res->result();
@@ -1389,6 +1414,9 @@ class Apimainmodel extends CI_Model {
 			return $response;
 	}
 //#################### Group Message End ####################//
+
+
+
 
 //#################### View Group Messages ####################//
 	public function dispGroupmessage ($user_type,$user_id)
@@ -1525,6 +1553,54 @@ class Apimainmodel extends CI_Model {
 			return $response;		
 	}
 //#################### Leaves End ####################//
+
+	//#################### Timetable days ####################//
+
+	public function dispTimetable_days($class_id)
+	{
+	    $year_id = $this->getYear();
+		$term_id = $this->getTerm();
+		
+		$sqldays = "SELECT A.day_id, B.list_day FROM `edu_timetable` A, `edu_days` B WHERE A.day_id = B.d_id AND A.class_id = '$class_id' AND A.year_id = '$year_id' AND A.term_id = '$term_id' GROUP BY day_id ORDER BY A.day_id";
+		
+			$day_res = $this->db->query($sqldays);
+			$day_result= $day_res->result();
+			$day_count = $day_res->num_rows();
+
+		if($day_count>0)
+		{
+			 $response = array("status" => "success", "msg" => "Timetable Days", "timetableDays"=>$day_result);
+		} else {
+			$response = array("status" => "error", "msg" => "No Records Found");
+		}
+		return $response;
+	}
+
+	//#################### Timetable days End ####################//
+	
+	//#################### Timetable ####################//
+
+	public function dispTimetable($class_id,$day_id)
+	{
+	    $year_id = $this->getYear();
+		$term_id = $this->getTerm();
+		
+		$sqltimetable = "SELECT A.class_id, A.day_id, A.period, B.subject_name, C.name, A.from_time, A.to_time, A.is_break FROM edu_timetable AS A LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id LEFT JOIN edu_subject AS B ON A.subject_id = B.subject_id WHERE A.year_id = '$year_id' AND A.term_id = '$term_id' AND A.class_id = '$class_id' AND A.DAY = '$day_id' ORDER BY A.period";
+		
+			$timetable_res = $this->db->query($sqltimetable);
+			$timetable_result= $timetable_res->result();
+			$timetable_count = $timetable_res->num_rows();
+
+		if($timetable_count>0)
+		{
+			 $response = array("status" => "success", "msg" => "Timetable Days", "timeTable"=>$timetable_result);
+		} else {
+			$response = array("status" => "error", "msg" => "No Records Found");
+		}
+		return $response;
+	}
+
+	//#################### Timetable End ####################//	  
 }
 
 ?>

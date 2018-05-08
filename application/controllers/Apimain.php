@@ -743,4 +743,72 @@ class Apimain extends CI_Controller {
 	}
 
 //-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function disp_timetabledays()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "Attendence Days";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+
+		$class_id = '';
+		$class_id = $this->input->post("class_id");
+
+
+		$data['result']=$this->apimainmodel->dispTimetable_days($class_id);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function disp_timetable()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "Attendence Display";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+
+		$class_id = '';
+		$day_id = '';
+		$class_id = $this->input->post("class_id");
+		$day_id = $this->input->post("day_id");
+
+		$data['result']=$this->apimainmodel->dispTimetable($class_id,$day_id);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
 }

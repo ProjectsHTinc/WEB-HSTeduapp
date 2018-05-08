@@ -936,4 +936,703 @@ class Apiadmin extends CI_Controller {
     	echo json_encode($response);
     }
 
+
+//-----------------------------------------------//
+/*
+	public function disp_timetabledays()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "Attendence Days";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+
+		$class_id = '';
+		$class_id = $this->input->post("class_id");
+
+
+		$data['result']=$this->apiadminmodel->dispTimetable_days($class_id);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function disp_timetable()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "Attendence Display";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+
+		$class_id = '';
+		$day_id = '';
+		$class_id = $this->input->post("class_id");
+		$day_id = $this->input->post("day_id");
+
+		$data['result']=$this->apiadminmodel->dispTimetable($class_id,$day_id);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+*/
+//-----------------------------------------------//
+
+	public function add_timetableremarks()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "Timetable Review";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+
+		$review_id = '';
+		$remarks = '';
+		$review_id = $this->input->post("review_id");
+		$remarks = $this->input->post("remarks");
+
+		$data['result']=$this->apiadminmodel->addTimetableremarks($review_id,$remarks);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+
+
+//-----------------------------------------------//
+
+	public function add_groupmaster()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "Create Group Master";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+		
+		$user_id = '';
+		$group_title = '';
+		$group_lead = '';
+		$status = '';
+		$user_id = $this->input->post("user_id");
+		$group_title = $this->input->post("group_title");
+		$group_lead = $this->input->post("group_lead");
+		$status = $this->input->post("status");
+
+		$data['result']=$this->apiadminmodel->addGroupmaster($user_id,$group_title,$group_lead,$status);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function list_groupmaster()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "List Group Master";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+		
+		$user_id = '';
+		$user_id = $this->input->post("user_id");
+
+		$data['result']=$this->apiadminmodel->listGroupmaster($user_id);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function view_groupmaster()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "View Group Master";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+		
+		$group_id = '';
+		$group_id = $this->input->post("group_id");
+
+		$data['result']=$this->apiadminmodel->viewGroupmaster($group_id);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function update_groupmaster()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "Update Group Master";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+		
+		$user_id = '';
+		$group_id = '';
+		$group_title = '';
+		$group_lead = '';
+		$status = '';
+		$user_id = $this->input->post("user_id");
+		$group_id = $this->input->post("group_id");
+		$group_title = $this->input->post("group_title");
+		$group_lead = $this->input->post("group_lead");
+		$status = $this->input->post("status");
+
+		$data['result']=$this->apiadminmodel->updateGroupmaster($user_id,$group_id,$group_title,$group_lead,$status);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function get_allteachersuserid()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "All Techers with User id";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+		
+		$user_id = '';
+		$user_id = $this->input->post("user_id");
+
+		$data['result']=$this->apiadminmodel->getAllteachersuserid($user_id);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function get_allstaffsuserid()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "All Staffs with User id";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+		
+		$user_id = '';
+		$user_id = $this->input->post("user_id");
+
+		$data['result']=$this->apiadminmodel->getAllstaffsuserid($user_id);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function get_allstudentuserid()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "All Staffs with User id";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+		
+		$class_id = '';
+		$class_id = $this->input->post("class_id");
+
+		$data['result']=$this->apiadminmodel->getAllstudentuserid($class_id);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function gn_stafflist()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "All Staffs with User id";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+		
+		$group_id = '';
+		$group_user_type = '';
+		$group_id = $this->input->post("group_id");
+		$group_user_type = $this->input->post("group_user_type");
+
+		$data['result']=$this->apiadminmodel->gnStafflist($group_id,$group_user_type);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function gn_studentlist()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "All Student with User id";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+		
+		$group_id = '';
+		$group_user_type = '';
+		$class_id = '';
+		$group_id = $this->input->post("group_id");
+		$group_user_type = $this->input->post("group_user_type");
+		$class_id = $this->input->post("class_id");
+
+		$data['result']=$this->apiadminmodel->gnStudentlist($group_id,$group_user_type,$class_id);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function add_gn_members()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "Add Members for Group Notification";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+		
+		$user_id = '';
+		$group_id = '';
+		$group_member_id = '';
+		$group_user_type = '';
+		$status = '';
+		$user_id = $this->input->post("user_id");
+		$group_id = $this->input->post("group_id");
+		$group_member_id = $this->input->post("group_member_id");
+		$group_user_type = $this->input->post("group_user_type");
+		$status = $this->input->post("status");
+
+		$data['result']=$this->apiadminmodel->addgnMembers($user_id,$group_id,$group_member_id,$group_user_type,$status);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function list_gn_members()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "List Members for Group Notification";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+		
+		$group_id = '';
+		$group_id = $this->input->post("group_id");
+
+		$data['result']=$this->apiadminmodel->listgnMembers($group_id);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+	public function group_msg_send()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "Send Group Message";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+		$user_id = '';
+		$group_id = '';
+		$notes = '';
+		$circular_type = '';
+		$user_id = $this->input->post("user_id");
+		$group_id = $this->input->post("group_id");
+		$notes = $this->input->post("notes");
+		$circular_type = array($this->input->post('circular_type'));
+
+
+			 $cir = implode(',',$circular_type);
+			 $cir_cnt = count($circular_type);
+
+				if($cir_cnt == '1'){
+				 	$ct1 = $circular_type[0];
+				 }
+				 if($cir_cnt == '2'){
+					 $ct1 = $circular_type[0];
+					 $ct2 = $circular_type[1];
+				 }
+				 if($cir_cnt == '3'){
+					 $ct0 = $circular_type[0];
+					 $ct1 = $circular_type[1];
+					 $ct2 = $circular_type[2];
+				}
+				
+					
+			if($cir_cnt==3)	{
+				$data = $this->apiadminmodel->gn_send_mail($group_id,$notes,$user_id);
+				$data = $this->apiadminmodel->gn_send_message($group_id,$notes,$user_id);
+				$data = $this->apiadminmodel->gn_send_notification($group_id,$notes,$user_id);
+			 }
+				 
+			 if($cir_cnt==2)  {
+		 		  	$ct1=$circular_type[0];
+		 	    	$ct2=$circular_type[1];
+
+		 		  if($ct1=='SMS' && $ct2=='Mail')
+		 		  {
+					 $data = $this->apiadminmodel->gn_send_mail($group_id,$notes,$user_id);
+ 					 $data = $this->apiadminmodel->gn_send_message($group_id,$notes,$user_id);
+		 		  }
+		 		  if($ct1=='SMS' && $ct2=='Notification')
+		 		  {
+					 $data = $this->apiadminmodel->gn_send_message($group_id,$notes,$user_id);
+ 					 $data = $this->apiadminmodel->gn_send_notification($group_id,$notes,$user_id);
+		 		  }
+		 		  if($ct1=='Mail' && $ct2=='Notification')
+		 		  {
+ 					 $data = $this->apiadminmodel->gn_send_mail($group_id,$notes,$user_id);
+ 					 $data = $this->apiadminmodel->gn_send_notification($group_id,$notes,$user_id);
+		 		  }
+
+		 	  }
+			 if($cir_cnt==1) {
+				  $ct=$circular_type[0];
+				  if($ct=='SMS')
+				  {
+						$data = $this->apiadminmodel->gn_send_message($group_id,$notes,$user_id);
+				  }
+				  if($ct=='Notification')
+				  {
+						 $data = $this->apiadminmodel->gn_send_notification($group_id,$notes,$user_id);
+				  }
+				  if($ct=='Mail')
+				  {
+						$data = $this->apiadminmodel->gn_send_mail($group_id,$notes,$user_id);
+				  }
+			  }
+				$data['result']= $this->apiadminmodel->save_group_history($group_id,$cir,$notes,$user_id);
+				$response = $data['result'];
+				echo json_encode($response);
+	}
+	//-----------------------------------------------//
+	
+	//-----------------------------------------------//
+
+	public function add_circular()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		$user_id = $this->input->post("user_id");
+		$circular_title = $this->input->post("circular_title");
+		$circular_description = $this->input->post("circular_description");
+		$status  = $this->input->post("status ");
+		
+		$profile = $_FILES["circular_doc"]["name"];
+		$userFileName = time().'-'.$profile;
+		$uploadPicdir = 'assets/circular/';
+		$profilepic = $uploadPicdir.$userFileName;
+		move_uploaded_file($_FILES['circular_doc']['tmp_name'], $profilepic);
+		
+		$data['result']=$this->apiadminmodel->addCircular($user_id,$circular_title,$circular_description,$userFileName,$status);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function list_circular()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "List Circular";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+		
+		$user_id = '';
+		$user_id = $this->input->post("user_id");
+
+		$data['result']=$this->apiadminmodel->listCircular($user_id);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function view_circular()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "View Circular";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+		
+		$circular_id = '';
+		$circular_id = $this->input->post("circular_id");
+
+		$data['result']=$this->apiadminmodel->viewCircular($circular_id);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function update_circular()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+		
+		$user_id = $this->input->post("user_id");
+		$circular_id = $this->input->post("circular_id");
+		$circular_title = $this->input->post("circular_title");
+		$circular_description = $this->input->post("circular_description");
+		$status  = $this->input->post("status");
+		
+		
+		if(empty($_FILES["circular_doc"]["name"])){
+			$userFileName="";
+		}else{
+			$profile = $_FILES["circular_doc"]["name"];
+			$userFileName = time().'-'.$profile;
+			$uploadPicdir = 'assets/circular/';
+			$profilepic = $uploadPicdir.$userFileName;
+			move_uploaded_file($_FILES['circular_doc']['tmp_name'], $profilepic);
+		}
+		$data['result']=$this->apiadminmodel->updateCircular($user_id,$circular_id,$circular_title,$circular_description,$userFileName,$status);
+	
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+
+
 }

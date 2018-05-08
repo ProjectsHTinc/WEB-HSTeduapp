@@ -536,7 +536,7 @@ class Apiteacher extends CI_Controller {
 
 	public function disp_Timetablereview()
 	{
-		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
 
 		if(!$this->checkMethod())
 		{
@@ -711,7 +711,7 @@ class Apiteacher extends CI_Controller {
 
 	public function view_Examduty()
 	{
-		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
 
 		if(!$this->checkMethod())
 		{

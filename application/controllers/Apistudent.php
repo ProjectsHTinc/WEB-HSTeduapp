@@ -76,6 +76,39 @@ class Apistudent extends CI_Controller {
 
 //-----------------------------------------------//
 
+/*
+//-----------------------------------------------//
+
+	public function disp_Timetabledays()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "Timetable Day View";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+
+		$class_id= '';
+		$class_id = $this->input->post("class_id");
+
+		$data['result']=$this->apistudentmodel->dispTimetabledays($class_id);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
 //-----------------------------------------------//
 
 	public function disp_Timetable()
@@ -105,7 +138,7 @@ class Apistudent extends CI_Controller {
 		$response = $data['result'];
 		echo json_encode($response);
 	}
-
+*/
 //-----------------------------------------------//
 
 	public function disp_Exams()

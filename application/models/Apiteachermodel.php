@@ -466,7 +466,42 @@ class Apiteachermodel extends CI_Model {
 			$year_id = $this->getYear();
 			$term_id = $this->getTerm();
 			
-	    	$timetable_query = "SELECT tt.table_id,tt.class_id,tt.subject_id,s.subject_name,tt.teacher_id,t.name,tt.day,tt.period,ss.sec_name,c.class_name FROM edu_timetable AS tt LEFT JOIN edu_subject AS s ON tt.subject_id=s.subject_id LEFT JOIN edu_teachers AS t ON tt.teacher_id=t.teacher_id INNER JOIN edu_classmaster AS cm ON tt.class_id=cm.class_sec_id INNER JOIN edu_class AS c ON cm.class=c.class_id INNER JOIN edu_sections AS ss ON cm.section=ss.sec_id WHERE tt.teacher_id ='$teacher_id' AND tt.year_id='$year_id' AND tt.term_id='$term_id' ORDER BY tt.day, tt.period";
+	    	$timetable_query = "SELECT
+									tt.table_id,
+									tt.class_id,
+									c.class_name,
+									ss.sec_name,
+									tt.subject_id,
+									tt.teacher_id,
+									tt.day_id,
+									tt.period,
+									t.name,
+									s.subject_name,
+									tt.from_time,
+									tt.to_time,
+									tt.is_break
+								FROM
+									edu_timetable AS tt
+								LEFT JOIN edu_subject AS s
+								ON
+									tt.subject_id = s.subject_id
+								LEFT JOIN edu_teachers AS t
+								ON
+									tt.teacher_id = t.teacher_id
+								INNER JOIN edu_classmaster AS cm
+								ON
+									tt.class_id = cm.class_sec_id
+								INNER JOIN edu_class AS c
+								ON
+									cm.class = c.class_id
+								INNER JOIN edu_sections AS ss
+								ON
+									cm.section = ss.sec_id
+								WHERE
+									tt.teacher_id = '$teacher_id' AND tt.year_id = '$year_id' AND tt.term_id = '$term_id'
+								ORDER BY
+									tt.day_id,
+									tt.period";
 			$timetable_res = $this->db->query($timetable_query);
 			$timetable_result= $timetable_res->result();
 
@@ -597,6 +632,7 @@ class Apiteachermodel extends CI_Model {
     		}
 		
 			 $review_query = "SELECT
+			 			A.timetable_id AS review_id,
                         A.time_date,
                         DAYNAME(A.time_date) AS day,
                         A.class_id,

@@ -8,20 +8,162 @@ class Apiadminmodel extends CI_Model {
     }
 
 
-//#################### Current Year ####################//
+//#################### Email ####################//
 
-	public function sendMail($to,$subject,$htmlContent)
+	public function sendMail($email,$subject,$email_message)
 	{
 		// Set content-type header for sending HTML email
 		$headers = "MIME-Version: 1.0" . "\r\n";
 		$headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
 		// Additional headers
-		$headers .= 'From: happysanz<info@happysanz.com>' . "\r\n";
-		mail($to,$subject,$htmlContent,$headers);
+		$headers .= 'From: Webmaster<hello@happysanz.com>' . "\r\n";
+		mail($email,$subject,$email_message,$headers);
 	}
 
+//#################### Email End ####################//
 
-//#################### Login ####################//
+
+//#################### SMS ####################//
+
+	public function sendSMS($Phoneno,$Message)
+	{
+        //Your authentication key
+        $authKey = "191431AStibz285a4f14b4";
+        
+        //Multiple mobiles numbers separated by comma
+        $mobileNumber = "$Phoneno";
+        
+        //Sender ID,While using route4 sender id should be 6 characters long.
+        $senderId = "EDUAPP";
+        
+        //Your message to send, Add URL encoding here.
+        $message = urlencode($Message);
+        
+        //Define route 
+        $route = "transactional";
+        
+        //Prepare you post parameters
+        $postData = array(
+            'authkey' => $authKey,
+            'mobiles' => $mobileNumber,
+            'message' => $message,
+            'sender' => $senderId,
+            'route' => $route
+        );
+        
+        //API URL
+        $url="https://control.msg91.com/api/sendhttp.php";
+        
+        // init the resource
+        $ch = curl_init();
+        curl_setopt_array($ch, array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $postData
+            //,CURLOPT_FOLLOWLOCATION => true
+        ));
+        
+        
+        //Ignore SSL certificate verification
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        
+        
+        //get response
+        $output = curl_exec($ch);
+        
+        //Print error if any
+        if(curl_errno($ch))
+        {
+            echo 'error:' . curl_error($ch);
+        }
+        
+        curl_close($ch);
+	}
+
+//#################### SMS End ####################//
+
+
+
+
+
+//#################### Notification ####################//
+
+	public function sendNotification($gcm_key,$title,$message,$mobiletype)
+	{
+	    echo $gcm_key;
+		if ($mobiletype =='1'){
+
+		    require_once 'assets/notification/Firebase.php';
+            require_once 'assets/notification/Push.php'; 
+            
+            $device_token = explode(",", $gcm_key);
+            $push = null; 
+        
+        //first check if the push has an image with it
+		    $push = new Push(
+					$title,
+					$message,
+					null
+				);
+
+// 			//if the push don't have an image give null in place of image
+// 			 $push = new Push(
+// 			 		'HEYLA',
+// 		     		'Hi Testing from maran',
+// 			 		'http://heylaapp.com/assets/notification/images/event.png'
+// 			 	);
+
+    		//getting the push from push object
+    		$mPushNotification = $push->getPush(); 
+    
+    		//creating firebase class object 
+    		$firebase = new Firebase(); 
+
+    	foreach($device_token as $token) {
+    		 $firebase->send(array($token),$mPushNotification);
+    	}
+
+		} else {
+            
+			$device_token = explode(",", $gcm_key);
+			$passphrase = 'hs123';
+		    $loction ='assets/notification/happysanz.pem';
+		   
+			$ctx = stream_context_create();
+			stream_context_set_option($ctx, 'ssl', 'local_cert', $loction);
+			stream_context_set_option($ctx, 'ssl', 'passphrase', $passphrase);
+			
+			// Open a connection to the APNS server
+			$fp = stream_socket_client('ssl://gateway.sandbox.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT, $ctx);
+			
+			if (!$fp)
+				exit("Failed to connect: $err $errstr" . PHP_EOL);
+
+			$body['aps'] = array(
+				'alert' => array(
+					'body' => $message,
+					'action-loc-key' => 'EDU App',
+				),
+				'badge' => 2,
+				'sound' => 'assets/notification/oven.caf',
+				);
+			$payload = json_encode($body);
+
+			foreach($device_token as $token) {
+			
+				// Build the binary notification
+    			$msg = chr(0) . pack("n", 32) . pack("H*", str_replace(" ", "", $token)) . pack("n", strlen($payload)) . $payload;
+        		$result = fwrite($fp, $msg, strlen($msg));
+			}
+							
+				fclose($fp);
+		}
+		
+	}
+
+//#################### Notification End ####################//
 
 
 //#################### Current Year ####################//
@@ -640,7 +782,7 @@ WHERE eths.class_master_id='$class_master_id' AND eths.status='Active' order by 
               $classid=$rows->class_sec_id;
               $year_id=$this->getYear();
               $term_id = $this->getTerm();
-              $query="SELECT tt.table_id,tt.class_id,tt.subject_id,COALESCE(s.subject_name,' ') AS subject_name,tt.teacher_id,COALESCE(t.name,' ') AS teacher_name,tt.day,COALESCE(ed.list_day,' ') AS w_days,tt.period FROM edu_timetable AS tt LEFT JOIN edu_subject AS s ON tt.subject_id=s.subject_id LEFT JOIN edu_teachers AS t ON tt.teacher_id=t.teacher_id LEFT JOIN edu_days AS ed  ON tt.day=ed.d_id WHERE tt.class_id='$classid' AND tt.year_id='$year_id' AND tt.term_id='$term_id' ORDER BY tt.table_id ASC";
+              $query="SELECT tt.table_id,tt.class_id,tt.subject_id,COALESCE(s.subject_name,' ') AS subject_name,tt.teacher_id,COALESCE(t.name,' ') AS teacher_name,tt.day_id,COALESCE(ed.list_day,' ') AS w_days,tt.period FROM edu_timetable AS tt LEFT JOIN edu_subject AS s ON tt.subject_id=s.subject_id LEFT JOIN edu_teachers AS t ON tt.teacher_id=t.teacher_id LEFT JOIN edu_days AS ed  ON tt.day_id=ed.d_id WHERE tt.class_id='$classid' AND tt.year_id='$year_id' AND tt.term_id='$term_id' ORDER BY tt.table_id ASC";
               $result_query=$this->db->query($query);
               if($result_query->num_rows()==0){
                   $data=array("status"=>"error","msg"=>"nodata");
@@ -860,6 +1002,607 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
               return $data;
             }
           }
+		  
+/*		  
+	//#################### Timetable days ####################//
+
+	public function dispTimetable_days($class_id)
+	{
+	    $year_id = $this->getYear();
+		$term_id = $this->getTerm();
+		
+		$sqldays = "SELECT A.day, B.list_day FROM `edu_timetable` A, `edu_days` B WHERE A.day = B.d_id AND A.class_id = '$class_id' AND A.year_id = '$year_id' AND A.term_id = '$term_id' GROUP BY DAY ORDER BY A.day";
+		
+			$day_res = $this->db->query($sqldays);
+			$day_result= $day_res->result();
+			$day_count = $day_res->num_rows();
+
+		if($day_count>0)
+		{
+			 $response = array("status" => "success", "msg" => "Timetable Days", "timetableDays"=>$day_result);
+		} else {
+			$response = array("status" => "error", "msg" => "No Records Found");
+		}
+		return $response;
+	}
+
+	//#################### Timetable days End ####################//
+	
+	//#################### Timetable ####################//
+
+	public function dispTimetable($class_id,$day_id)
+	{
+	    $year_id = $this->getYear();
+		$term_id = $this->getTerm();
+		
+		$sqltimetable = "SELECT A.class_id, A.day, A.period, B.subject_name, C.name, A.from_time, A.to_time, A.is_break FROM edu_timetable AS A LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id LEFT JOIN edu_subject AS B ON A.subject_id = B.subject_id WHERE A.year_id = '$year_id' AND A.term_id = '$term_id' AND A.class_id = '$class_id' AND A.DAY = '$day_id' ORDER BY A.period";
+		
+			$timetable_res = $this->db->query($sqltimetable);
+			$timetable_result= $timetable_res->result();
+			$timetable_count = $timetable_res->num_rows();
+
+		if($timetable_count>0)
+		{
+			 $response = array("status" => "success", "msg" => "Timetable Days", "timeTable"=>$timetable_result);
+		} else {
+			$response = array("status" => "error", "msg" => "No Records Found");
+		}
+		return $response;
+	}
+
+	//#################### Timetable End ####################//	  
+*/
+	
+	//#################### Timetable Review ####################//
+
+	public function addTimetableremarks($review_id,$remarks)
+	{
+	    	$year_id = $this->getYear();
+		
+			$review_update_query = "UPDATE edu_timetable_review SET remarks ='$remarks' WHERE timetable_id ='$review_id'";
+			$review_update_res = $this->db->query($review_update_query);
+
+			if($review_update_res) {
+			    $response = array("status" => "success", "msg" => "Review Updated");
+			} else {
+			    $response = array("status" => "error");
+			}
+			
+		return $response;
+	}
+	//#################### Timetable Review End ####################//	 
+	
+
+	
+	//#################### Group Master Add ####################//
+
+	public function addGroupmaster($user_id,$group_title,$group_lead,$status)
+	{
+	    	$year_id = $this->getYear();
+		
+			$sqlgroup = "SELECT * FROM edu_grouping_master WHERE group_title = '$group_title'";
+			$group_res = $this->db->query($sqlgroup);
+			$group_count = $group_res->num_rows();
+
+			if($group_count>0)
+			{
+				 $response = array("status" => "error", "msg" => "Group Already Exist");
+			} else {
+				$sql="INSERT INTO edu_grouping_master(group_title,group_lead_id,year_id,status,created_by,created_at) VALUES ('$group_title','$group_lead','$year_id','$status','$user_id',NOW())";
+             $resultset=$this->db->query($sql);
+			 $response = array("status" => "success", "msg" => "Group Master Added");
+			}
+			return $response;
+
+	}
+	//#################### Group Master End ####################//	
+
+
+	//#################### Group Master List ####################//
+
+	public function listGroupmaster($user_id)
+	{
+	    	$year_id = $this->getYear();
+		
+			$sqlgroup = "SELECT * FROM edu_grouping_master ORDER BY id";
+			$group_res = $this->db->query($sqlgroup);
+			$group_result= $group_res->result();
+			$group_count = $group_res->num_rows();
+		
+			if($group_count>0)
+			{
+				$response = array("status" => "success", "msg" => "Group List", "groupList"=>$group_result);
+			} else {
+				$response = array("status" => "error", "msg" => "No Records Found");
+			}
+			return $response;
+
+	}
+	//#################### Group Master End ####################//
+	
+	//#################### Group Master List ####################//
+
+	public function viewGroupmaster($group_id)
+	{
+	    	$year_id = $this->getYear();
+		
+			$sqlgroup = "SELECT * FROM edu_grouping_master WHERE id='$group_id'";
+			$group_res = $this->db->query($sqlgroup);
+			$group_result= $group_res->result();
+			$group_count = $group_res->num_rows();
+		
+			if($group_count>0)
+			{
+				$response = array("status" => "success", "msg" => "Group List View", "groupView"=>$group_result);
+			} else {
+				$response = array("status" => "error", "msg" => "No Records Found");
+			}
+			return $response;
+
+	}
+	//#################### Group Master End ####################//
+	
+	//#################### Group Master Update ####################//
+
+	public function updateGroupmaster($user_id,$group_id,$group_title,$group_lead,$status)
+	{
+	    	$year_id = $this->getYear();
+		
+			$sqlgroup = "SELECT * FROM edu_grouping_master WHERE group_title='$group_title' and group_lead_id='$group_lead' and status='$status'";
+			$group_res = $this->db->query($sqlgroup);
+			$group_count = $group_res->num_rows();
+
+			if($group_count>0)
+			{
+				 $response = array("status" => "error", "msg" => "Group Already Exist");
+			} else {
+				$sql="UPDATE  edu_grouping_master SET group_title='$group_title',group_lead_id='$group_lead',status='$status',updated_by='$user_id',updated_at=NOW() where id='$group_id'";
+             $resultset=$this->db->query($sql);
+			 $response = array("status" => "success", "msg" => "Group Master Updated");
+			}
+			return $response;
+
+	}
+	//#################### Group Master End ####################//	
+	
+	//#################### All Techers with User Id ####################//
+
+	public function getAllteachersuserid($user_id)
+	{
+	    	$year_id = $this->getYear();
+		
+			$sqlteacher = "SELECT user_id,name FROM `edu_users` WHERE user_type ='2' AND status = 'Active' ORDER BY `edu_users`.`name` ASC ";
+			$teacher_res = $this->db->query($sqlteacher);
+			$teacher_result= $teacher_res->result();
+			$teacher_count = $teacher_res->num_rows();
+
+			if($teacher_count>0)
+			{
+				 $response = array("status" => "success", "msg" => "Teacher Details", "teacherList"=>$teacher_result);
+			} else {
+				$response = array("status" => "error", "msg" => "No Records Found");
+			}
+			return $response;
+
+	}
+	//####################  All Techers with User Id End ####################//	
+	
+	//#################### All Staff with User Id ####################//
+
+	public function getAllstaffsuserid($user_id)
+	{
+	    	$year_id = $this->getYear();
+		
+			$sqlstaff = "SELECT user_id,name FROM `edu_users` WHERE user_type ='5' AND status = 'Active' ORDER BY `edu_users`.`name` ASC ";
+			$staff_res = $this->db->query($sqlstaff);
+			$staff_result= $staff_res->result();
+			$staff_count = $staff_res->num_rows();
+
+			if($staff_count>0)
+			{
+				 $response = array("status" => "success", "msg" => "Teacher Details", "staffList"=>$staff_result);
+			} else {
+				$response = array("status" => "error", "msg" => "No Records Found");
+			}
+			return $response;
+
+	}
+	//####################  All Staff with User Id End ####################//	
+	
+	//#################### All Students with User Id ####################//
+
+	public function getAllstudentuserid($class_id)
+	{
+	    	$year_id = $this->getYear();
+		
+			$sqlstud = "SELECT eu.user_id,ee.name,ee.enroll_id FROM edu_users AS eu LEFT JOIN edu_admission AS ea ON eu.user_master_id=ea.admission_id AND eu.user_type='3' LEFT JOIN edu_enrollment AS ee ON ee.admission_id=ea.admission_id WHERE  ee.class_id='$class_id' AND ee.admit_year='$year_id' AND ee.status='Active'";
+			$stud_res = $this->db->query($sqlstud);
+			$stud_result= $stud_res->result();
+			$stud_count = $stud_res->num_rows();
+
+			if($stud_count>0)
+			{
+				 $response = array("status" => "success", "msg" => "Teacher Details", "studentList"=>$stud_result);
+			} else {
+				$response = array("status" => "error", "msg" => "No Records Found");
+			}
+			return $response;
+
+	}
+	//####################  All Students with User Id End ####################//	
+	
+	
+	//#################### All Staff Details for GN ####################//
+
+	public function gnStafflist($group_id,$group_user_type)
+	{
+	    	$year_id = $this->getYear();
+		
+			$sqlstaff = "SELECT ex.user_id,ex.name,
+						CASE WHEN ems.group_member_id !='' THEN 1 ELSE 0 END AS Status
+						FROM edu_users ex
+						LEFT JOIN edu_grouping_members ems ON ems.group_member_id = ex.user_id
+						WHERE ex.user_type ='$group_user_type' and ems.group_title_id = '$group_id'
+						GROUP by ex.user_id
+						
+						UNION ALL
+						
+						SELECT ex.user_id,ex.name,
+						CASE WHEN ems.group_member_id !='' THEN 1 ELSE 0 END AS Status
+						FROM edu_users ex
+						LEFT JOIN edu_grouping_members ems ON ems.group_member_id = ex.user_id and ems.group_title_id = '$group_id'
+						WHERE ex.user_type ='$group_user_type' and ex.user_id not in (SELECT ex.user_id
+						FROM edu_users ex
+						LEFT JOIN edu_grouping_members ems ON ems.group_member_id = ex.user_id
+						WHERE ex.user_type ='$group_user_type' and ems.group_title_id = '$group_id')
+						GROUP by ex.user_id";
+			$staff_res = $this->db->query($sqlstaff);
+			$staff_result= $staff_res->result();
+			$staff_count = $staff_res->num_rows();
+
+			if($staff_count>0)
+			{
+				$response = array("status" => "sucess", "msg" => "Records Found", "gnStafflist"=>$staff_result);
+			} else {
+				$response = array("status" => "error", "msg" => "No Records Found");
+			}
+			return $response;
+
+	}
+	//####################  All Staff Details for GN End ####################//
+		
+	
+	//#################### All Student Details for GN ####################//
+
+	public function gnStudentlist($group_id,$group_user_type,$class_id)
+	{
+	    	$year_id = $this->getYear();
+			$sqlstud = "SELECT ex.user_id, ex.name, 
+							CASE WHEN ems.group_member_id != '' THEN 1 ELSE 0 END AS Status 
+							FROM edu_users ex 
+							LEFT JOIN edu_grouping_members ems ON ems.group_member_id = ex.user_id 
+							LEFT JOIN edu_enrollment AS en ON en.admission_id = ex.user_master_id 
+							WHERE ex.user_type = '$group_user_type' AND ems.group_title_id = '$group_id' AND en.admit_year = '$year_id' AND en.class_id='$class_id' GROUP BY ex.user_id 
+							
+							UNION ALL 
+							
+							SELECT ex.user_id, ex.name, 
+							CASE WHEN ems.group_member_id != '' THEN 1 ELSE 0 END AS Status 
+							FROM edu_users ex 
+							LEFT JOIN edu_grouping_members ems ON ems.group_member_id = ex.user_id AND ems.group_title_id = '$group_id' 
+							LEFT JOIN edu_enrollment AS en ON en.admission_id = ex.user_master_id 
+							WHERE ex.user_type = '$group_user_type' AND en.admit_year = '$year_id' AND en.class_id='$class_id' AND ex.user_id 
+							NOT IN( SELECT ex.user_id FROM edu_users ex LEFT JOIN edu_grouping_members ems ON ems.group_member_id = ex.user_id LEFT JOIN edu_enrollment AS en ON en.admission_id = ex.user_master_id WHERE ex.user_type = '$group_user_type' AND ems.group_title_id = '$group_id' AND en.admit_year = '$year_id' AND en.class_id='$class_id' ) 
+							GROUP BY ex.user_id";
+			$stud_res = $this->db->query($sqlstud);
+			$stud_result= $stud_res->result();
+			$stud_count = $stud_res->num_rows();
+
+			if($stud_count>0)
+			{
+				$response = array("status" => "sucess", "msg" => "Records Found", "gnStudentlist"=>$stud_result);
+			} else {
+				$response = array("status" => "error", "msg" => "No Records Found");
+			}
+			return $response;
+
+	}
+	//####################  All Student Details for GN End ####################//
+	
+	
+	//#################### Group Notification Mail ####################//
+
+	public function gn_send_mail($group_id,$notes,$user_id)
+	{
+	    	$year_id = $this->getYear();
+
+			$sqlgroup = "SELECT * FROM `edu_grouping_members` WHERE group_title_id ='$group_id'";
+			$group_res = $this->db->query($sqlgroup);
+			$group_result= $group_res->result();
+			$group_count = $group_res->num_rows();
+			if($group_count>0)
+			{
+				foreach ($group_res->result() as $rows)
+				{
+			    	$member_type = $rows->member_type;
+					$user_id = $rows->group_member_id;
+					
+					if ($member_type =='2' || $member_type = '5'){
+						$sqlgroup = "SELECT * FROM edu_users AS A LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id WHERE a.user_id = '$user_id'";
+						$group_res = $this->db->query($sqlgroup);
+						$group_result= $group_res->result();
+						$group_count = $group_res->num_rows();
+							if($group_count>0) {
+								foreach ($group_res->result() as $rows)
+								{
+									$semail = $rows->email;
+									$subject = 'Group Notification';
+									$this->sendMail($semail,$subject,$notes);
+								}
+							}
+					}
+					
+					if ($member_type =='3'){
+						$sqlgroup = "SELECT egm.group_member_id,ep.email,ep.mobile FROM edu_grouping_members AS egm LEFT JOIN edu_users AS eu ON eu.user_id=egm.group_member_id LEFT JOIN edu_admission AS ea ON ea.admission_id=eu.user_master_id LEFT JOIN edu_parents AS ep ON FIND_IN_SET(ea.admission_id,ep.admission_id) WHERE egm.group_title_id='$group_id' and egm.member_type='$member_type' and ep.mobile <>''";
+						$group_res = $this->db->query($sqlgroup);
+						$group_result= $group_res->result();
+						$group_count = $group_res->num_rows();
+							if($group_count>0) {
+								foreach ($group_res->result() as $rows)
+								{
+									$semail = $rows->email;
+									$subject = 'Group Notification';
+									$this->sendMail($semail,$subject,$notes);
+								}
+							}
+					}
+					
+				}
+			}
+
+	}
+	//####################  Group Notification Mail End ####################//	
+	
+	//#################### Group Notification SMS ####################//
+
+	public function gn_send_message($group_id,$notes,$user_id)
+	{
+	    	$year_id = $this->getYear();
+
+			$sqlgroup = "SELECT * FROM `edu_grouping_members` WHERE group_title_id ='$group_id'";
+			$group_res = $this->db->query($sqlgroup);
+			$group_result= $group_res->result();
+			$group_count = $group_res->num_rows();
+			if($group_count>0)
+			{
+				foreach ($group_res->result() as $rows)
+				{
+			    	$member_type = $rows->member_type;
+					$user_id = $rows->group_member_id;
+					
+					if ($member_type =='2' || $member_type = '5'){
+						$sqlgroup = "SELECT * FROM edu_users AS A LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id WHERE a.user_id = '$user_id'";
+						$group_res = $this->db->query($sqlgroup);
+						$group_result= $group_res->result();
+						$group_count = $group_res->num_rows();
+							if($group_count>0) {
+								foreach ($group_res->result() as $rows)
+								{
+									$phone = $rows->phone;
+									$this->sendSMS($phone,$notes);
+								}
+							}
+					}
+					
+					if ($member_type =='3'){
+						$sqlgroup = "SELECT egm.group_member_id,ep.email,ep.mobile FROM edu_grouping_members AS egm LEFT JOIN edu_users AS eu ON eu.user_id=egm.group_member_id LEFT JOIN edu_admission AS ea ON ea.admission_id=eu.user_master_id LEFT JOIN edu_parents AS ep ON FIND_IN_SET(ea.admission_id,ep.admission_id) WHERE egm.group_title_id='$group_id' and egm.member_type='$member_type' and ep.mobile <>''";
+						$group_res = $this->db->query($sqlgroup);
+						$group_result= $group_res->result();
+						$group_count = $group_res->num_rows();
+							if($group_count>0) {
+								foreach ($group_res->result() as $rows)
+								{
+									$phone = $rows->mobile;
+									$this->sendSMS($phone,$notes);
+								}
+							}
+					}
+				}
+
+			}
+
+	}
+	//####################  Group Notification SMS End ####################//
+	
+	
+	//####################  Group Members Add ####################//
+	public function addgnMembers($user_id,$group_id,$group_member_id,$group_user_type,$status)
+	{
+			$sql = "INSERT INTO edu_grouping_members(group_title_id,group_member_id,member_type,status,created_by,created_at) VALUES ('$group_id','$group_member_id','$group_user_type','$status','$user_id',NOW())";
+			$resultset=$this->db->query($sql);
+			$response = array("status" => "success", "msg" => "Group Members Added");
+			return $response;
+	}
+	//#################### Group Members End  ####################//
+	
+	
+	//####################  List Group Members ####################//
+	public function listgnMembers($group_id)
+	{
+			$sqlstaff = "SELECT A.id,B.name,c.user_type_name FROM `edu_grouping_members` A, edu_users B, edu_role C WHERE A.group_member_id = B.user_id AND A.member_type = C.role_id AND `group_title_id` = '$group_id' ORDER by A.member_type";
+			$staff_res = $this->db->query($sqlstaff);
+			$staff_result= $staff_res->result();
+			$staff_count = $staff_res->num_rows();
+
+			if($staff_count>0)
+			{
+				 $response = array("status" => "success", "msg" => "Group Member Details", "memberList"=>$staff_result);
+			} else {
+				$response = array("status" => "error", "msg" => "No Records Found");
+			}
+			return $response;
+	}
+	//#################### List Group Members End  ####################//
+	
+		
+	//#################### Group Notification  ####################//
+
+	public function gn_send_notification($group_id,$notes,$user_id)
+	{
+	    	$year_id = $this->getYear();
+
+			$sqlgroup = "SELECT * FROM `edu_grouping_members` WHERE group_title_id ='$group_id'";
+			$group_res = $this->db->query($sqlgroup);
+			$group_result= $group_res->result();
+			$group_count = $group_res->num_rows();
+			if($group_count>0)
+			{
+				foreach ($group_res->result() as $rows)
+				{
+			    	$member_type = $rows->member_type;
+					$user_id = $rows->group_member_id;
+					
+					if ($member_type =='2' || $member_type = '5'){
+						$sqlgroup = "SELECT * FROM edu_notification WHERE user_id = '$user_id'";
+						$group_res = $this->db->query($sqlgroup);
+						$group_result= $group_res->result();
+						$group_count = $group_res->num_rows();
+							if($group_count>0) {
+								foreach ($group_res->result() as $rows)
+								{
+									$gcm_key = $rows->gcm_key;
+									$mobile_type = $rows->mobile_type;
+									$subject = 'Group Notification';
+									$this->sendNotification($gcm_key,$subject,$notes,$mobile_type);
+								}
+							}
+					}
+					
+					if ($member_type =='3'){
+						$sqlgroup = "SELECT egm.group_member_id,ep.email,ep.mobile,ep.id FROM edu_grouping_members AS egm
+           LEFT JOIN edu_users AS eu ON eu.user_id=egm.group_member_id LEFT JOIN edu_admission AS ea ON ea.admission_id=eu.user_master_id
+           LEFT JOIN edu_parents AS ep ON FIND_IN_SET(ea.admission_id, ep.admission_id) LEFT JOIN edu_notification AS en ON en.user_id=eu.user_id
+           WHERE  egm.group_title_id='$group_id' AND ep.primary_flag='yes'";
+						$group_res = $this->db->query($sqlgroup);
+						$group_result= $group_res->result();
+						$group_count = $group_res->num_rows();
+							if($group_count>0) {
+								foreach ($group_res->result() as $rows)
+								{
+									$parent_id=$result->id;
+									
+									$sql="SELECT eu.user_id,en.gcm_key,en.mobile_type FROM edu_users as eu left join edu_notification as en on eu.user_id=en.user_id WHERE user_type='4' and user_master_id='$parent_id'";
+           							$sgsm=$this->db->query($sql);
+           							$res=$sgsm->result();
+           							foreach($res as $row){
+           									$gcm_key=$row->gcm_key;
+											$mobile_type=$row->mobile_type;
+											$subject = 'Group Notification';
+											$this->sendNotification($gcm_key,$subject,$notes,$mobile_type);
+		  							}
+								}
+							}
+					}
+				}
+
+			}
+
+	}
+	//####################  Group Notification End ####################//
+	
+	//####################  Group Notification History ####################//
+	public function save_group_history($group_id,$cir,$notes,$user_id){
+             $query="INSERT INTO  edu_grouping_history (group_title_id,notes,notification_type,status,created_at,created_by) VALUES('$group_id','$notes','$cir','Active',NOW(),'$user_id')";
+            $res=$this->db->query($query);
+            if($res){
+              $response = array("status" => "sucess", "msg" => "Group Notification Send Sucessfully");
+            }else{
+              	$response = array("status" => "error", "msg" => "Sorry! Not Added");
+            }
+			return $response;
+          }
+	//####################  Group Notification History End ####################//
+	
+	
+	//####################  Circular Master Add ####################//
+	public function addCircular($user_id,$circular_title,$circular_description,$userFileName,$status){
+			
+			$year_id = $this->getYear();
+		
+             $query="INSERT INTO  edu_circular_master (academic_year_id,circular_title,circular_description,circular_doc,status,created_at,created_by) VALUES('$year_id','$circular_title','$circular_description','$userFileName','$status',NOW(),'$user_id')";
+            $res=$this->db->query($query);
+            if($res){
+              	$response = array("status" => "sucess", "msg" => "Circular Master Added");
+            }else{
+              	$response = array("status" => "error", "msg" => "Sorry! Not Added");
+            }
+			return $response;
+          }
+	//#################### Circular Master End ####################//
+	
+	//#################### Circular Master List ####################//
+
+	public function listCircular($user_id)
+	{
+	    	$year_id = $this->getYear();
+		
+			$sqlcircular = "SELECT * FROM edu_circular_master ORDER BY id";
+			$circular_res = $this->db->query($sqlcircular);
+			$circular_result= $circular_res->result();
+			$circular_count = $circular_res->num_rows();
+		
+			if($circular_count>0)
+			{
+				$response = array("status" => "success", "msg" => "Circular List", "circularList"=>$circular_result);
+			} else {
+				$response = array("status" => "error", "msg" => "No Records Found");
+			}
+			return $response;
+
+	}
+	//#################### Circular Master End ####################//
+	
+	//#################### Circular Master View ####################//
+
+	public function viewCircular($circular_id)
+	{
+	    	$year_id = $this->getYear();
+		
+			$sqlcircular = "SELECT * FROM edu_circular_master WHERE id='$circular_id'";
+			$circular_res = $this->db->query($sqlcircular);
+			$circular_result= $circular_res->result();
+			$circular_count = $circular_res->num_rows();
+		
+			if($circular_count>0)
+			{
+				$response = array("status" => "success", "msg" => "Circular View", "circularView"=>$circular_result);
+			} else {
+				$response = array("status" => "error", "msg" => "No Records Found");
+			}
+			return $response;
+
+	}
+	//#################### Circular Master End ####################//
+	
+	//#################### Circular Master Update ####################//
+
+	public function updateCircular($user_id,$circular_id,$circular_title,$circular_description,$userFileName,$status)
+	{
+	    	$year_id = $this->getYear();
+
+			if ($userFileName != "") {
+				$sql="UPDATE  edu_circular_master SET circular_title ='$circular_title',circular_description ='$circular_description',circular_doc = '$userFileName',status='$status',updated_by='$user_id',updated_at=NOW() where id='$circular_id'";
+			} else {
+				$sql="UPDATE  edu_circular_master SET circular_title ='$circular_title',circular_description ='$circular_description',status='$status',updated_by='$user_id',updated_at=NOW() where id='$circular_id'";
+			}
+
+             $resultset=$this->db->query($sql);
+			 $response = array("status" => "success", "msg" => "Circular Master Updated");
+
+			return $response;
+
+	}
+	//#################### Circular Master End ####################//	
 }
 
 ?>

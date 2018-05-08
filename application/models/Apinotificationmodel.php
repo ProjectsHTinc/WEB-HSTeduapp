@@ -92,13 +92,7 @@ class Apinotificationmodel extends CI_Model {
 
 	public function sendNotification($gcm_key,$title,$message,$mobiletype)
 	{
-        echo $gcm_key;
-        echo "<br>";
-        echo $title;
-        echo "<br>";
-        echo $message;
-        echo "<br>";
-        echo $mobiletype;
+	    echo $gcm_key;
 		if ($mobiletype =='1'){
 
 		    require_once 'assets/notification/Firebase.php';
@@ -155,7 +149,6 @@ class Apinotificationmodel extends CI_Model {
 				'badge' => 2,
 				'sound' => 'assets/notification/oven.caf',
 				);
-			
 			$payload = json_encode($body);
 
 			foreach($device_token as $token) {
@@ -167,6 +160,7 @@ class Apinotificationmodel extends CI_Model {
 							
 				fclose($fp);
 		}
+		
 	}
 
 //#################### Notification End ####################//
@@ -195,7 +189,7 @@ class Apinotificationmodel extends CI_Model {
 
 	public function exam_notification()
 	{
-/*
+
 	    $sQuery = "SELECT A.teacher_id,B.exam_name,C.subject_name,D.name,D.phone,D.email,CONCAT(A.exam_date,' ',A.times) AS exam_date_time, CONCAT(F.class_name,' ',G.sec_name) AS class_section
 FROM
     `edu_exam_details` A,
@@ -206,7 +200,7 @@ FROM
     `edu_class` F,
     `edu_sections` G
 WHERE
-    A.exam_id = B.exam_id AND A.subject_id = C.subject_id AND A.teacher_id = D.teacher_id AND A.classmaster_id = E.class_sec_id AND E.class = F.class_id AND E.section = G.sec_id AND `exam_date` =(CURDATE() + INTERVAL 3 DAY)";
+    A.exam_id = B.exam_id AND A.subject_id = C.subject_id AND A.teacher_id = D.teacher_id AND A.classmaster_id = E.class_sec_id AND E.class = F.class_id AND E.section = G.sec_id AND `exam_date` =(CURDATE() + INTERVAL 1 DAY)";
 		$sresult = $this->db->query($sQuery);
 		$ress = $sresult->result();
 		
@@ -224,11 +218,11 @@ WHERE
 					  $mobile_message = 'Exam Duty Reminder on - '.$exam_date_time.' for '. $class_section;
 					  $email_message = 'Exam Duty Reminder on - '.$exam_date_time.' for '. $class_section;
 
-				//	$this->sendSMS($mobile_no,$mobile_message);
-                //  $this->sendMail($email,$subject,$email_message);
+				  $this->sendSMS($mobile_no,$mobile_message);
+                  $this->sendMail($email,$subject,$email_message);
     			}
 			}
-	*/	
+	
 
 		    $sQuery1 = "SELECT A.teacher_id,H.user_id,B.exam_name,C.subject_name,D.name,D.phone,D.email,CONCAT(A.exam_date,' ',A.times) AS exam_date_time, CONCAT(F.class_name,' ',G.sec_name) AS class_section, I.gcm_key, I.mobile_type
 FROM
@@ -245,13 +239,11 @@ WHERE
     A.exam_id = B.exam_id AND A.subject_id = C.subject_id AND A.teacher_id = D.teacher_id AND A.classmaster_id = E.class_sec_id AND E.class = F.class_id AND E.section = G.sec_id AND H.user_type = '2' AND A.teacher_id = H.user_master_id AND H.user_id = I.user_id AND `exam_date` =(CURDATE() + INTERVAL 1 DAY)";
 		$sresult1 = $this->db->query($sQuery1);
 		$ress1 = $sresult1->result();
-		//echo $sresult1->num_rows();
 		if($sresult1->num_rows() > 0)
     		{
     		    $title = 'Reminder for Exam Duty';
                 foreach ($sresult1->result() as $rows1)
     			{
-    			   // echo "1";
                     $exam_name = $rows1->exam_name;
                     $subject_name = $rows1->subject_name;
                     $exam_date_time = $rows1->exam_date_time;
@@ -264,7 +256,6 @@ WHERE
                     $this->sendNotification($gcm_key,$title,$message,$mobile_type);
     			}
 			}
-
 	}
 //#################### Exam Nofification End ####################//
 

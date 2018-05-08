@@ -30,52 +30,14 @@ class Apinotification extends CI_Controller {
 		$this->load->model("apinotificationmodel");
     }
 
-	public function checkMethod()
-	{
-		if($_SERVER['REQUEST_METHOD'] != 'POST')
-		{
-			$res = array();
-			$res["scode"] = 203;
-			$res["message"] = "Request Method not supported";
-
-			echo json_encode($res);
-			return FALSE;
-		}
-		return TRUE;
-	}
-
 
 //-----------------------------------------------//
 
 	public function examNotification()
 	{
-		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
-
-		if(!$this->checkMethod())
-		{
-			return FALSE;
-		}
-
-		if($_POST == FALSE)
-		{
-			$res = array();
-			$res["opn"] = "Exam Notification";
-			$res["scode"] = 204;
-			$res["message"] = "Input error";
-
-			echo json_encode($res);
-			return;
-		}
-
-		$user_id = $this->input->post("user_id");
-		//$class_id = $this->input->post("class_id");
-		//$sec_id = $this->input->post("sec_id");
-	  	//$class_sec_id = $this->input->post("class_sec_id");
-		
-		$data['result']=$this->apinotificationmodel->exam_notification($user_id);
-		$response = $data['result'];
-		echo json_encode($response);
+	    $this->apinotificationmodel->exam_notification();
 	}
 
 //-----------------------------------------------//
 }
+?>
