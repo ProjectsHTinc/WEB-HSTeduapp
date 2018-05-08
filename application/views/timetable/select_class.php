@@ -22,7 +22,7 @@
    <div class="col-md-12">
       <div class="card">
          <div class="header">
-            <legend>Select Class</legend>
+            <legend>Select Class  <button onclick="history.go(-1);" class="btn btn-wd btn-default pull-right" style="margin-top:-10px;">Go Back</button></legend>
          </div>
          <div class="content">
             <div class="row">

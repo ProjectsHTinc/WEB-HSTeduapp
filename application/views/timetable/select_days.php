@@ -1,6 +1,9 @@
 <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/jquery-clockpicker.min.css">
 <script src="<?php echo base_url(); ?>assets/js/jquery-clockpicker.min.js"></script>
 <style>
+.popover.clockpicker-popover.top.clockpicker-align-left {
+    top: 130px !important;
+}
    fieldset{
    margin-left:30px;
    margin-top:15px;
@@ -32,8 +35,9 @@
    margin-top: -40px;
  }
  .clockpicker-popover {
- z-index: 999999 !important;
+ z-index: 100000 !important;
  }
+
  .modal-body{
    padding: 0px;
  }
@@ -64,7 +68,9 @@
    <div class="col-md-12">
       <div class="card">
          <div class="header">
-            <legend><h4 class="modal-title">Add Time table for <?php foreach($get_name_class as $rows){} echo $rows->class_name.'-'.$rows->sec_name;  ?></h4><span><button onclick="history.go(-1);" class="btn btn-wd btn-default pull-right" style="margin-top:-40px;">Go Back</button></span></legend>
+            <legend><h4 class="modal-title">Add Time table for <?php foreach($get_name_class as $rows){} echo $rows->class_name.'-'.$rows->sec_name;  ?></h4><center><input type="button" class="btn btn-wd btn-default" value="Refresh Page" onClick="window.location.reload()"></center><span><button onclick="history.go(-1);" class="btn btn-wd btn-default pull-right" style="margin-top:-40px;">Go Back</button>
+</span></legend>
+
          </div>
          <div class="content">
             <div class="row">
@@ -569,5 +575,9 @@ $(document).ready(function() {
                 $('#subject_id_tab').show();
                 $('#teacher_id_tab').show();
             }
+        });
+        $('#myModal').on('hidden.bs.modal', function () {
+          window.location.reload();
+
         });
 </script>

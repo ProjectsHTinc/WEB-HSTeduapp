@@ -45,7 +45,14 @@ Class Timetablemodel extends CI_Model
        foreach($ress_max as $rows){}
          $max = $rows->max_time;
          if($max=='0'){
-           $query     = "INSERT INTO edu_timetable (year_id,term_id,class_id,from_time,to_time,is_break,subject_id,teacher_id,day_id,period,status,created_at,updated_at) VALUES('$year_id','$term_id','$class_id','$from_time','$to_time','$break_id','$subject_id','$teacher_id','$day_id','$period_id','Active',NOW(),NOW())";
+           if($break_id==1){
+             $subject_id_period='0';
+             $teacher_id_period='0';
+           }else{
+             $subject_id_period=$subject_id;
+             $teacher_id_period=$teacher_id;
+           }
+           $query     = "INSERT INTO edu_timetable (year_id,term_id,class_id,from_time,to_time,is_break,subject_id,teacher_id,day_id,period,status,created_at,updated_at) VALUES('$year_id','$term_id','$class_id','$from_time','$to_time','$break_id','$subject_id_period','$teacher_id_period','$day_id','$period_id','Active',NOW(),NOW())";
              $resultset = $this->db->query($query);
              if ($resultset) {
                  echo "success";
@@ -54,7 +61,14 @@ Class Timetablemodel extends CI_Model
              }
          }else{
            if(strtotime($from_time)>=strtotime($max)) {
-             $query     = "INSERT INTO edu_timetable (year_id,term_id,class_id,from_time,to_time,is_break,subject_id,teacher_id,day_id,period,status,created_at,updated_at) VALUES('$year_id','$term_id','$class_id','$from_time','$to_time','$break_id','$subject_id','$teacher_id','$day_id','$period_id','Active',NOW(),NOW())";
+             if($break_id==1){
+               $subject_id_period='0';
+               $teacher_id_period='0';
+             }else{
+               $subject_id_period=$subject_id;
+               $teacher_id_period=$teacher_id;
+             }
+             $query     = "INSERT INTO edu_timetable (year_id,term_id,class_id,from_time,to_time,is_break,subject_id,teacher_id,day_id,period,status,created_at,updated_at) VALUES('$year_id','$term_id','$class_id','$from_time','$to_time','$break_id','$subject_id_period','$teacher_id_period','$day_id','$period_id','Active',NOW(),NOW())";
                $resultset = $this->db->query($query);
                if ($resultset) {
                    echo "success";

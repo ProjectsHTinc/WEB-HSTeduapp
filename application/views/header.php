@@ -314,7 +314,7 @@
                   <div class="collapse" id="timetablemenu">
                      <ul class="nav">
                         <li id="time1"><a href="<?php echo base_url(); ?>timetable/select_term">Create TimeTable</a></li>
-                        <li id="time2"><a href="<?php echo base_url(); ?>timetable/view_term">View TimeTable</a></li>
+                        <li id="time2"><a href="<?php echo base_url(); ?>timetable/view_term">Manage TimeTable</a></li>
                      </ul>
                   </div>
                </li>

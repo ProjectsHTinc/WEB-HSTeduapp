@@ -215,10 +215,9 @@ class Timetable extends CI_Controller {
 					$datas=$this->session->userdata();
 					$user_id=$this->session->userdata('user_id');
 					$user_type=$this->session->userdata('user_type');
-					$term_id=base64_decode($this->uri->segment(3))/9876;
-				 	$class_id=base64_decode($this->uri->segment(4))/9876;
+					$class_id=base64_decode($this->uri->segment(3))/9876;
+				 	$term_id=base64_decode($this->uri->segment(4))/9876;
 					$day_id=base64_decode($this->uri->segment(5));
-					// $day_name=base64_decode($this->uri->segment(6));
 					if($user_type==1){
 					$datas['res']=$this->timetablemodel->view_timetable_day($term_id,$class_id,$day_id);
 					$datas['get_name_class']=$this->class_manage->edit_cs($class_id);
