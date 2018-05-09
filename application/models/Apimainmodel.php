@@ -1585,7 +1585,7 @@ class Apimainmodel extends CI_Model {
 	    $year_id = $this->getYear();
 		$term_id = $this->getTerm();
 		
-		$sqltimetable = "SELECT A.class_id, A.day_id, A.period, B.subject_name, C.name, A.from_time, A.to_time, A.is_break FROM edu_timetable AS A LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id LEFT JOIN edu_subject AS B ON A.subject_id = B.subject_id WHERE A.year_id = '$year_id' AND A.term_id = '$term_id' AND A.class_id = '$class_id' AND A.DAY = '$day_id' ORDER BY A.period";
+		$sqltimetable = "SELECT A.class_id, A.day_id, A.period, B.subject_name, C.name, A.from_time, A.to_time, A.is_break FROM edu_timetable AS A LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id LEFT JOIN edu_subject AS B ON A.subject_id = B.subject_id WHERE A.year_id = '$year_id' AND A.term_id = '$term_id' AND A.class_id = '$class_id' AND A.day_id = '$day_id' ORDER BY A.period";
 		
 			$timetable_res = $this->db->query($sqltimetable);
 			$timetable_result= $timetable_res->result();

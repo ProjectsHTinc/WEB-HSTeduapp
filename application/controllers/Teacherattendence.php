@@ -188,6 +188,8 @@ class Teacherattendence extends CI_Controller {
 			$datas=$this->session->userdata();
 			$user_id=$this->session->userdata('user_id');
 			$user_type=$this->session->userdata('user_type');
+			
+			
 			 if($user_type==2){
 				 $msg_type=$this->input->post('msg_type');
 				 $attend_id=$this->input->post('attend_id');
@@ -242,6 +244,7 @@ class Teacherattendence extends CI_Controller {
 				 }
 			 }
 			  $datas=$this->teacherattendencemodel->send_attendance_status($attend_id);
+			  
 				if($datas['status']=="success"){
 					echo "success";
 				}else if($datas['status']=="taken"){

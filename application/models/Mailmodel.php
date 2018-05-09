@@ -73,6 +73,7 @@ Class Mailmodel extends CI_Model
 		$notes = $rows->circular_description;
 	   	$user_type = $users_id;
 
+	  
 	  //-----------Admin------------------------
 	  if(!empty($user_type))
 	   {
