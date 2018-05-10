@@ -7,20 +7,159 @@ class Apiteachermodel extends CI_Model {
         parent::__construct();
     }
 
-//#################### Mail Function ####################//
+//#################### Email ####################//
 
-	public function sendMail($to,$subject,$htmlContent)
+	public function sendMail($email,$subject,$email_message)
 	{
 		// Set content-type header for sending HTML email
 		$headers = "MIME-Version: 1.0" . "\r\n";
 		$headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
 		// Additional headers
-		$headers .= 'From: happysanz<info@happysanz.com>' . "\r\n";
-		mail($to,$subject,$htmlContent,$headers);
+		$headers .= 'From: Webmaster<hello@happysanz.com>' . "\r\n";
+		mail($email,$subject,$email_message,$headers);
 	}
 
+//#################### Email End ####################//
 
-//#################### Mail Function End ####################//
+
+//#################### SMS ####################//
+
+	public function sendSMS($Phoneno,$Message)
+	{
+        //Your authentication key
+        $authKey = "191431AStibz285a4f14b4";
+        
+        //Multiple mobiles numbers separated by comma
+        $mobileNumber = "$Phoneno";
+        
+        //Sender ID,While using route4 sender id should be 6 characters long.
+        $senderId = "EDUAPP";
+        
+        //Your message to send, Add URL encoding here.
+        $message = urlencode($Message);
+        
+        //Define route 
+        $route = "transactional";
+        
+        //Prepare you post parameters
+        $postData = array(
+            'authkey' => $authKey,
+            'mobiles' => $mobileNumber,
+            'message' => $message,
+            'sender' => $senderId,
+            'route' => $route
+        );
+        
+        //API URL
+        $url="https://control.msg91.com/api/sendhttp.php";
+        
+        // init the resource
+        $ch = curl_init();
+        curl_setopt_array($ch, array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $postData
+            //,CURLOPT_FOLLOWLOCATION => true
+        ));
+        
+        
+        //Ignore SSL certificate verification
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        
+        
+        //get response
+        $output = curl_exec($ch);
+        
+        //Print error if any
+        if(curl_errno($ch))
+        {
+            echo 'error:' . curl_error($ch);
+        }
+        
+        curl_close($ch);
+	}
+
+//#################### SMS End ####################//
+
+
+//#################### Notification ####################//
+
+	public function sendNotification($gcm_key,$title,$message,$mobiletype)
+	{
+	    echo $gcm_key;
+		if ($mobiletype =='1'){
+
+		    require_once 'assets/notification/Firebase.php';
+            require_once 'assets/notification/Push.php'; 
+            
+            $device_token = explode(",", $gcm_key);
+            $push = null; 
+        
+        //first check if the push has an image with it
+		    $push = new Push(
+					$title,
+					$message,
+					null
+				);
+
+// 			//if the push don't have an image give null in place of image
+// 			 $push = new Push(
+// 			 		'HEYLA',
+// 		     		'Hi Testing from maran',
+// 			 		'http://heylaapp.com/assets/notification/images/event.png'
+// 			 	);
+
+    		//getting the push from push object
+    		$mPushNotification = $push->getPush(); 
+    
+    		//creating firebase class object 
+    		$firebase = new Firebase(); 
+
+    	foreach($device_token as $token) {
+    		 $firebase->send(array($token),$mPushNotification);
+    	}
+
+		} else {
+            
+			$device_token = explode(",", $gcm_key);
+			$passphrase = 'hs123';
+		    $loction ='assets/notification/happysanz.pem';
+		   
+			$ctx = stream_context_create();
+			stream_context_set_option($ctx, 'ssl', 'local_cert', $loction);
+			stream_context_set_option($ctx, 'ssl', 'passphrase', $passphrase);
+			
+			// Open a connection to the APNS server
+			$fp = stream_socket_client('ssl://gateway.sandbox.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT, $ctx);
+			
+			if (!$fp)
+				exit("Failed to connect: $err $errstr" . PHP_EOL);
+
+			$body['aps'] = array(
+				'alert' => array(
+					'body' => $message,
+					'action-loc-key' => 'EDU App',
+				),
+				'badge' => 2,
+				'sound' => 'assets/notification/oven.caf',
+				);
+			$payload = json_encode($body);
+
+			foreach($device_token as $token) {
+			
+				// Build the binary notification
+    			$msg = chr(0) . pack("n", 32) . pack("H*", str_replace(" ", "", $token)) . pack("n", strlen($payload)) . $payload;
+        		$result = fwrite($fp, $msg, strlen($msg));
+			}
+							
+				fclose($fp);
+		}
+		
+	}
+
+//#################### Notification End ####################//
 
 
 //#################### Current Year ####################//
@@ -1108,6 +1247,143 @@ class Apiteachermodel extends CI_Model {
 			}
 	}
 //#################### Sync Attendance End ####################//
+
+//#################### Disp Attendance for Class Teachers ####################//
+	public function dispAttendenceclassteacher ($class_id)
+	{
+			$year_id = $this->getYear();
+  			$sqlAttendance = "SELECT ea.*,eu.name FROM edu_attendence  AS ea JOIN edu_users  AS eu ON eu.user_id=ea.created_by WHERE class_id='$class_id' AND ac_year='$year_id' ORDER BY created_at DESC";
+    		$Attendance_result = $this->db->query($sqlAttendance);
+    		$attendance_histor = $Attendance_result->result();
+    		
+	
+				if($Attendance_result) {
+					$response = array("status" => "success", "msg" => "Class Teacher Attendance History", "ct_attendance_history"=>$attendance_histor);
+				} else {
+					$response = array("status" => "error");
+				}
+				return $response;
+
+	}
+//#################### Disp Attendance for Class Teachers End ####################//
+
+//#################### List Students Attendance for Class Teachers ####################//
+	public function listStudentattendct($class_id,$attend_id)
+	{
+			$year_id = $this->getYear();
+  			$sqlAttendance = "SELECT
+									c.enroll_id,
+									c.name,
+									c.admission_id,
+									a.sex,
+									o.a_status,
+									(
+									CASE 
+										WHEN a_status = 'A' THEN 'ABSENT'
+										WHEN a_status = 'L' THEN 'LEAVE'
+										WHEN a_status = 'OD' THEN 'OD'
+										ELSE 'PRESENT'
+									END) AS a_status
+								FROM
+									edu_enrollment c
+								LEFT JOIN edu_attendance_history o ON
+									c.enroll_id = o.student_id AND o.attend_id = '$attend_id'
+								LEFT JOIN edu_admission a ON
+									a.admission_id = c.admission_id
+								WHERE
+									c.class_id = '$class_id' AND c.admit_year = '$year_id' AND c.status = 'Active'
+								ORDER BY
+									a.sex DESC, c.name ASC";
+			$Attendance_result = $this->db->query($sqlAttendance);
+    		$attendance_histor = $Attendance_result->result();
+    		
+	
+				if($Attendance_result) {
+					$response = array("status" => "success", "msg" => "Class Teacher Student Attendance History", "ct_student_history"=>$attendance_histor);
+				} else {
+					$response = array("status" => "error");
+				}
+				return $response;
+
+	}
+//#################### List Students Attendance for Class Teachers End ####################//
+
+//#################### send attendance sms to Parents ####################//
+	 public function send_attendance_sms($attend_id)
+	 {
+			 $query = "SELECT ee.name,ep.mobile,ee.admission_id,eah.abs_date,eah.student_id,eah.a_status,eah.attend_period,CASE WHEN attend_period = 0 THEN 'MORNING' ELSE 'AFTERNOON' END  AS a_session,CASE WHEN a_status = 'L' THEN 'Leave' WHEN a_status = 'A' THEN 'Absent' ELSE 'OnDuty' END  AS abs_atatus FROM edu_attendance_history AS eah LEFT JOIN edu_enrollment AS ee ON ee.enroll_id=eah.student_id LEFT JOIN edu_parents AS ep ON ee.admission_id=ep.admission_id WHERE eah.attend_id='$attend_id' AND ep.primary_flag='Yes'";
+	
+			$result=$this->db->query($query);
+			$res=$result->result();
+			foreach($res as $rows){
+			   $st_name=$rows->name;
+			   $parents_num=$rows->mobile;
+			   $at_ses=$rows->a_session;
+			   $abs_date=$rows->abs_date;
+			   $abs_status=$rows->abs_atatus;
+
+			   $textmessage='Your child '.$st_name.' was marked '.$abs_status.' today '.$abs_date.'. To Known more details login into http://bit.ly/2wLwdRQ';
+			   $this->sendSMS($phone,$textmessage);
+			}
+		  }
+//#################### send attendance sms to Parents END ####################//
+
+//#################### send attendance Email to Parents ####################//
+	 public function send_attendance_email($attend_id)
+	 {
+			$query = "SELECT ee.name,ep.mobile,ep.email,ee.admission_id,eah.abs_date,eah.student_id,eah.a_status,eah.attend_period,CASE WHEN attend_period = 0 THEN 'MORNING'  ELSE 'AFTERNOON' END  AS a_session,CASE WHEN a_status = 'L' THEN 'Leave' WHEN a_status = 'A' THEN 'Absent' ELSE 'OnDuty' END  AS abs_atatus FROM edu_attendance_history AS eah LEFT JOIN edu_enrollment AS ee ON ee.enroll_id=eah.student_id LEFT JOIN edu_parents AS ep ON ee.admission_id=ep.admission_id WHERE eah.attend_id='$attend_id' AND ep.primary_flag='Yes'";
+		   $result=$this->db->query($query);
+		   $res=$result->result();
+		   foreach($res as $rows){
+			  $st_name=$rows->name;
+			  $parents_email=$rows->email;
+			  $at_ses=$rows->a_session;
+			  $abs_date=$rows->abs_date;
+			  $abs_status=$rows->abs_atatus;
+			  $textmessage='Your child '.$st_name.' was marked '.$abs_status.' today '.$abs_date.'. To Known more details login into http://bit.ly/2wLwdRQ';
+			  $subject="School Attendance";
+
+			  $this->sendMail($parents_email,$subject,$textmessage);
+       		}
+  		}
+
+//#################### send attendance Email to Parents END ####################//
+
+//#################### send attendance Notification to Parents ####################//		
+		
+	 public function send_attendance_notification($attend_id)
+	 {
+     		$query = "SELECT eu.user_id,en.gcm_key,en.mobile_type,ee.name,ep.mobile,ep.id,ee.admission_id,eah.abs_date,eah.student_id,eah.a_status,eah.attend_period,
+    CASE WHEN attend_period = 0 THEN 'MORNING'  ELSE 'AFTERNOON' END  AS a_session,CASE WHEN a_status = 'L' THEN 'Leave' WHEN a_status = 'A' THEN 'Absent' ELSE 'OnDuty' END  AS abs_atatus  FROM edu_attendance_history AS eah LEFT JOIN edu_enrollment AS ee ON ee.enroll_id=eah.student_id LEFT JOIN edu_parents AS ep ON ee.admission_id=ep.admission_id LEFT JOIN edu_users AS eu ON eu.user_master_id=ep.id AND eu.user_type='4' LEFT JOIN edu_notification AS en ON eu.user_id=en.user_id WHERE eah.attend_id='$attend_id' AND ep.primary_flag='Yes'";
+		 $result=$this->db->query($query);
+		 $res=$result->result();
+		 foreach($res as $rows){
+			$st_name=$rows->name;
+			$gcm_key=$rows->gcm_key;
+			$at_ses=$rows->a_session;
+			$abs_date=$rows->abs_date;
+			$abs_status=$rows->abs_atatus;
+			$mobile_type=$rows->mobile_type;
+			$subject="School Attendance";
+			
+			$notes='Your child '.$st_name.' was marked '.$abs_status.' today, '.$abs_date.'. To Known more details login into http://bit.ly/2wLwdRQ';
+			$this->sendNotification($gcm_key,$subject,$notes,$mobile_type);
+	      }
+    }
+		
+//#################### send attendance Notification to Parents END ####################//		
+
+//#################### Attendance Status Change ####################//		
+	 public function send_attendance_status($attend_id)
+		{
+			$query="UPDATE edu_attendence SET sent_status='1' WHERE at_id='$attend_id'";
+			$res=$this->db->query($query);
+			
+			$response = array("status" => "success", "msg" => "Attendance Send to Parents");
+			return $response;
+      	}
+
+//#################### Attendance Status Change End ####################//		
 }
 
 ?>

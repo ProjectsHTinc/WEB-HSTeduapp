@@ -975,4 +975,155 @@ class Apiteacher extends CI_Controller {
 	}
 //-----------------------------------------------//
 
+//-----------------------------------------------//
+
+	public function disp_Attendence_classteacher()
+	{
+ 		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "Attendence View";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+
+		$class_id = '';
+			    
+		$class_id = $this->input->post("class_id");
+		
+		$data['result']=$this->apiteachermodel->dispAttendenceclassteacher($class_id);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function list_Studentattend_classteacher()
+	{
+ 		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "Class Teacher Attendence View";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+
+		$class_id = '';
+		$attend_id = '';
+			    
+		$class_id = $this->input->post("class_id");
+		$attend_id = $this->input->post("attend_id");
+		
+		$data['result']=$this->apiteachermodel->listStudentattendct($class_id,$attend_id);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function send_attendance_parents()
+	{
+ 		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "Attendence Send to Parents";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+
+		$msg_type = '';
+		$attend_id = '';
+		
+		$attend_id = $this->input->post("attend_id");
+		$msg_type = $this->input->post("msg_type");
+		
+		
+		$cir = explode(',',$msg_type);
+		$cir_cnt = count($cir);
+
+			if($cir_cnt==3)	{
+				$data = $this->apiteachermodel->send_attendance_sms($attend_id);
+				$data = $this->apiteachermodel->send_attendance_email($attend_id);
+				$data = $this->apiteachermodel->send_attendance_notification($attend_id);
+			 }
+				 
+			 if($cir_cnt==2)  {
+		 		  	$ct1=$cir[0];
+		 	    	$ct2=$cir[1];
+
+		 		  if($ct1=='SMS' && $ct2=='Mail')
+		 		  {
+					 $data = $this->apiteachermodel->send_attendance_sms($attend_id);
+ 					$data = $this->apiteachermodel->send_attendance_email($attend_id);
+		 		  }
+		 		  if($ct1=='SMS' && $ct2=='Notification')
+		 		  {
+					 $data = $this->apiteachermodel->send_attendance_sms($attend_id);
+ 					 $data = $this->apiteachermodel->send_attendance_notification($attend_id);
+		 		  }
+		 		  if($ct1=='Mail' && $ct2=='Notification')
+		 		  {
+ 					$data = $this->apiteachermodel->send_attendance_email($attend_id);
+ 					$data = $this->apiteachermodel->send_attendance_notification($attend_id);
+		 		  }
+
+		 	  }
+			 if($cir_cnt==1) {
+				  $ct=$cir[0];
+				  if($ct=='SMS')
+				  {
+						$data = $this->apiteachermodel->send_attendance_sms($attend_id);
+				  }
+				  if($ct=='Mail')
+				  {
+						$data = $this->apiteachermodel->send_attendance_email($attend_id);
+				  }
+				  if($ct=='Notification')
+				  {
+						 $data = $this->apiteachermodel->send_attendance_notification($attend_id);
+				  }
+			  }
+				
+				$data['result']= $this->apiteachermodel->send_attendance_status($attend_id);
+				$response = $data['result'];
+				echo json_encode($response);
+
+	}
+
+//-----------------------------------------------//
+
 }

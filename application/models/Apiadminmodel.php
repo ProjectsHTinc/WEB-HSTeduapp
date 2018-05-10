@@ -85,9 +85,6 @@ class Apiadminmodel extends CI_Model {
 //#################### SMS End ####################//
 
 
-
-
-
 //#################### Notification ####################//
 
 	public function sendNotification($gcm_key,$title,$message,$mobiletype)
@@ -1053,6 +1050,38 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 	//#################### Timetable End ####################//	  
 */
 	
+		//#################### Timetable days ####################//
+
+	public function listClasssection($user_id)
+	{
+	    $year_id = $this->getYear();
+		
+		$sqlcs = "SELECT
+					B.class_sec_id,
+					CONCAT(C.class_name, ' ', D.sec_name) AS class_section
+				FROM
+					edu_classmaster B,
+					edu_class C,
+					edu_sections D
+				WHERE
+					B.class = C.class_id AND B.section = D.sec_id
+				ORDER BY
+					B.class_sec_id";
+			$cs_res = $this->db->query($sqlcs);
+			$cs_result= $cs_res->result();
+			$cs_count = $cs_res->num_rows();
+
+		if($cs_count>0)
+		{
+			 $response = array("status" => "success", "msg" => "Class and Sections", "listClasssection"=>$cs_result);
+		} else {
+			$response = array("status" => "error", "msg" => "No Records Found");
+		}
+		return $response;
+	}
+
+	//#################### Timetable days End ####################//
+	
 	//#################### Timetable Review ####################//
 
 	public function addTimetableremarks($review_id,$remarks)
@@ -1104,7 +1133,7 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 	{
 	    	$year_id = $this->getYear();
 		
-			$sqlgroup = "SELECT * FROM edu_grouping_master ORDER BY id";
+			$sqlgroup = "SELECT A.*,B.name AS lead_name FROM edu_grouping_master A, edu_users B WHERE A.group_lead_id = B.user_id AND A.year_id='$year_id' ORDER BY id";
 			$group_res = $this->db->query($sqlgroup);
 			$group_result= $group_res->result();
 			$group_count = $group_res->num_rows();
@@ -1324,10 +1353,10 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 			{
 				foreach ($group_res->result() as $rows)
 				{
-			    	$member_type = $rows->member_type;
-					$user_id = $rows->group_member_id;
+			    	 $member_type = $rows->member_type;
+					 $user_id = $rows->group_member_id;
 					
-					if ($member_type =='2' || $member_type = '5'){
+					if ($member_type =='2' || $member_type == '5'){
 						$sqlgroup = "SELECT * FROM edu_users AS A LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id WHERE a.user_id = '$user_id'";
 						$group_res = $this->db->query($sqlgroup);
 						$group_result= $group_res->result();
@@ -1343,7 +1372,7 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 					}
 					
 					if ($member_type =='3'){
-						$sqlgroup = "SELECT egm.group_member_id,ep.email,ep.mobile FROM edu_grouping_members AS egm LEFT JOIN edu_users AS eu ON eu.user_id=egm.group_member_id LEFT JOIN edu_admission AS ea ON ea.admission_id=eu.user_master_id LEFT JOIN edu_parents AS ep ON FIND_IN_SET(ea.admission_id,ep.admission_id) WHERE egm.group_title_id='$group_id' and egm.member_type='$member_type' and ep.mobile <>''";
+						 $sqlgroup = "SELECT egm.group_member_id,ep.email,ep.mobile FROM edu_grouping_members AS egm LEFT JOIN edu_users AS eu ON eu.user_id=egm.group_member_id LEFT JOIN edu_admission AS ea ON ea.admission_id=eu.user_master_id LEFT JOIN edu_parents AS ep ON FIND_IN_SET(ea.admission_id,ep.admission_id) WHERE egm.group_title_id='$group_id' and egm.member_type='$member_type' and ep.mobile <>''";
 						$group_res = $this->db->query($sqlgroup);
 						$group_result= $group_res->result();
 						$group_count = $group_res->num_rows();
@@ -1415,35 +1444,6 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 	//####################  Group Notification SMS End ####################//
 	
 	
-	//####################  Group Members Add ####################//
-	public function addgnMembers($user_id,$group_id,$group_member_id,$group_user_type,$status)
-	{
-			$sql = "INSERT INTO edu_grouping_members(group_title_id,group_member_id,member_type,status,created_by,created_at) VALUES ('$group_id','$group_member_id','$group_user_type','$status','$user_id',NOW())";
-			$resultset=$this->db->query($sql);
-			$response = array("status" => "success", "msg" => "Group Members Added");
-			return $response;
-	}
-	//#################### Group Members End  ####################//
-	
-	
-	//####################  List Group Members ####################//
-	public function listgnMembers($group_id)
-	{
-			$sqlstaff = "SELECT A.id,B.name,c.user_type_name FROM `edu_grouping_members` A, edu_users B, edu_role C WHERE A.group_member_id = B.user_id AND A.member_type = C.role_id AND `group_title_id` = '$group_id' ORDER by A.member_type";
-			$staff_res = $this->db->query($sqlstaff);
-			$staff_result= $staff_res->result();
-			$staff_count = $staff_res->num_rows();
-
-			if($staff_count>0)
-			{
-				 $response = array("status" => "success", "msg" => "Group Member Details", "memberList"=>$staff_result);
-			} else {
-				$response = array("status" => "error", "msg" => "No Records Found");
-			}
-			return $response;
-	}
-	//#################### List Group Members End  ####################//
-	
 		
 	//#################### Group Notification  ####################//
 
@@ -1509,10 +1509,41 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 
 	}
 	//####################  Group Notification End ####################//
+
+
+	//####################  Group Members Add ####################//
+	public function addgnMembers($user_id,$group_id,$group_member_id,$group_user_type,$status)
+	{
+			$sql = "INSERT INTO edu_grouping_members(group_title_id,group_member_id,member_type,status,created_by,created_at) VALUES ('$group_id','$group_member_id','$group_user_type','$status','$user_id',NOW())";
+			$resultset=$this->db->query($sql);
+			$response = array("status" => "success", "msg" => "Group Members Added");
+			return $response;
+	}
+	//#################### Group Members End  ####################//
 	
+	
+	//####################  List Group Members ####################//
+	public function listgnMembers($group_id)
+	{
+			$sqlstaff = "SELECT A.id,B.name,C.user_type_name FROM `edu_grouping_members` A, edu_users B, edu_role C WHERE A.group_member_id = B.user_id AND A.member_type = C.role_id AND `group_title_id` = '$group_id' ORDER by A.member_type";
+			$staff_res = $this->db->query($sqlstaff);
+			$staff_result= $staff_res->result();
+			$staff_count = $staff_res->num_rows();
+
+			if($staff_count>0)
+			{
+				 $response = array("status" => "success", "msg" => "Group Member Details", "memberList"=>$staff_result);
+			} else {
+				$response = array("status" => "error", "msg" => "No Records Found");
+			}
+			return $response;
+	}
+	//#################### List Group Members End  ####################//
+
+
 	//####################  Group Notification History ####################//
-	public function save_group_history($group_id,$cir,$notes,$user_id){
-             $query="INSERT INTO  edu_grouping_history (group_title_id,notes,notification_type,status,created_at,created_by) VALUES('$group_id','$notes','$cir','Active',NOW(),'$user_id')";
+	public function save_group_history($group_id,$circular_type,$notes,$user_id){
+             $query="INSERT INTO  edu_grouping_history (group_title_id,notes,notification_type,status,created_at,created_by) VALUES('$group_id','$notes','$circular_type','Active',NOW(),'$user_id')";
             $res=$this->db->query($query);
             if($res){
               $response = array("status" => "sucess", "msg" => "Group Notification Send Sucessfully");
@@ -1603,6 +1634,702 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 
 	}
 	//#################### Circular Master End ####################//	
+	
+	//#################### Role Master List ####################//
+	public function listRoles($user_id)
+	{
+	    	$year_id = $this->getYear();
+		
+			$sqlrole = "SELECT * FROM edu_role ORDER BY role_id";
+			$role_res = $this->db->query($sqlrole);
+			$role_result= $role_res->result();
+			$role_count = $role_res->num_rows();
+		
+			if($role_count>0)
+			{
+				$response = array("status" => "success", "msg" => "Role List", "roleList"=>$role_result);
+			} else {
+				$response = array("status" => "error", "msg" => "No Records Found");
+			}
+			return $response;
+
+	}
+	//#################### Roles End ####################//
+	
+	//#################### Circular Send SMS  ####################//
+	
+	function send_circular_sms($circular_id,$all_id,$tusers_id,$musers_id,$susers_id,$pusers_id)
+	{	
+
+		$ssql = "SELECT * FROM edu_circular_master WHERE id ='$circular_id'";
+		$res = $this->db->query($ssql);
+		$result =$res->result();
+			foreach($result as $rows){ }
+			 $title = $rows->circular_title;
+			 $notes = $rows->circular_description;
+			 $circular_doc = $rows->circular_doc;
+			 
+	
+	
+		if ($all_id != '') {
+			//------------------------Teacher----------------------
+				if($all_id==2)
+				{
+					$tsql = "SELECT u.user_id,t.name,t.phone FROM edu_users AS u,edu_teachers AS t  WHERE u.user_type='$all_id' AND u.user_master_id=t.teacher_id AND u.status='Active'";
+					$res=$this->db->query($tsql);
+					$result=$res->result();
+					foreach($result as $rows)
+					{
+						$phone = $rows->phone;
+						$this->sendSMS($phone,$notes);
+				    }
+				}
+
+				//------------------------Staffs----------------------
+				if($all_id==5)
+				{
+					$tsql = "SELECT u.user_id,t.name,t.phone FROM edu_users AS u,edu_teachers AS t  WHERE u.user_type='$all_id' AND u.user_master_id=t.teacher_id AND u.status='Active'";
+					$res=$this->db->query($tsql);
+					$result=$res->result();
+					foreach($result as $rows)
+					{
+						$phone = $rows->phone;
+						$this->sendSMS($phone,$notes);
+				    }
+				}
+				
+				//---------------------------Students----------------------
+				if($all_id==3)
+				{
+					$ssql="SELECT u.user_id,u.name,a.mobile FROM edu_users AS u,edu_admission AS a  WHERE u.user_type='$all_id' AND u.user_master_id=a.admission_id AND u.name=a.name AND u.status='Active'";
+					$res=$this->db->query($ssql);
+					$result=$res->result();
+					foreach($result as $rows)
+					{
+					    
+						$phone = $rows->mobile;
+						$this->sendSMS($phone,$notes);
+
+				    }
+				}
+
+				//---------------------------Parents--------------------------------------------
+				if($all_id==4)
+				{
+					$psql="SELECT u.user_id,u.name,p.mobile FROM edu_users AS u,edu_parents AS p WHERE u.user_type='$all_id' AND u.user_master_id=p.id AND u.status='Active'";
+					$res=$this->db->query($psql);
+					$result=$res->result();
+					foreach($result as $rows)
+					{
+						$phone = $rows->mobile;
+						$this->sendSMS($phone,$notes);
+
+				    }
+				}
+
+			}
+	
+	//------------------------for Teachers Only----------------------
+				
+	if ($tusers_id != ''){
+				
+				$t_id = explode(',',$tusers_id);		
+				$countid = count($t_id);
+
+				 for ($i=0;$i<$countid;$i++)
+				 {
+					 $userid = $t_id[$i];
+					 $sql="SELECT u.user_id,u.user_type,u.user_master_id,t.teacher_id,t.name,t.phone FROM edu_users AS u,edu_teachers AS t WHERE u.user_id='$userid' AND u.user_type='2' AND u.user_master_id=t.teacher_id";
+					$tcell=$this->db->query($sql);
+					$res=$tcell->result();
+					foreach($res as $row){ } 
+						 $phone = $row->phone;
+						$this->sendSMS($phone,$notes);
+                }
+	}
+	
+	
+	//------------------------for Members Only----------------------
+				
+	if ($musers_id != ''){
+	
+				$m_id = explode(',',$musers_id);		
+				$countid = count($m_id);
+
+				 for ($i=0;$i<$countid;$i++)
+				 {
+					$userid = $m_id[$i];
+					$sql="SELECT u.user_id,u.user_type,u.user_master_id,t.teacher_id,t.name,t.phone FROM edu_users AS u,edu_teachers AS t WHERE u.user_id='$userid' AND u.user_type='5' AND u.user_master_id=t.teacher_id";
+					$tcell=$this->db->query($sql);
+					$res=$tcell->result();
+					foreach($res as $row){ } 
+						$phone = $row->phone;
+						$this->sendSMS($phone,$notes);
+                }
+	}
+	
+	
+	//------------------------for Students Only----------------------
+	
+	if($susers_id != '')
+	{
+		$s_id = explode(',',$susers_id);		
+		$scountid = count($s_id);
+
+		 for ($i=0;$i<$scountid;$i++)
+		 {
+			$clsid = $s_id[$i];
+			
+			$sql1 = "SELECT e.enroll_id,e.admission_id,e.admisn_no,e.name,e.class_id,a.admission_id,a.admisn_no,a.name,a.mobile FROM edu_enrollment AS e,edu_admission AS a WHERE e.class_id='$clsid' AND e.admission_id=a.admission_id ";
+			$scell = $this->db->query($sql1);
+			$res1 = $scell->result();
+				foreach($res1 as $row1)
+				{
+					$phone=$row1->mobile;
+					$this->sendSMS($phone,$notes);
+				}
+		}
+    }
+	
+	//------------------------for Parents Only----------------------
+	
+	if($pusers_id!='')
+	{
+			 
+			$p_id = explode(',',$pusers_id);		
+			$pcountid = count($p_id);
+			 
+			 for ($i=0;$i<$pcountid;$i++)
+			 {
+				$classid = $p_id[$i];
+				$pgid = "SELECT e.enroll_id,e.admission_id,e.admisn_no,e.name,e.class_id FROM edu_enrollment AS e WHERE e.class_id='$classid'";
+				$pcell = $this->db->query($pgid);
+				$res2 = $pcell->result();
+					foreach($res2 as $row2)
+					{
+					  $stuid=$row2->admission_id;
+					  $class="SELECT id,mobile,admission_id,primary_flag FROM edu_parents WHERE FIND_IN_SET('$stuid',admission_id) AND primary_flag='Yes'";
+					  $pcell1=$this->db->query($class);
+					  $res3=$pcell1->result();
+						foreach($res3 as $row3)
+						{
+							 $phone=$row3->mobile;
+							 $this->sendSMS($phone,$notes);
+						}
+					}
+			 }
+		}
+
+	
+	}
+	//#################### Circular Send SMS END ####################//
+	
+	
+	
+	//#################### Circular Send Email  ####################//
+	
+	function send_circular_email($circular_id,$all_id,$tusers_id,$musers_id,$susers_id,$pusers_id)
+	{	
+
+	     $ssql = "SELECT * FROM edu_circular_master WHERE id ='$circular_id'";
+		$res = $this->db->query($ssql);
+		$result =$res->result();
+			foreach($result as $rows){ }
+			 $title = $rows->circular_title;
+			 $notes = $rows->circular_description;
+			 $circular_doc = $rows->circular_doc;
+	
+
+	
+		if ($all_id != '') {
+			//------------------------Teacher----------------------
+				if($all_id==2)
+				{
+					$tsql = "SELECT u.user_id,u.user_type,u.user_master_id,t.teacher_id,t.name,t.phone,t.email FROM edu_users AS u,edu_teachers AS t  WHERE u.user_type='$all_id' AND u.user_master_id=t.teacher_id AND u.status='Active'";
+					$res=$this->db->query($tsql);
+					$result=$res->result();
+					foreach($result as $rows)
+					{
+						$semail = $rows->email;
+						$this->sendMail($semail,$title,$notes);
+				    }
+				}
+
+				//------------------------Staffs----------------------
+				if($all_id==5)
+				{
+					$tsql = "SELECT u.user_id,u.user_type,u.user_master_id,t.teacher_id,t.name,t.phone,t.email FROM edu_users AS u,edu_teachers AS t  WHERE u.user_type='$all_id' AND u.user_master_id=t.teacher_id AND u.status='Active'";
+					$res=$this->db->query($tsql);
+					$result=$res->result();
+					foreach($result as $rows)
+					{
+						$semail = $rows->email;
+						$this->sendMail($semail,$title,$notes);
+				    }
+				}
+				
+				//---------------------------Students----------------------
+				if($all_id==3)
+				{
+					$ssql="SELECT u.user_id,u.user_type,u.user_master_id,u.name,a.admission_id,a.name,a.mobile,a.email FROM edu_users AS u,edu_admission AS a  WHERE u.user_type='$all_id' AND u.user_master_id=a.admission_id AND u.name=a.name AND u.status='Active'";
+					$res=$this->db->query($ssql);
+					$result=$res->result();
+					foreach($result as $rows)
+					{
+						$semail = $rows->email;
+						$this->sendMail($semail,$title,$notes);
+
+				    }
+				}
+
+				//---------------------------Parents--------------------------------------------
+				if($all_id==4)
+				{
+					$psql="SELECT u.user_id,u.user_type,u.user_master_id,u.name,p.id,p.mobile,p.email FROM edu_users AS u,edu_parents AS p WHERE u.user_type='$all_id' AND u.user_master_id=p.id AND u.status='Active'";
+					$res=$this->db->query($psql);
+					$result=$res->result();
+					foreach($result as $rows)
+					{
+						$semail = $rows->email;
+						$this->sendMail($semail,$title,$notes);
+				    }
+				}
+
+			}
+	
+	//------------------------for Teachers Only----------------------
+				
+	if ($tusers_id != ''){
+				
+				$t_id = explode(',',$tusers_id);		
+				$countid = count($t_id);
+
+				 for ($i=0;$i<$countid;$i++)
+				 {
+					 $userid = $t_id[$i];
+					 $sql="SELECT u.user_id,u.user_type,u.user_master_id,t.teacher_id,t.name,t.phone,t.email FROM edu_users AS u,edu_teachers AS t WHERE u.user_id='$userid' AND u.user_type='2' AND u.user_master_id=t.teacher_id";
+					$tcell=$this->db->query($sql);
+					$res=$tcell->result();
+					foreach($res as $row){ } 
+						$semail = $row->email;
+						$this->sendMail($semail,$title,$notes);
+                }
+	}
+	
+	
+	//------------------------for Members Only----------------------
+				
+	if ($musers_id != ''){
+	
+				$m_id = explode(',',$musers_id);		
+				$countid = count($m_id);
+
+				 for ($i=0;$i<$countid;$i++)
+				 {
+					$userid = $m_id[$i];
+					$sql="SELECT u.user_id,u.user_type,u.user_master_id,t.teacher_id,t.name,t.phone,t.email FROM edu_users AS u,edu_teachers AS t WHERE u.user_id='$userid' AND u.user_type='5' AND u.user_master_id=t.teacher_id";
+					$tcell=$this->db->query($sql);
+					$res=$tcell->result();
+					foreach($res as $row){ } 
+						$semail = $row->email;
+						$this->sendMail($semail,$title,$notes);
+                }
+	}
+	
+	
+	//------------------------for Students Only----------------------
+	
+	if($susers_id != '')
+	{
+		$s_id = explode(',',$susers_id);		
+		$scountid = count($s_id);
+
+		 for ($i=0;$i<$scountid;$i++)
+		 {
+			$clsid = $s_id[$i];
+			
+			$sql1 = "SELECT e.enroll_id,e.admission_id,e.admisn_no,e.name,e.class_id,a.admission_id,a.admisn_no,a.name,a.mobile,a.email FROM edu_enrollment AS e,edu_admission AS a WHERE e.class_id='$clsid' AND e.admission_id=a.admission_id";
+			$scell = $this->db->query($sql1);
+			$res1 = $scell->result();
+				foreach($res1 as $row1)
+				{
+					$semail = $row1->email;
+					$this->sendMail($semail,$title,$notes);
+				}
+		}
+    }
+	
+	//------------------------for Parents Only----------------------
+	
+	if($pusers_id!='')
+	{
+			 
+			$p_id = explode(',',$pusers_id);		
+			$pcountid = count($p_id);
+			 
+			 for ($i=0;$i<$pcountid;$i++)
+			 {
+				$classid = $p_id[$i];
+				$pgid = "SELECT e.enroll_id,e.admission_id,e.admisn_no,e.name,e.class_id FROM edu_enrollment AS e WHERE e.class_id='$classid'";
+				$pcell = $this->db->query($pgid);
+				$res2 = $pcell->result();
+					foreach($res2 as $row2)
+					{
+					  $stuid=$row2->admission_id;
+					  $class="SELECT p.id,p.admission_id,p.email,p.primary_flag FROM edu_parents AS p WHERE FIND_IN_SET('$stuid',admission_id) AND p.primary_flag='Yes'";
+					  $pcell1=$this->db->query($class);
+					  $res3=$pcell1->result();
+						foreach($res3 as $row3)
+						{
+							 $semail=$row3->email;
+							 $this->sendMail($semail,$title,$notes);
+						}
+					}
+			 }
+		}
+
+	}
+	//#################### Circular Send SMS END ####################//
+
+
+	//#################### Circular Send Notification  ####################//
+	
+	function send_circular_notification($circular_id,$all_id,$tusers_id,$musers_id,$susers_id,$pusers_id)
+	{	
+
+		$ssql = "SELECT * FROM edu_circular_master WHERE id ='$circular_id'";
+		$res = $this->db->query($ssql);
+		$result =$res->result();
+			foreach($result as $rows){ }
+			 $title = $rows->circular_title;
+			 $notes = $rows->circular_description;
+			 $circular_doc = $rows->circular_doc;
+	
+	
+		if ($all_id != '') {
+			//------------------------Teacher----------------------
+				if($all_id==2)
+				{
+					$tsql="SELECT u.user_id,u.user_type,u.user_master_id,t.teacher_id,t.name,t.phone FROM edu_users AS u,edu_teachers AS t  WHERE u.user_type='$all_id' AND u.user_master_id=t.teacher_id AND u.status='Active'";
+					$tres=$this->db->query($tsql);
+					$tresult1=$tres->result();
+					foreach($tresult1 as $trows)
+					{
+						$userid=$trows->user_id;
+
+					    $sql="SELECT * FROM edu_notification WHERE user_id='$userid'";
+						$tgsm=$this->db->query($sql);
+						$tres1=$tgsm->result();
+						foreach($tres1 as $trow)
+					    {
+						   $gsmkey= $trow->gcm_key;
+						   $mobile_type = $row->mobile_type;
+						   $this->sendNotification($gcm_key,$title,$notes,$mobile_type);
+					    }
+				 	 }
+				}
+
+				//------------------------Staffs----------------------
+				if($all_id==5)
+				{
+					$tsql="SELECT u.user_id,u.user_type,u.user_master_id,t.teacher_id,t.name,t.phone FROM edu_users AS u,edu_teachers AS t  WHERE u.user_type='$all_id' AND u.user_master_id=t.teacher_id AND u.status='Active'";
+					$tres=$this->db->query($tsql);
+					$tresult1=$tres->result();
+					foreach($tresult1 as $trows)
+					{
+						$userid=$trows->user_id;
+
+					    $sql="SELECT * FROM edu_notification WHERE user_id='$userid'";
+						$tgsm=$this->db->query($sql);
+						$tres1=$tgsm->result();
+						foreach($tres1 as $trow)
+					    {
+						   $gsmkey= $trow->gcm_key;
+						   $mobile_type = $row->mobile_type;
+						   $this->sendNotification($gcm_key,$title,$notes,$mobile_type);
+					    }
+				 	 }
+				}
+				
+				//---------------------------Students----------------------
+				if($all_id==3)
+				{
+					$ssql="SELECT u.user_id,u.user_type,u.user_master_id,u.name,a.admission_id,a.name FROM edu_users AS u,edu_admission AS a  WHERE u.user_type='$all_id' AND u.user_master_id=a.admission_id AND u.name=a.name AND u.status='Active'";
+					$sres2=$this->db->query($ssql);
+					$sresult2=$sres2->result();
+					foreach($sresult2 as $srows1)
+					{
+					   $suserid=$srows1->user_id;
+
+					    $sql="SELECT * FROM edu_notification WHERE user_id='$suserid'";
+						$sgsm=$this->db->query($sql);
+						$sres1=$sgsm->result();
+						foreach($sres1 as $srow)
+					    {
+						   $gsmkey=array($srow->gcm_key);
+						   $mobile_type = $row->mobile_type;
+						    $this->sendNotification($gcm_key,$title,$notes,$mobile_type);
+					    }
+
+				   }
+				}
+
+				//---------------------------Parents--------------------------------------------
+				if($all_id==4)
+				{
+					$psql="SELECT u.user_id,u.user_type,u.user_master_id,u.name,p.id FROM edu_users AS u,edu_parents AS p WHERE u.user_type='$all_id' AND u.user_master_id=p.id AND u.status='Active'";
+					$pres2=$this->db->query($psql);
+					$presult2=$pres2->result();
+					foreach($presult2 as $prows1)
+					{
+					     $puserid=$prows1->user_id;
+
+					    $sql="SELECT * FROM edu_notification WHERE user_id='$puserid'";
+						$pgsm=$this->db->query($sql);
+						$pres1=$pgsm->result();
+						foreach($pres1 as $prow)
+					    {
+						   $gsmkey=array($prow->gcm_key);
+						   $mobile_type = $row->mobile_type;
+						   $this->sendNotification($gcm_key,$title,$notes,$mobile_type);
+					    }
+
+				   	}
+
+				}
+
+			}
+	
+	//------------------------for Teachers Only----------------------
+				
+	if ($tusers_id != ''){
+				
+				$t_id = explode(',',$tusers_id);		
+				$countid = count($t_id);
+
+				 for ($i=0;$i<$countid;$i++)
+				 {
+					 $userid = $t_id[$i];
+					 
+					$sql="SELECT * FROM edu_notification WHERE user_id='$userid'";
+					$tcell=$this->db->query($sql);
+					$res=$tcell->result();
+					foreach($res as $row){ 
+						$gcm_key = $row->gcm_key;
+						$mobile_type = $row->mobile_type;
+						$this->sendNotification($gcm_key,$title,$notes,$mobile_type);
+					} 
+                }
+	}
+	
+	
+	//------------------------for Members Only----------------------
+				
+	if ($musers_id != ''){
+	
+				$m_id = explode(',',$musers_id);		
+				$countid = count($m_id);
+
+				 for ($i=0;$i<$countid;$i++)
+				 {
+					$userid = $m_id[$i];
+					$sql="SELECT * FROM edu_notification WHERE user_id='$userid'";
+					$tcell=$this->db->query($sql);
+					$res=$tcell->result();
+					foreach($res as $row){ } 
+						$gcm_key = $row->gcm_key;
+						$mobile_type = $row->mobile_type;
+						$this->sendNotification($gcm_key,$title,$notes,$mobile_type);
+                }
+	}
+	
+	
+	//------------------------for Students Only----------------------
+	
+	if($susers_id != '')
+	{
+		$s_id = explode(',',$susers_id);		
+		$scountid = count($s_id);
+
+		 for ($i=0;$i<$scountid;$i++)
+		 {
+			$clsid = $s_id[$i];
+			
+			$sql1="SELECT u.user_id,u.user_type,u.user_master_id,u.student_id,e.enroll_id,e.admission_id,e.admisn_no,e.name,e.class_id,a.admission_id,a.admisn_no,a.name,a.mobile FROM edu_enrollment AS e,edu_admission AS a,edu_users AS u  WHERE e.class_id='$clsid' AND e.admission_id=a.admission_id  AND u.user_type=3 AND a.admission_id=u.user_master_id AND
+            a.admission_id=u.student_id";
+					$scell=$this->db->query($sql1);
+					$res1=$scell->result();
+					foreach($res1 as $row1)
+					 {
+					    $userid=$row1->user_id;
+						$sql="SELECT * FROM edu_notification WHERE user_id='$userid'";
+           				$sgsm=$this->db->query($sql);
+						$res=$sgsm->result();
+						foreach($res as $row)
+					    {
+						   $gsm_key= $row->gcm_key;
+						   $mobile_type = $row->mobile_type;
+							$this->sendNotification($gcm_key,$title,$notes,$mobile_type);
+					    }
+					}
+				 }
+    }
+	
+	//------------------------for Parents Only----------------------
+	
+	if($pusers_id!='')
+	{
+			 
+			$p_id = explode(',',$pusers_id);		
+			$pcountid = count($p_id);
+			 
+			 for ($i=0;$i<$pcountid;$i++)
+			 {
+				$classid = $p_id[$i];
+				
+				$pgid="SELECT e.enroll_id,e.admission_id,e.admisn_no,e.name,e.class_id FROM edu_enrollment AS e WHERE e.class_id='$classid'";
+				$pcell=$this->db->query($pgid);
+				$res2=$pcell->result();
+					foreach($res2 as $row2)
+					{
+						$stuid=$row2->admission_id;
+
+						$class="SELECT p.id,p.admission_id,u.user_id,u.user_type,u.user_master_id,u.parent_id FROM edu_parents AS p,edu_users AS u WHERE FIND_IN_SET('$stuid',admission_id) AND u.parent_id=p.id AND u.user_master_id=p.id AND u.user_type='4' AND u.status='Active'";
+						$pcell1=$this->db->query($class);
+						$res3=$pcell1->result();
+						foreach($res3 as $row3)
+						{
+							$userid=$row3->user_id;
+							$sql="SELECT * FROM edu_notification WHERE user_id='$userid'";
+							$pgsm=$this->db->query($sql);
+							$pres=$pgsm->result();
+								foreach($pres as $prow)
+								{
+									$gsmkey=array($prow->gcm_key);
+								}
+						}
+					}
+			 }
+		}
+		
+	}
+	//#################### Circular Send Notification END ####################//
+
+
+	//####################  Circular History ####################//
+	public function save_circular_history($circular_id,$circular_date,$circular_type,$all_id,$tusers_id,$musers_id,$susers_id,$pusers_id,$status,$user_id)
+	{
+
+		//------------------------All----------------------
+		if ($all_id != '') {
+		
+				$sql="SELECT * FROM edu_users WHERE user_type='$all_id' AND status='Active'";
+				$res=$this->db->query($sql);
+				$result=$res->result();
+					foreach($result as $rows)
+					{
+						$userid = $rows->user_id;
+						$query = "INSERT INTO edu_circular(user_type,user_id,circular_master_id,circular_type,circular_date,status,created_by,created_at) VALUES ('$all_id','$userid','$circular_id','$circular_type','$circular_date','$status','$user_id',NOW())";
+						$resultset = $this->db->query($query);
+					}
+		}
+
+
+//------------------------for Teachers Only----------------------
+				
+	if ($tusers_id != ''){
+				
+				$t_id = explode(',',$tusers_id);		
+				$countid = count($t_id);
+
+				 for ($i=0;$i<$countid;$i++)
+				 {
+					 $userid = $t_id[$i];
+					 
+					$query = "INSERT INTO edu_circular(user_type,user_id,circular_master_id,circular_type,circular_date,status,created_by,created_at) VALUES ('2','$userid','$circular_id','$circular_type','$circular_date','$status','$user_id',NOW())";
+					$resultset = $this->db->query($query);
+                }
+	}
+	
+	//------------------------for Members Only----------------------
+				
+	if ($musers_id != ''){
+				
+				$m_id = explode(',',$musers_id);		
+				$countid = count($m_id);
+
+				 for ($i=0;$i<$countid;$i++)
+				 {
+					 $userid = $m_id[$i];
+					 
+					 $query = "INSERT INTO edu_circular(user_type,user_id,circular_master_id,circular_type,circular_date,status,created_by,created_at) VALUES ('5','$userid','$circular_id','$circular_type','$circular_date','$status','$user_id',NOW())";
+					$resultset = $this->db->query($query);
+                }
+	}
+	
+	//------------------------for Students Only----------------------
+	
+	if($susers_id != '')
+	{
+		$s_id = explode(',',$susers_id);		
+		$scountid = count($s_id);
+
+		 for ($i=0;$i<$scountid;$i++)
+		 {
+			$clsid = $s_id[$i];
+			
+			$sql1="SELECT u.user_id,u.user_type,u.user_master_id,u.student_id,e.enroll_id,e.admission_id,e.admisn_no,e.name,e.class_id,a.admission_id,a.admisn_no,a.name,a.mobile FROM edu_enrollment AS e,edu_admission AS a,edu_users AS u  WHERE e.class_id='$clsid' AND e.admission_id=a.admission_id  AND u.user_type=3 AND a.admission_id=u.user_master_id AND
+            a.admission_id=u.student_id";
+					$scell=$this->db->query($sql1);
+					$res1=$scell->result();
+					foreach($res1 as $row1)
+					 {
+					    $userid=$row1->user_id;
+						echo $query = "INSERT INTO edu_circular(user_type,user_id,circular_master_id,circular_type,circular_date,status,created_by,created_at) VALUES ('$susers_id','$userid','$circular_id','$circular_type','$circular_date','$status','$user_id',NOW())";
+						$resultset = $this->db->query($query);
+					}
+				 }
+    }
+	
+	//------------------------for Parents Only----------------------
+	
+	if($pusers_id!='')
+	{
+			 
+			$p_id = explode(',',$pusers_id);		
+			$pcountid = count($p_id);
+			 
+			 for ($i=0;$i<$pcountid;$i++)
+			 {
+				$classid = $p_id[$i];
+				
+				$pgid="SELECT e.enroll_id,e.admission_id,e.admisn_no,e.name,e.class_id FROM edu_enrollment AS e WHERE e.class_id='$classid'";
+				$pcell=$this->db->query($pgid);
+				$res2=$pcell->result();
+					foreach($res2 as $row2)
+					{
+						$stuid=$row2->admission_id;
+
+						$class="SELECT p.id,p.admission_id,u.user_id,u.user_type,u.user_master_id,u.parent_id FROM edu_parents AS p,edu_users AS u WHERE FIND_IN_SET('$stuid',admission_id) AND u.parent_id=p.id AND u.user_master_id=p.id AND u.user_type='4' AND u.status='Active'";
+						$pcell1=$this->db->query($class);
+						$res3=$pcell1->result();
+						foreach($res3 as $row3)
+						{
+							$userid=$row3->user_id;
+							echo $query = "INSERT INTO edu_circular(user_type,user_id,circular_master_id,circular_type,circular_date,status,created_by,created_at) VALUES ('$pusers_id','$userid','$circular_id','$circular_type','$circular_date','$status','$user_id',NOW())";
+						$resultset = $this->db->query($query);
+							
+						}
+					}
+			 }
+		}
+
+          $response = array("status" => "sucess", "msg" => "Circular Send Sucessfully");
+		  return $response;
+           
+     }
+	//####################  Circular History End ####################//
+
 }
 
 ?>

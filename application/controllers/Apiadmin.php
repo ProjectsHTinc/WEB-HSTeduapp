@@ -937,6 +937,8 @@ class Apiadmin extends CI_Controller {
     }
 
 
+
+
 //-----------------------------------------------//
 /*
 	public function disp_timetabledays()
@@ -1004,6 +1006,40 @@ class Apiadmin extends CI_Controller {
 
 //-----------------------------------------------//
 */
+
+//-----------------------------------------------//
+
+	public function list_class_section()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "View Class Sections";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+
+		$user_id = '';
+		$user_id = $this->input->post("user_id");
+
+
+		$data['result']=$this->apiadminmodel->listClasssection($user_id);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
 //-----------------------------------------------//
 
 	public function add_timetableremarks()
@@ -1044,7 +1080,7 @@ class Apiadmin extends CI_Controller {
 
 	public function add_groupmaster()
 	{
-		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+	//	$_POST = json_decode(file_get_contents("php://input"), TRUE);
 
 		if(!$this->checkMethod())
 		{
@@ -1068,7 +1104,7 @@ class Apiadmin extends CI_Controller {
 		$status = '';
 		$user_id = $this->input->post("user_id");
 		$group_title = $this->input->post("group_title");
-		$group_lead = $this->input->post("group_lead");
+		$group_lead = $this->input->post("group_lead_id");
 		$status = $this->input->post("status");
 
 		$data['result']=$this->apiadminmodel->addGroupmaster($user_id,$group_title,$group_lead,$status);
@@ -1172,7 +1208,7 @@ class Apiadmin extends CI_Controller {
 		$user_id = $this->input->post("user_id");
 		$group_id = $this->input->post("group_id");
 		$group_title = $this->input->post("group_title");
-		$group_lead = $this->input->post("group_lead");
+		$group_lead = $this->input->post("group_lead_id");
 		$status = $this->input->post("status");
 
 		$data['result']=$this->apiadminmodel->updateGroupmaster($user_id,$group_id,$group_title,$group_lead,$status);
@@ -1352,7 +1388,7 @@ class Apiadmin extends CI_Controller {
 
 	public function add_gn_members()
 	{
-		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
 
 		if(!$this->checkMethod())
 		{
@@ -1392,7 +1428,7 @@ class Apiadmin extends CI_Controller {
 
 	public function list_gn_members()
 	{
-		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
 
 		if(!$this->checkMethod())
 		{
@@ -1423,7 +1459,7 @@ class Apiadmin extends CI_Controller {
 //-----------------------------------------------//
 	public function group_msg_send()
 	{
-		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
 
 		if(!$this->checkMethod())
 		{
@@ -1440,6 +1476,7 @@ class Apiadmin extends CI_Controller {
 			echo json_encode($res);
 			return;
 		}
+		
 		$user_id = '';
 		$group_id = '';
 		$notes = '';
@@ -1447,26 +1484,12 @@ class Apiadmin extends CI_Controller {
 		$user_id = $this->input->post("user_id");
 		$group_id = $this->input->post("group_id");
 		$notes = $this->input->post("notes");
-		$circular_type = array($this->input->post('circular_type'));
+		$circular_type = $this->input->post('notification_type');
+		
+		$cir = explode(',',$circular_type);
+	    $cir_cnt = count($cir);
 
-
-			 $cir = implode(',',$circular_type);
-			 $cir_cnt = count($circular_type);
-
-				if($cir_cnt == '1'){
-				 	$ct1 = $circular_type[0];
-				 }
-				 if($cir_cnt == '2'){
-					 $ct1 = $circular_type[0];
-					 $ct2 = $circular_type[1];
-				 }
-				 if($cir_cnt == '3'){
-					 $ct0 = $circular_type[0];
-					 $ct1 = $circular_type[1];
-					 $ct2 = $circular_type[2];
-				}
 				
-					
 			if($cir_cnt==3)	{
 				$data = $this->apiadminmodel->gn_send_mail($group_id,$notes,$user_id);
 				$data = $this->apiadminmodel->gn_send_message($group_id,$notes,$user_id);
@@ -1474,8 +1497,8 @@ class Apiadmin extends CI_Controller {
 			 }
 				 
 			 if($cir_cnt==2)  {
-		 		  	$ct1=$circular_type[0];
-		 	    	$ct2=$circular_type[1];
+		 		  	$ct1=$cir[0];
+		 	    	$ct2=$cir[1];
 
 		 		  if($ct1=='SMS' && $ct2=='Mail')
 		 		  {
@@ -1495,7 +1518,7 @@ class Apiadmin extends CI_Controller {
 
 		 	  }
 			 if($cir_cnt==1) {
-				  $ct=$circular_type[0];
+				  $ct=$cir[0];
 				  if($ct=='SMS')
 				  {
 						$data = $this->apiadminmodel->gn_send_message($group_id,$notes,$user_id);
@@ -1509,7 +1532,7 @@ class Apiadmin extends CI_Controller {
 						$data = $this->apiadminmodel->gn_send_mail($group_id,$notes,$user_id);
 				  }
 			  }
-				$data['result']= $this->apiadminmodel->save_group_history($group_id,$cir,$notes,$user_id);
+				$data['result']= $this->apiadminmodel->save_group_history($group_id,$circular_type,$notes,$user_id);
 				$response = $data['result'];
 				echo json_encode($response);
 	}
@@ -1519,12 +1542,12 @@ class Apiadmin extends CI_Controller {
 
 	public function add_circular()
 	{
-		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
 
-		$user_id = $this->input->post("user_id");
-		$circular_title = $this->input->post("circular_title");
-		$circular_description = $this->input->post("circular_description");
-		$status  = $this->input->post("status ");
+		 $user_id = $this->input->post("user_id");
+		 $circular_title = $this->input->post("circular_title");
+		 $circular_description = $this->input->post("circular_description");
+		 $status  = $this->input->post("status");
 		
 		$profile = $_FILES["circular_doc"]["name"];
 		$userFileName = time().'-'.$profile;
@@ -1633,6 +1656,125 @@ class Apiadmin extends CI_Controller {
 
 //-----------------------------------------------//
 
+//-----------------------------------------------//
+
+	public function list_roles()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "List Roles";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+		
+		$user_id = '';
+		$user_id = $this->input->post("user_id");
+
+		$data['result']=$this->apiadminmodel->listRoles($user_id);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+
+//-----------------------------------------------//
+	public function circular_msg_send()
+	{
+		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "Send Circular Message";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+
+			$user_id=$this->input->post('user_id');
+			$all_id=$this->input->post('allusers');
+			$tusers_id=$this->input->post('tusers');
+			$musers_id=$this->input->post('musers');
+			$susers_id=$this->input->post('susers');
+			$pusers_id=$this->input->post('pusers');
+			$circular_id=$this->input->post('circular_id'); 
+			$circular_date=$this->input->post('circular_date');
+			//$dateTime = new DateTime($cdate);
+			//$circulardate=date_format($dateTime,'Y-m-d' );
+			$circular_type=$this->input->post('circular_type');
+			$status=$this->input->post('status'); 
+		  
+			 $cir = explode(',',$circular_type);
+			 //print_r($cir);
+			 $cir_cnt = count($cir);
+
+			if($cir_cnt==3)	{
+				$data = $this->apiadminmodel->send_circular_sms($circular_id,$all_id,$tusers_id,$musers_id,$susers_id,$pusers_id);
+				$data = $this->apiadminmodel->send_circular_email($circular_id,$all_id,$tusers_id,$musers_id,$susers_id,$pusers_id);
+				$data = $this->apiadminmodel->send_circular_notification($circular_id,$all_id,$tusers_id,$musers_id,$susers_id,$pusers_id);
+			 }
+				 
+			 if($cir_cnt==2)  {
+		 		  	$ct1=$cir[0];
+		 	    	$ct2=$cir[1];
+
+		 		  if($ct1=='SMS' && $ct2=='Mail')
+		 		  {
+					 $data = $this->apiadminmodel->send_circular_sms($circular_id,$all_id,$tusers_id,$musers_id,$susers_id,$pusers_id);
+ 					$data = $this->apiadminmodel->send_circular_email($circular_id,$all_id,$tusers_id,$musers_id,$susers_id,$pusers_id);
+		 		  }
+		 		  if($ct1=='SMS' && $ct2=='Notification')
+		 		  {
+					 $data = $this->apiadminmodel->send_circular_sms($circular_id,$all_id,$tusers_id,$musers_id,$susers_id,$pusers_id);
+ 					 $data = $this->apiadminmodel->send_circular_notification($circular_id,$all_id,$tusers_id,$musers_id,$susers_id,$pusers_id);
+		 		  }
+		 		  if($ct1=='Mail' && $ct2=='Notification')
+		 		  {
+ 					$data = $this->apiadminmodel->send_circular_email($circular_id,$all_id,$tusers_id,$musers_id,$susers_id,$pusers_id);
+ 					$data = $this->apiadminmodel->send_circular_notification($circular_id,$all_id,$tusers_id,$musers_id,$susers_id,$pusers_id);
+		 		  }
+
+		 	  }
+			 if($cir_cnt==1) {
+				  $ct=$cir[0];
+				  if($ct=='SMS')
+				  {
+						$data = $this->apiadminmodel->send_circular_sms($circular_id,$all_id,$tusers_id,$musers_id,$susers_id,$pusers_id);
+				  }
+				  if($ct=='Mail')
+				  {
+						$data = $this->apiadminmodel->send_circular_email($circular_id,$all_id,$tusers_id,$musers_id,$susers_id,$pusers_id);
+				  }
+				  if($ct=='Notification')
+				  {
+						 $data = $this->apiadminmodel->send_circular_notification($circular_id,$all_id,$tusers_id,$musers_id,$susers_id,$pusers_id);
+				  }
+			  }
+			 
+				$data['result']= $this->apiadminmodel->save_circular_history($circular_id,$circular_date,$circular_type,$all_id,$tusers_id,$musers_id,$susers_id,$pusers_id,$status,$user_id);
+				$response = $data['result'];
+				echo json_encode($response);
+	}
+	//-----------------------------------------------//
 
 
 }
