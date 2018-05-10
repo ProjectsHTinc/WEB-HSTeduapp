@@ -979,7 +979,7 @@ class Apiteacher extends CI_Controller {
 
 	public function disp_Attendence_classteacher()
 	{
- 		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
+ 		$_POST = json_decode(file_get_contents("php://input"), TRUE);
 
 		if(!$this->checkMethod())
 		{
@@ -1012,7 +1012,7 @@ class Apiteacher extends CI_Controller {
 
 	public function list_Studentattend_classteacher()
 	{
- 		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
+ 		$_POST = json_decode(file_get_contents("php://input"), TRUE);
 
 		if(!$this->checkMethod())
 		{
@@ -1047,7 +1047,7 @@ class Apiteacher extends CI_Controller {
 
 	public function send_attendance_parents()
 	{
- 		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
+ 		$_POST = json_decode(file_get_contents("php://input"), TRUE);
 
 		if(!$this->checkMethod())
 		{
@@ -1070,8 +1070,6 @@ class Apiteacher extends CI_Controller {
 		
 		$attend_id = $this->input->post("attend_id");
 		$msg_type = $this->input->post("msg_type");
-		
-		
 		$cir = explode(',',$msg_type);
 		$cir_cnt = count($cir);
 
@@ -1122,6 +1120,158 @@ class Apiteacher extends CI_Controller {
 				$response = $data['result'];
 				echo json_encode($response);
 
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function list_csteacher_allhwork()
+	{
+ 		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "Class Teacher View All Home Works";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+
+		$class_id = '';   
+		$class_id = $this->input->post("class_id");
+		
+		$data['result']=$this->apiteachermodel->listCsteacherAllhwork($class_id);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function list_allhwork_day()
+	{
+ 		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "Class Teacher View Home Works day wise";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+
+		$class_id = '';
+		$hw_date = '';
+		$class_id = $this->input->post("class_id");
+		$hw_date = $this->input->post("hw_date");
+		
+		$data['result']=$this->apiteachermodel->listAllhworkday($class_id,$hw_date);
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function send_allhw_parents()
+	{
+ 		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "Class Teacher View Home Works day wise";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+
+		$user_id = '';
+		$createdate = '';
+		$clssid = '';
+		$msg_type='';
+		
+		$user_id = $this->input->post('user_id');
+		$createdate = $this->input->post('hw_created_date');
+		$clssid = $this->input->post('class_id');
+		$msg_type = $this->input->post("msg_type");
+		
+		$cir = explode(',',$msg_type);
+		$cir_cnt = count($cir);
+
+
+			if($cir_cnt==3)	{
+				$data = $this->apiteachermodel->send_allhw_sms($user_id,$createdate,$clssid);
+				$data = $this->apiteachermodel->send_allhw_email($user_id,$createdate,$clssid);
+				$data = $this->apiteachermodel->send_allhw_notification($user_id,$createdate,$clssid);
+			 }
+				 
+			 if($cir_cnt==2)  {
+		 		  	$ct1=$cir[0];
+		 	    	$ct2=$cir[1];
+
+		 		  if($ct1=='SMS' && $ct2=='Mail')
+		 		  {
+					 $data = $this->apiteachermodel->send_allhw_sms($user_id,$createdate,$clssid);
+ 					$data = $this->apiteachermodel->send_allhw_email($user_id,$createdate,$clssid);
+		 		  }
+		 		  if($ct1=='SMS' && $ct2=='Notification')
+		 		  {
+					 $data = $this->apiteachermodel->send_allhw_sms($user_id,$createdate,$clssid);
+ 					 $data = $this->apiteachermodel->send_allhw_notification($user_id,$createdate,$clssid);
+		 		  }
+		 		  if($ct1=='Mail' && $ct2=='Notification')
+		 		  {
+ 					$data = $this->apiteachermodel->send_allhw_email($user_id,$createdate,$clssid);
+ 					$data = $this->apiteachermodel->send_allhw_notification($user_id,$createdate,$clssid);
+		 		  }
+
+		 	  }
+			 if($cir_cnt==1) {
+				  $ct=$cir[0];
+				  if($ct=='SMS')
+				  {
+						$data = $this->apiteachermodel->send_allhw_sms($user_id,$createdate,$clssid);
+				  }
+				  if($ct=='Mail')
+				  {
+						$data = $this->apiteachermodel->send_allhw_email($user_id,$createdate,$clssid);
+				  }
+				  if($ct=='Notification')
+				  {
+						 $data = $this->apiteachermodel->send_allhw_notification($user_id,$createdate,$clssid);
+				  }
+			  }
+		
+		$data['result']=$this->apiteachermodel->updateAllhworkstatus($user_id,$createdate,$clssid);
+		$response = $data['result'];
+		echo json_encode($response);
 	}
 
 //-----------------------------------------------//
