@@ -59,6 +59,8 @@
                          <td>
                            <?php if($rows->is_break==1){
                            echo "Break";
+                           echo "<br>";
+                           echo $rows->break_name;
                          } else{
                            echo $rows->subject_name; echo "<br>";
 
@@ -99,6 +101,8 @@
                          <td>
                            <?php if($rows->is_break==1){
                            echo "Break";
+                           echo "<br>";
+                           echo $rows->break_name;
                          } else{
                            echo $rows->subject_name;
                           }?></td>
@@ -138,6 +142,8 @@
                          <td>
                            <?php if($rows->is_break==1){
                            echo "Break";
+                           echo "<br>";
+                           echo $rows->break_name;
                          } else{
                            echo $rows->subject_name;
                           }?></td>
@@ -178,6 +184,8 @@
                          <td>
                            <?php if($rows->is_break==1){
                            echo "Break";
+                           echo "<br>";
+                           echo $rows->break_name;
                          } else{
                            echo $rows->subject_name;
                           }?></td>
@@ -217,6 +225,8 @@
                          <td>
                            <?php if($rows->is_break==1){
                            echo "Break";
+                           echo "<br>";
+                           echo $rows->break_name;
                          } else{
                            echo $rows->subject_name;
                           }?></td>
@@ -256,6 +266,8 @@
                          <td>
                            <?php if($rows->is_break==1){
                            echo "Break";
+                           echo "<br>";
+                           echo $rows->break_name;
                          } else{
                            echo $rows->subject_name;
                           }?></td>

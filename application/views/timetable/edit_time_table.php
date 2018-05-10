@@ -48,6 +48,12 @@
                                          <input type="hidden" class="form-control"  name="table_id" id="table_id" value="<?php echo $rows->table_id; ?>" readonly>
                                        </div>
                                     </div>
+                                    <div class="form-group"  style="display:<?php echo $rows->is_break==0 ? 'none':'block' ?>">
+                                       <label class="col-sm-2 control-label">Break Name</label>
+                                       <div class="col-sm-4 clockpicker">
+                                         <input type="text" class="form-control"  name="break_name" id="break_name"  placeholder="Break Name" value="<?php echo $rows->break_name; ?>" >
+                                       </div>
+                                    </div>
 
                                       <div class="form-group" id="subject_id_tab" style="display:<?php echo $rows->is_break==1 ? 'none':'block' ?>">
                                          <label class="col-sm-2 control-label">Select Subject </label>

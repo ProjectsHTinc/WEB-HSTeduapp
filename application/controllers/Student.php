@@ -190,7 +190,7 @@ class Student extends CI_Controller
                 $data['user_id']   = $user_id;
                 $data['user_type'] = $user_type;
                 $this->load->view('adminstudent/student_header');
-                $this->load->view('adminstudent/timetable/view', $data);
+                $this->load->view('adminstudent/timetable/view_timetable', $data);
                 $this->load->view('adminstudent/student_footer');
             }
         } else {

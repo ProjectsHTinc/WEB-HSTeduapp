@@ -38,7 +38,7 @@ Class Timetablemodel extends CI_Model
         }
     }
     //Create timetable
-    function create_timetable($year_id,$term_id,$class_id,$subject_id,$teacher_id,$day_id,$period_id,$break_id,$from_time,$to_time){
+    function create_timetable($year_id,$term_id,$class_id,$subject_id,$teacher_id,$day_id,$period_id,$break_id,$from_time,$to_time,$break_name){
        $sqlYear     = "SELECT IFNULL(max(to_time), '0') as max_time FROM edu_timetable WHERE class_id = '$class_id' AND day_id='$day_id' AND term_id = '$term_id' AND year_id='$year_id'";
       $term_result = $this->db->query($sqlYear);
        $ress_max   = $term_result->result();
@@ -48,11 +48,13 @@ Class Timetablemodel extends CI_Model
            if($break_id==1){
              $subject_id_period='0';
              $teacher_id_period='0';
+             $break_name_txt=$break_name;
            }else{
              $subject_id_period=$subject_id;
              $teacher_id_period=$teacher_id;
+             $break_name_txt='';
            }
-           $query     = "INSERT INTO edu_timetable (year_id,term_id,class_id,from_time,to_time,is_break,subject_id,teacher_id,day_id,period,status,created_at,updated_at) VALUES('$year_id','$term_id','$class_id','$from_time','$to_time','$break_id','$subject_id_period','$teacher_id_period','$day_id','$period_id','Active',NOW(),NOW())";
+           $query     = "INSERT INTO edu_timetable (year_id,term_id,class_id,from_time,to_time,is_break,break_name,subject_id,teacher_id,day_id,period,status,created_at,updated_at) VALUES('$year_id','$term_id','$class_id','$from_time','$to_time','$break_id','$break_name_txt','$subject_id_period','$teacher_id_period','$day_id','$period_id','Active',NOW(),NOW())";
              $resultset = $this->db->query($query);
              if ($resultset) {
                  echo "success";
@@ -64,11 +66,13 @@ Class Timetablemodel extends CI_Model
              if($break_id==1){
                $subject_id_period='0';
                $teacher_id_period='0';
+               $break_name_txt=$break_name;
              }else{
                $subject_id_period=$subject_id;
                $teacher_id_period=$teacher_id;
+               $break_name_txt=' ';
              }
-             $query     = "INSERT INTO edu_timetable (year_id,term_id,class_id,from_time,to_time,is_break,subject_id,teacher_id,day_id,period,status,created_at,updated_at) VALUES('$year_id','$term_id','$class_id','$from_time','$to_time','$break_id','$subject_id_period','$teacher_id_period','$day_id','$period_id','Active',NOW(),NOW())";
+             $query     = "INSERT INTO edu_timetable (year_id,term_id,class_id,from_time,to_time,is_break,break_name,subject_id,teacher_id,day_id,period,status,created_at,updated_at) VALUES('$year_id','$term_id','$class_id','$from_time','$to_time','$break_id','$break_name','$subject_id_period','$teacher_id_period','$day_id','$period_id','Active',NOW(),NOW())";
                $resultset = $this->db->query($query);
                if ($resultset) {
                    echo "success";
@@ -84,7 +88,7 @@ Class Timetablemodel extends CI_Model
 
       function timetable_for_class($term_id,$class_id){
         $year_id = $this->getYear();
-        $query      = "SELECT tt.table_id,tt.class_id,tt.subject_id,s.subject_name,tt.teacher_id,t.name,tt.day_id,dd.list_day,tt.period,ss.sec_name,c.class_name,tt.from_time,tt.to_time,tt.is_break
+        $query      = "SELECT tt.table_id,tt.class_id,tt.subject_id,s.subject_name,tt.teacher_id,t.name,tt.day_id,dd.list_day,tt.period,ss.sec_name,c.class_name,tt.from_time,tt.to_time,tt.is_break,tt.break_name
                 FROM edu_timetable AS tt LEFT JOIN edu_subject AS s ON tt.subject_id=s.subject_id LEFT JOIN edu_teachers AS t ON tt.teacher_id=t.teacher_id
                 INNER JOIN edu_classmaster AS cm ON tt.class_id=cm.class_sec_id INNER JOIN edu_class AS c ON cm.class=c.class_id INNER JOIN edu_sections AS ss ON cm.section=ss.sec_id
                 INNER JOIN edu_days AS dd ON tt.day_id=dd.d_id WHERE tt.class_id='$class_id' AND tt.year_id='$year_id' AND tt.term_id='$term_id' ORDER BY tt.table_id ASC";
@@ -94,7 +98,7 @@ Class Timetablemodel extends CI_Model
 
       function view_timetable_day($term_id,$class_id,$day_id){
         $year_id = $this->getYear();
-        $query      = "SELECT tt.table_id,tt.class_id,tt.subject_id,s.subject_name,tt.teacher_id,t.name,tt.day_id,dd.list_day,tt.period,ss.sec_name,c.class_name,tt.from_time,tt.to_time,tt.is_break
+        $query      = "SELECT tt.table_id,tt.class_id,tt.subject_id,s.subject_name,tt.teacher_id,t.name,tt.day_id,dd.list_day,tt.period,ss.sec_name,c.class_name,tt.from_time,tt.to_time,tt.is_break,tt.break_name
                 FROM edu_timetable AS tt LEFT JOIN edu_subject AS s ON tt.subject_id=s.subject_id LEFT JOIN edu_teachers AS t ON tt.teacher_id=t.teacher_id
                 INNER JOIN edu_classmaster AS cm ON tt.class_id=cm.class_sec_id INNER JOIN edu_class AS c ON cm.class=c.class_id INNER JOIN edu_sections AS ss ON cm.section=ss.sec_id
                 INNER JOIN edu_days AS dd ON tt.day_id=dd.d_id WHERE tt.class_id='$class_id' AND tt.day_id='$day_id' AND tt.year_id='$year_id' AND tt.term_id='$term_id' ORDER BY tt.table_id ASC";
@@ -104,7 +108,7 @@ Class Timetablemodel extends CI_Model
 
 
       function edit_time_table($table_id){
-        $query      = "SELECT tt.table_id,tt.class_id,tt.subject_id,s.subject_name,tt.teacher_id,t.name,tt.day_id,dd.list_day,tt.period,ss.sec_name,c.class_name,tt.from_time,tt.to_time,tt.is_break
+        $query      = "SELECT tt.table_id,tt.class_id,tt.subject_id,s.subject_name,tt.teacher_id,t.name,tt.day_id,dd.list_day,tt.period,ss.sec_name,c.class_name,tt.from_time,tt.to_time,tt.is_break,tt.break_name
                 FROM edu_timetable AS tt LEFT JOIN edu_subject AS s ON tt.subject_id=s.subject_id LEFT JOIN edu_teachers AS t ON tt.teacher_id=t.teacher_id
                 INNER JOIN edu_classmaster AS cm ON tt.class_id=cm.class_sec_id INNER JOIN edu_class AS c ON cm.class=c.class_id INNER JOIN edu_sections AS ss ON cm.section=ss.sec_id
                 INNER JOIN edu_days AS dd ON tt.day_id=dd.d_id WHERE tt.table_id='$table_id'";
@@ -112,15 +116,17 @@ Class Timetablemodel extends CI_Model
         return $result->result();
       }
 
-      function update_timetable_for_class($subject_id,$teacher_id,$table_id,$is_break,$user_id){
+      function update_timetable_for_class($subject_id,$teacher_id,$table_id,$is_break,$break_name,$user_id){
               if($is_break==1){
                 $subject_id_period='0';
                 $teacher_id_period='0';
+                 $break_name_txt=$break_name;
               }else{
                 $subject_id_period=$subject_id;
                 $teacher_id_period=$teacher_id;
+                $break_name_txt=' ';
               }
-           $query="UPDATE edu_timetable SET subject_id='$subject_id_period',teacher_id='$teacher_id_period',is_break='$is_break' WHERE table_id='$table_id'";
+           $query="UPDATE edu_timetable SET subject_id='$subject_id_period',teacher_id='$teacher_id_period',is_break='$is_break',break_name='$break_name_txt' WHERE table_id='$table_id'";
           $result     = $this->db->query($query);
           if ($result) {
               echo "success";
@@ -255,7 +261,7 @@ Class Timetablemodel extends CI_Model
     {
         $term_id = $this->getTerm();
         $year_id = $this->getYear();
-         $query  = "SELECT tt.table_id,tt.class_id,tt.subject_id,s.subject_name,tt.teacher_id,t.name,tt.day_id,tt.period,tt.from_time,tt.to_time,tt.is_break FROM edu_timetable AS tt LEFT JOIN edu_subject AS s ON tt.subject_id=s.subject_id LEFT JOIN edu_teachers AS t ON tt.teacher_id=t.teacher_id WHERE tt.class_id='$class_sec_id' AND tt.term_id='$term_id' AND tt.year_id='$year_id' ORDER BY tt.table_id ASC";
+         $query  = "SELECT tt.table_id,tt.class_id,tt.subject_id,s.subject_name,tt.teacher_id,t.name,tt.day_id,tt.period,tt.from_time,tt.to_time,tt.is_break,tt.break_name FROM edu_timetable AS tt LEFT JOIN edu_subject AS s ON tt.subject_id=s.subject_id LEFT JOIN edu_teachers AS t ON tt.teacher_id=t.teacher_id WHERE tt.class_id='$class_sec_id' AND tt.term_id='$term_id' AND tt.year_id='$year_id' ORDER BY tt.table_id ASC";
         $result = $this->db->query($query);
         $time   = $result->result();
         if ($result->num_rows() == 0) {
@@ -326,10 +332,10 @@ Class Timetablemodel extends CI_Model
 
     //Save Review
 
-    function save_review($class_id, $user_id, $user_type, $subject_id, $cur_date, $comments, $period_id,$from_time,$to_time)
+    function save_review($timetable_id,$class_id, $user_id, $user_type, $subject_id, $cur_date, $comments, $period_id,$from_time,$to_time)
     {
         $year_id   = $this->getYear();
-         $query     = "INSERT INTO edu_timetable_review (time_date,year_id,class_id,subject_id,period_id,from_time,to_time,user_type,user_id,comments,status,created_at,updated_at) VALUES ('$cur_date','$year_id','$class_id','$subject_id','$period_id','$from_time','$to_time','$user_type','$user_id','$comments','Active',NOW(),NOW())";
+         $query     = "INSERT INTO edu_timetable_review (timetable_mas_id,time_date,year_id,class_id,subject_id,period_id,from_time,to_time,user_type,user_id,comments,status,created_at,updated_at) VALUES ('$timetable_id','$cur_date','$year_id','$class_id','$subject_id','$period_id','$from_time','$to_time','$user_type','$user_id','$comments','Active',NOW(),NOW())";
         $resultset = $this->db->query($query);
         if ($resultset) {
             $data = array(
@@ -350,9 +356,9 @@ Class Timetablemodel extends CI_Model
     function view_review($user_id)
     {
         $year_id   = $this->getYear();
-        $query     = "SELECT etr.class_id,etr.period_id,c.class_name,s.sec_name,etr.subject_id,etr.time_date,esu.subject_name,etr.comments,etr.remarks FROM edu_timetable_review AS etr
+        $query     = "SELECT etr.class_id,etr.period_id,c.class_name,s.sec_name,etr.subject_id,etr.time_date,esu.subject_name,etr.comments,etr.remarks,etr.from_time,etr.to_time FROM edu_timetable_review AS etr
                 INNER JOIN edu_classmaster AS cm ON etr.class_id=cm.class_sec_id INNER JOIN edu_class AS c ON cm.class=c.class_id INNER JOIN edu_sections AS s ON cm.section=s.sec_id
-                INNER JOIN edu_subject AS esu ON etr.subject_id=esu.subject_id  WHERE user_id ='$user_id'and etr.year_id='$year_id' ORDER BY etr.updated_at ASC";
+                INNER JOIN edu_subject AS esu ON etr.subject_id=esu.subject_id  WHERE user_id ='$user_id'and etr.year_id='$year_id' ORDER BY etr.timetable_id DESC";
         $resultset = $this->db->query($query);
         return $resultset->result();
     }
@@ -407,7 +413,7 @@ Class Timetablemodel extends CI_Model
         foreach ($resultset->result() as $rows) {
         }
         $teacher_id = $rows->teacher_id;
-        $query      = "SELECT tt.table_id,tt.class_id,tt.subject_id,s.subject_name,tt.teacher_id,t.name,tt.day_id,dd.list_day,tt.period,ss.sec_name,c.class_name,tt.is_break,tt.from_time,tt.to_time
+        $query      = "SELECT tt.table_id,tt.class_id,tt.subject_id,s.subject_name,tt.teacher_id,t.name,tt.day_id,dd.list_day,tt.period,ss.sec_name,c.class_name,tt.is_break,tt.from_time,tt.to_time,tt.break_name
                 FROM edu_timetable AS tt LEFT JOIN edu_subject AS s ON tt.subject_id=s.subject_id LEFT JOIN edu_teachers AS t ON tt.teacher_id=t.teacher_id
                 INNER JOIN edu_classmaster AS cm ON tt.class_id=cm.class_sec_id INNER JOIN edu_class AS c ON cm.class=c.class_id INNER JOIN edu_sections AS ss ON cm.section=ss.sec_id
                 INNER JOIN edu_days AS dd ON tt.day_id=dd.d_id WHERE  tt.teacher_id='$teacher_id' AND tt.year_id='$year_id' AND tt.term_id='$term_id' ORDER BY tt.table_id ASC";

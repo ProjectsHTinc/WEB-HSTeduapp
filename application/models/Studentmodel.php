@@ -216,8 +216,7 @@ LEFT JOIN edu_enrollment AS ee ON ee.admission_id=ea.admission_id WHERE ed.user_
          $term_id = $this->getTerm();
          $year_id = $this->getYear();
         $class_id=$this->get_class_id_user();
-       $query="SELECT tt.table_id,tt.class_id,tt.subject_id,s.subject_name,tt.teacher_id,t.name,tt.day,tt.period FROM edu_timetable AS tt LEFT JOIN edu_subject AS s ON tt.subject_id=s.subject_id LEFT JOIN edu_teachers AS t ON tt.teacher_id=t.teacher_id WHERE tt.class_id='$class_id' AND tt.term_id='$term_id'
-       AND tt.year_id='$year_id' ORDER BY tt.table_id ASC";
+       $query="SELECT tt.table_id,tt.class_id,tt.subject_id,s.subject_name,tt.teacher_id,t.name,tt.day_id,tt.period,tt.from_time,tt.to_time,tt.is_break,tt.break_name FROM edu_timetable AS tt LEFT JOIN edu_subject AS s ON tt.subject_id=s.subject_id LEFT JOIN edu_teachers AS t ON tt.teacher_id=t.teacher_id WHERE tt.class_id='$class_id' AND tt.term_id='$term_id' AND tt.year_id='$year_id' ORDER BY tt.table_id ASC";
       $result=$this->db->query($query);
       $time=$result->result();
      if($result->num_rows()==0){
@@ -250,7 +249,7 @@ LEFT JOIN edu_enrollment AS ee ON ee.admission_id=ea.admission_id WHERE ed.user_
 		 $row=$resultset->result();
 		 return $row;
 		   }
-	 
+
 
 	 //--------------------Fees Status---------------
 

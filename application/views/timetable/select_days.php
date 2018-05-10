@@ -53,6 +53,9 @@
  .btn-day{
    border:1px solid;
  }
+ #break_name_tab{
+   display: none;
+ }
 </style>
 <div class="main-panel">
 <div class="content">
@@ -120,7 +123,7 @@
                           <td>  <?php echo  date("g:i a", strtotime($rows->from_time)).'-'.date("g:i a", strtotime($rows->to_time));  ?></td>
                           <td>
                             <?php if($rows->is_break==1){
-                            echo "Break";
+                            echo "Break"; echo "<br>";echo $rows->break_name;
                           } else{
                             echo $rows->subject_name; echo "<br>";
                             echo $rows->name;
@@ -160,7 +163,7 @@
                           <td>  <?php echo  date("g:i a", strtotime($rows->from_time)).'-'.date("g:i a", strtotime($rows->to_time));  ?></td>
                           <td>
                             <?php if($rows->is_break==1){
-                            echo "Break";
+                            echo "Break"; echo "<br>";echo $rows->break_name;
                           } else{
                             echo $rows->subject_name;
                             echo "<br>";
@@ -201,7 +204,7 @@
                           <td>  <?php echo  date("g:i a", strtotime($rows->from_time)).'-'.date("g:i a", strtotime($rows->to_time));  ?></td>
                           <td>
                             <?php if($rows->is_break==1){
-                            echo "Break";
+                            echo "Break"; echo "<br>";echo $rows->break_name;
                           } else{
                             echo $rows->subject_name;
                             echo "<br>";
@@ -243,7 +246,7 @@
                           <td>  <?php echo  date("g:i a", strtotime($rows->from_time)).'-'.date("g:i a", strtotime($rows->to_time));  ?></td>
                           <td>
                             <?php if($rows->is_break==1){
-                            echo "Break";
+                            echo "Break"; echo "<br>";echo $rows->break_name;
                           } else{
                             echo $rows->subject_name;
                             echo "<br>";
@@ -284,7 +287,7 @@
                           <td>  <?php echo  date("g:i a", strtotime($rows->from_time)).'-'.date("g:i a", strtotime($rows->to_time));  ?></td>
                           <td>
                             <?php if($rows->is_break==1){
-                            echo "Break";
+                            echo "Break"; echo "<br>";echo $rows->break_name;
                           } else{
                             echo $rows->subject_name;
                             echo "<br>";
@@ -325,7 +328,7 @@
                           <td>  <?php echo  date("g:i a", strtotime($rows->from_time)).'-'.date("g:i a", strtotime($rows->to_time));  ?></td>
                           <td>
                             <?php if($rows->is_break==1){
-                            echo "Break";
+                            echo "Break"; echo "<br>";echo $rows->break_name;
                           } else{
                             echo $rows->subject_name;
                             echo "<br>";
@@ -391,6 +394,12 @@
                      <label class="col-sm-4 control-label">To Time</label>
                      <div class="col-sm-6 clockpicker">
                        <input type="text" class="form-control"  name="to_time" id="to_time"  placeholder="To Time" required>
+                     </div>
+                  </div>
+                  <div class="form-group"  id="break_name_tab">
+                     <label class="col-sm-4 control-label">Break Name</label>
+                     <div class="col-sm-6 clockpicker">
+                       <input type="text" class="form-control"  name="break_name" id="break_name"  placeholder="Break name" required>
                      </div>
                   </div>
                   <div class="form-group" id="subject_id_tab">
@@ -528,6 +537,7 @@ $(document).ready(function() {
         rules: {
         from_time:{required:true },
         to_time:{required:true },
+        break_name:{required:true },
         subject_id:{required:true },
         teacher_id:{required:true },
 
@@ -535,6 +545,7 @@ $(document).ready(function() {
          messages: {
                from_time:"Select From Time",
                to_time:"Select to time",
+               break_name:"Enter the Break name",
                subject_id:"Select Subject",
                teacher_id:"Select Teacher",
              },
@@ -579,11 +590,13 @@ $(document).ready(function() {
             if(document.getElementById('break_id').checked) {
                 $('#subject_id_tab').hide();
                 $('#teacher_id_tab').hide();
+                $('#break_name_tab').show();
 
             } else {
 
                 $('#subject_id_tab').show();
                 $('#teacher_id_tab').show();
+                $('#break_name_tab').hide();
             }
         });
         $('#myModal').on('hidden.bs.modal', function () {
