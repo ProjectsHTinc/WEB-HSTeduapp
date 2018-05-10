@@ -56,6 +56,9 @@
 
                                                 <td> <?php if($rows_time->is_break==1){
                                                     echo "Break";
+                                                    echo "<br>";
+                                                    echo $rows_time->break_name;
+
                                                   } else{
                                                     echo $rows_time->subject_name; echo "<br>";}?></td>
                                                 <td><?php echo $rows_time->name; ?>  </td>

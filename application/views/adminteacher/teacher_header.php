@@ -29,11 +29,11 @@
       <script src="<?php echo base_url(); ?>assets/js/jspdf.js" type="text/javascript"></script>
       <script src="<?php echo base_url(); ?>assets/js/FileSaver.js" type="text/javascript"></script>
       <script src="<?php echo base_url(); ?>assets/js/jspdf.plugin.table.js" type="text/javascript"></script>
-	  
+
 	  <!-- Excel -->
 	  <script src="<?php echo base_url(); ?>assets/js/jquery.table2excel.js" type="text/javascript"></script>
-	  
-     
+
+
       <style>
          .navbar{
          margin-bottom:0px;}
@@ -79,8 +79,7 @@
                <span class="icon-bar"></span>
                </button>
 
-               <a class="navbar-brand title_ensyfi" href="#" style="color:white; margin-left:10px; margin-top:25px;
-    font-size:25px;">
+               <a class="navbar-brand title_ensyfi" href="#" style="color:white; margin-left:10px; margin-top:25px; font-size:25px;">
 			   <?php $sql="SELECT name,user_id,user_type FROM edu_users WHERE user_id='1' AND user_type='1'";
                               $res=$this->db->query($sql);
                               $rows=$res->result();
@@ -97,7 +96,7 @@
 						 <li><a href="<?php echo base_url(); ?>teachercommunication/home">Apply Leaves </a></li>
                         <li><a href="<?php echo base_url(); ?>teacheronduty/special_class_details">Special Class </a></li>
                         <li><a href="<?php echo base_url(); ?>teacheronduty/view_substitution">Substitution </a></li>
-						
+
                           <!--  <li><a href="<?php echo base_url(); ?>extracurricular/home">Extra curricular  </a></li>
                            <li><a href="<?php echo base_url(); ?>specialclass/home">Special Class</a></li> -->
                      </ul>
@@ -268,7 +267,7 @@
                   </a>
                   <div class="collapse" id="commmenu">
                      <ul class="nav">
-                      
+
                         <li id="comm2"><a href="<?php echo base_url(); ?>teachercommunication/view_circular">View Circulars</a></li>
                      </ul>
                   </div>
@@ -283,7 +282,7 @@
                      <ul class="nav">
                         <li id="timetable1"><a href="<?php echo base_url(); ?>teachertimetable/teachertimetable">Teacher Time Table</a></li>
                         <li id="timetable2"><a href="<?php echo base_url(); ?>teachertimetable/home">Time Table</a></li>
-                        <li id="timetable2"><a href="<?php echo base_url(); ?>teachertimetable/reviewview">Reviews</a></li>
+                        <li id="timetable3"><a href="<?php echo base_url(); ?>teachertimetable/reviewview">Reviews</a></li>
                      </ul>
                   </div>
                </li>

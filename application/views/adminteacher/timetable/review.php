@@ -29,7 +29,7 @@
                                     <td><?php echo $i; ?></td>
                                     <td><?php echo $rows->class_name; echo "-"; echo $rows ->sec_name; ?> </td>
                                     <td><?php echo $rows->subject_name; ?></td>
-                                      <td><?php echo $rows->period_id; ?></td>
+                                    <td><?php echo $rows->from_time.'-'.$rows->to_time; ?></td>
                                     <td><?php echo $rows->comments; ?></td>
                                     <td><?php $cls_date = new DateTime($rows->time_date);
                                        echo $cls_date->format('d-m-Y H:i A');  ?></td>
@@ -54,7 +54,7 @@
 <script>
    $('#timetablemenu').addClass('collapse in');
    $('#timetable').addClass('active');
-   $('#timetable2').addClass('active');
+   $('#timetable3').addClass('active');
     var $table = $('#bootstrap-table');
           $().ready(function(){
               $table.bootstrapTable({

@@ -262,7 +262,8 @@ class Timetable extends CI_Controller {
 						$teacher_id=$this->input->post('teacher_id');
 						$table_id=$this->input->post('table_id');
 						$is_break=$this->input->post('is_break');
-						$datas=$this->timetablemodel->update_timetable_for_class($subject_id,$teacher_id,$table_id,$is_break,$user_id);
+						$break_name=$this->input->post('break_name');
+						$datas=$this->timetablemodel->update_timetable_for_class($subject_id,$teacher_id,$table_id,$is_break,$break_name,$user_id);
 					}
 				else{
 					 redirect('/');
@@ -283,11 +284,13 @@ class Timetable extends CI_Controller {
 			 $day_id=$this->input->post('day_id');
 			 $from_time=$this->input->post('from_time');
 			 $to_time=$this->input->post('to_time');
+			 $break_name=$this->input->post('break_name');
+
 			 $time="00:05:00"; //5 minutes
 			 if(strtotime($from_time)<=strtotime($to_time)) {
 				 $period_id=$this->input->post('period_id');
 				 $break_id=$this->input->post('is_break');
-				 $datas=$this->timetablemodel->create_timetable($year_id,$term_id,$class_id,$subject_id,$teacher_id,$day_id,$period_id,$break_id,$from_time,$to_time);
+				 $datas=$this->timetablemodel->create_timetable($year_id,$term_id,$class_id,$subject_id,$teacher_id,$day_id,$period_id,$break_id,$from_time,$to_time,$break_name);
 
 			 } else {
 			  echo "lesser";
