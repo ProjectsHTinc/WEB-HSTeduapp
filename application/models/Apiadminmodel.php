@@ -1514,8 +1514,25 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 	//####################  Group Members Add ####################//
 	public function addgnMembers($user_id,$group_id,$group_member_id,$group_user_type,$status)
 	{
-			$sql = "INSERT INTO edu_grouping_members(group_title_id,group_member_id,member_type,status,created_by,created_at) VALUES ('$group_id','$group_member_id','$group_user_type','$status','$user_id',NOW())";
-			$resultset=$this->db->query($sql);
+			$gnMembsql = "SELECT * FROM edu_grouping_members WHERE member_type = '$group_user_type' AND group_title_id ='$group_id'";
+			$gnMembres = $this->db->query($gnMembsql);
+			$gnMembresult= $gnMembres->result();
+			$gnMembcount = $gnMembres->num_rows();
+		
+			if($gnMembcount>0)
+			{
+				$squery = "DELETE FROM `edu_grouping_members` WHERE member_type = '$group_user_type' AND group_title_id ='$group_id'";
+				$resultset=$this->db->query($squery);
+			}
+		
+			$smember_id = explode(",", $group_member_id);
+				foreach($smember_id as $member_id)
+				{
+					
+					$sql = "INSERT INTO edu_grouping_members(group_title_id,group_member_id,member_type,status,created_by,created_at) VALUES ('$group_id','$member_id','$group_user_type','$status','$user_id',NOW())";
+					$resultset=$this->db->query($sql);
+				}				
+			
 			$response = array("status" => "success", "msg" => "Group Members Added");
 			return $response;
 	}
@@ -1553,14 +1570,14 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 			return $response;
           }
 	//####################  Group Notification History End ####################//
-	
-	
+
+		
 	//####################  Circular Master Add ####################//
-	public function addCircular($user_id,$circular_title,$circular_description,$userFileName,$status){
+	public function addCircular($user_id,$circular_title,$circular_description,$status){
 			
 			$year_id = $this->getYear();
 		
-             $query="INSERT INTO  edu_circular_master (academic_year_id,circular_title,circular_description,circular_doc,status,created_at,created_by) VALUES('$year_id','$circular_title','$circular_description','$userFileName','$status',NOW(),'$user_id')";
+             $query="INSERT INTO  edu_circular_master (academic_year_id,circular_title,circular_description,status,created_at,created_by) VALUES('$year_id','$circular_title','$circular_description','$status',NOW(),'$user_id')";
             $res=$this->db->query($query);
             if($res){
               	$response = array("status" => "sucess", "msg" => "Circular Master Added");
@@ -1569,6 +1586,7 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
             }
 			return $response;
           }
+
 	//#################### Circular Master End ####################//
 	
 	//#################### Circular Master List ####################//
@@ -1617,18 +1635,30 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 	
 	//#################### Circular Master Update ####################//
 
-	public function updateCircular($user_id,$circular_id,$circular_title,$circular_description,$userFileName,$status)
+	public function updateCircular($user_id,$circular_id,$circular_title,$circular_description,$status)
 	{
 	    	$year_id = $this->getYear();
-
-			if ($userFileName != "") {
-				$sql="UPDATE  edu_circular_master SET circular_title ='$circular_title',circular_description ='$circular_description',circular_doc = '$userFileName',status='$status',updated_by='$user_id',updated_at=NOW() where id='$circular_id'";
-			} else {
-				$sql="UPDATE  edu_circular_master SET circular_title ='$circular_title',circular_description ='$circular_description',status='$status',updated_by='$user_id',updated_at=NOW() where id='$circular_id'";
-			}
+			
+			$sql="UPDATE  edu_circular_master SET circular_title ='$circular_title',circular_description ='$circular_description',status='$status',updated_by='$user_id',updated_at=NOW() where id='$circular_id'";
 
              $resultset=$this->db->query($sql);
 			 $response = array("status" => "success", "msg" => "Circular Master Updated");
+
+			return $response;
+
+	}
+	//#################### Circular Master End ####################//	
+	
+	
+	//#################### Circular Master Update ####################//
+
+	public function updateCirculardoc($user_id,$circular_id,$userFileName)
+	{
+	    	$year_id = $this->getYear();
+
+			$sql="UPDATE  edu_circular_master SET circular_doc = '$userFileName',updated_by='$user_id',updated_at=NOW() where id='$circular_id'";
+            $resultset=$this->db->query($sql);
+			$response = array("status" => "success", "msg" => "Circular Document Updated");
 
 			return $response;
 
@@ -1640,7 +1670,7 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 	{
 	    	$year_id = $this->getYear();
 		
-			$sqlrole = "SELECT * FROM edu_role ORDER BY role_id";
+			$sqlrole = "SELECT * FROM edu_role WHERE role_id !='1' ORDER BY role_id";
 			$role_res = $this->db->query($sqlrole);
 			$role_result= $role_res->result();
 			$role_count = $role_res->num_rows();
