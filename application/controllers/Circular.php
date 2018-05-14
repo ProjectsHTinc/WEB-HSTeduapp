@@ -181,6 +181,10 @@ class Circular extends CI_Controller
 		   $data=$this->circularmodel->get_parent_name($studentid);
 		   echo json_encode($data);
 	  }
+    public function check_circular_title_exist(){
+      $cir_title = $this->input->post('ctitle');
+      $data=$this->circularmodel->check_circular_title_exist($cir_title);
+    }
 
       public function create()
       {

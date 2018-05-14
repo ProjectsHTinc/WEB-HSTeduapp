@@ -29,6 +29,7 @@ Class Circularmodel extends CI_Model
      return $resultset->result();
 	 }
 
+
    function get_all_board_members(){
      $query="SELECT u.user_id,u.name,u.user_type,u.user_master_id,u.status,t.teacher_id,t.name FROM edu_users AS u,edu_teachers AS t WHERE user_type=5 AND u.user_master_id=t.teacher_id AND u.status='Active'";
       $resultset=$this->db->query($query);
@@ -84,9 +85,17 @@ Class Circularmodel extends CI_Model
 	     $query2="SELECT * FROM edu_circular_master WHERE academic_year_id='$current_year' AND status='Active' ";
          $res=$this->db->query($query2);
          $result3=$res->result();
-		 return $result3;
+		     return $result3;
 	 }
-
+   function check_circular_title_exist($cir_title){
+     $select="SELECT * FROM edu_circular_master WHERE circular_title='$cir_title'";
+     $result=$this->db->query($select);
+     if($result->num_rows()>0){
+       echo "false";
+         }else{
+           echo "true";
+       }
+   }
 	  function get_circular_title_lists($ctype)
 	  {
 		 $get_year="SELECT * FROM edu_academic_year WHERE NOW()>=from_month AND NOW()<=to_month";
@@ -232,7 +241,7 @@ Class Circularmodel extends CI_Model
 			}
 
       //-----------------------------Board Members----------------------
-  
+
        if($bmusers_id!=''){
 
         $countid=count($bmusers_id);

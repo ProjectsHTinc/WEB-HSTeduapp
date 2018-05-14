@@ -143,7 +143,11 @@
                     required: true
                 },
                 ctitle: {
-                    required: true
+                    required: true,
+                    remote: {
+                                 url: "<?php echo base_url(); ?>circular/check_circular_title_exist",
+                                 type: "post"
+                              }
                 },
                 cdescription: {
                     required: true
@@ -155,7 +159,10 @@
             },
             messages: {
                 ctype: "Select Circular Type",
-                ctitle: "Enter Title",
+                ctitle:{
+                      required: "Please enter title.",
+                      remote: "Title already exist!"
+                },
                 cdescription: "Enter Description",
                 status: "Select Status",
             }
