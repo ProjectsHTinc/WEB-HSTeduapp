@@ -9,7 +9,7 @@
                   </div>
                   <div class="content">
                      <form method="post" action="<?php echo base_url(); ?>student/apply_onduty" class="form-horizontal" enctype="multipart/form-data" id="ondutysection" name="ondutysection">
-                       
+
                         <fieldset>
                            <div class="form-group">
                               <label class="col-sm-2 control-label">Reason Out</label>
@@ -32,12 +32,12 @@
                               <div class="col-sm-4">
                                  <textarea rows="4" cols="80" MaxLength="250" placeholder="MaxLength 250" name="notes" class="form-control"></textarea>
                               </div>
-                            
+
                            </div>
                         </fieldset>
 						 <fieldset>
                            <div class="form-group">
-						    
+
 
                            </div>
                         </fieldset>
@@ -66,6 +66,7 @@
             <div class="row">
                <div class="col-md-12">
                   <div class="card">
+                    <legend>On Duty</legend>
                      <div class="content">
                         <div class="fresh-datatables">
                            <table id="bootstrap-table" class="table">
@@ -75,7 +76,7 @@
                                  <th>From Date</th>
                                  <th>To Date</th>
                                  <th>Status</th>
-								
+
                               </thead>
                               <tbody>
                                  <?php
@@ -95,7 +96,7 @@
 								 <button class="btn btn-success btn-fill btn-wd">Approved</button>
 								 <?php }?>
 								  </td>
-								  
+
                                     <!-- <td><?php if($stu=='Approved' || $stu=='Rejected' ){echo"-";}else{ ?>
                                        <a href="<?php echo base_url();  ?>student/edit_onduty/<?php echo $rows->id; ?>" class="btn btn-simple btn-warning btn-icon edit">
 									<i class="fa fa-edit"></i></a><?php }?>
@@ -114,7 +115,7 @@
             </div>
             <!-- end row -->
          </div>
-      
+
    </div>
 </div>
 <script type="text/javascript">
@@ -140,7 +141,7 @@
     });
 	//demo.initFormExtendedDatetimepickers();
    });
-   
+
    var $table = $('#bootstrap-table');
          $().ready(function(){
              $table.bootstrapTable({
@@ -171,7 +172,7 @@
              });
              //activate the tooltips after the data table is initialized
              $('[rel="tooltip"]').tooltip();
-   
+
              $(window).resize(function () {
                  $table.bootstrapTable('resetView');
              });
@@ -180,7 +181,7 @@
 </script>
 <script type="text/javascript">
    $().ready(function(){
-   
+
      $('.datepicker').datetimepicker({
        format: 'DD-MM-YYYY',
        icons: {
@@ -197,4 +198,3 @@
     });
    });
 </script>
-

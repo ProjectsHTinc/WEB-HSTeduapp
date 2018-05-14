@@ -32,7 +32,7 @@
                <?php endif; ?>
                <div class="card">
                   <div class="header">
-                     <legend> Circular Details  <a href="<?php echo base_url(); ?>circular/view_circular" class="btn btn-wd btn-default pull-right" style="margin-top:-10px;">View Circular</a></legend>
+                     <legend> Send Circular   <a href="<?php echo base_url(); ?>circular/view_circular" class="btn btn-wd btn-default pull-right" style="margin-top:-10px;">View Circular</a></legend>
                   </div>
                   <div class="content">
                      <form method="post" action="" class="form-horizontal" enctype="multipart/form-data" onsubmit="return validates()" name="form" id="myformsection">
@@ -51,6 +51,9 @@
                                     </li>
                                     <li>
                                        <a href="#settings" class="btn btn-info btn-fill" id="parents" data-toggle="tab">Parents</a>
+                                    </li>
+                                    <li>
+                                       <a href="#board" class="btn btn-info btn-fill" id="parents" data-toggle="tab">Board Memebers</a>
                                     </li>
                                  </ul>
                               </div>
@@ -107,6 +110,18 @@
                                     </div>
                                  </div>
                               </div>
+                              <div id="board" class="tab-pane">
+                                 <div class="form-group">
+                                    <label class="col-sm-2 control-label">Board Members</label>
+                                    <div class="col-sm-4">
+                                       <select  multiple name="busers[]" id="multiple-board" data-title="Select Members" class="selectpicker" data-menu-style="dropdown-blue">
+                                          <?php foreach ($board_mem as $rows_board_id) {  ?>
+                                          <option value="<?php echo $rows_board_id->user_id; ?>"><?php echo $rows_board_id->name; ?></option>
+                                          <?php      } ?>
+                                       </select>
+                                    </div>
+                                 </div>
+                              </div>
                            </div>
                         </fieldset>
                         <fieldset>
@@ -119,10 +134,10 @@
                                     <option value="Notification">Notification</option>
                                  </select>
                               </div>
-                              <label class="col-sm-2 control-label">Date</label>
+                              <!-- <label class="col-sm-2 control-label">Date</label>
                               <div class="col-sm-4">
                                  <input type="text" name="date" id="date" class="form-control datepicker" placeholder="Enter Date" >
-                              </div>
+                              </div> -->
                            </div>
                         </fieldset>
                         <fieldset>
@@ -140,13 +155,13 @@
                                     <input type="text" name="title" id="title" class="form-control"  placeholder="Enter Title" >
                                  </div>
                               </div>
-                              <label class="col-sm-2 control-label">Status</label>
+                              <!-- <label class="col-sm-2 control-label">Status</label>
                               <div class="col-sm-4">
                                  <select name="status"  class="selectpicker form-control">
                                     <option value="Active">Active</option>
                                     <option value="Deactive">De-Active</option>
                                  </select>
-                              </div>
+                              </div> -->
                            </div>
                         </fieldset>
                         <fieldset>
@@ -156,12 +171,17 @@
                                  <div id="msg"></div>
                                  <textarea name="notes" readonly class="form-control"  id="descriptions" rows="4" cols="80"></textarea>
                               </div>
-                              <label class="col-sm-2 control-label">&nbsp;</label>
-                              <div class="col-sm-4">
-                                 <button type="submit" id="save" class="btn btn-info btn-fill center" >Save</button>
-                              </div>
+
                            </div>
                         </fieldset>
+                        <fieldset>
+                       <div class="form-group">
+                        <label class="col-sm-2 control-label">&nbsp;</label>
+                        <div class="col-sm-6">
+                           <button type="submit" id="save" class="btn btn-info btn-fill center" >Send</button>
+                        </div>
+                        </div>
+                          </fieldset>
                      </form>
                   </div>
                </div>
@@ -171,7 +191,7 @@
                   </div>
                </div>
                <!--div id="loading" style="display: none;">
-                  <center><img src="<?php echo base_url(); ?>assets/loader.gif" id="loading" ></center> 
+                  <center><img src="<?php echo base_url(); ?>assets/loader.gif" id="loading" ></center>
                   </div-->
             </div>
          </div>
@@ -184,7 +204,7 @@
    $('#communcicationmenu').addClass('collapse in');
    $('#communication').addClass('active');
    $('#communication1').addClass('active');
-   
+
    $('#myformsection').validate({ // initialize the plugin
     rules: {
       teacher:{required:true },
@@ -206,7 +226,7 @@
    citrcular_type:"Select Circular Type",
    status:"Select Status"
           },
-          
+
    submitHandler: function(form) {
       //alert("hi");
    swal({
@@ -224,12 +244,12 @@
         if (isConfirm) {
       //$("#loading").show();
      $.ajax({
-        beforeSend: function() 
+        beforeSend: function()
           {
             $(".modal").show();
             //$(".sweet-alert show-sweet-alert visible").hide();
           },
-       complete: function() 
+       complete: function()
           {
             $(".modal").hide();
             //$(".sweet-alert show-sweet-alert visible").show();
@@ -240,13 +260,13 @@
          data: $('#myformsection').serialize(),
          success: function(response) {
             //alert(response);
-        
+
 		if(response=="success")
-        {      
+        {
            $('#myformsection')[0].reset();
              swal({
                      title: "Wow!",
-                     text: "Message!",
+                     text: "Circular Sent Successfully!",
                      type: "success"
                   },
       function(){
@@ -263,11 +283,11 @@
        swal("Cancelled", "Process Cancel :)", "error");
    }
    });
-   } 
-  }); 
+   }
+  });
 });
-   
-   
+
+
 </script>
 <script>
    function validates()
@@ -276,19 +296,20 @@
       var par = document.getElementById("multiple-parents").value;
       var cls = document.getElementById("multiple-students").value;
       var admin = document.getElementById("multiple-admin").value;
+      var board = document.getElementById("multiple-board").value;
       //alert(tea);alert(par);alert(cls);alert(admin);
-    if(tea=="" && par=="" && cls=="" && admin=="")
+    if(tea=="" && par=="" && cls=="" && admin=="" &&board=="")
         {
-       $("#erid").html("Please Select Admin Or Teachers Or Parents Or Students  ");
+       $("#erid").html("Please Select Admin Or Teachers Or Parents Or Students  Or Board Members ");
        //document.form.teacher.focus() ;
        return false;
         }
-   } 
-   
+   }
+
 </script>
 <script>
    /*  function circulartitle(selectObject) {
-     var ct = selectObject.value; 
+     var ct = selectObject.value;
        //alert(ct);//exit;
     if(ct=='create'){
        alert("Hi");
@@ -310,7 +331,7 @@
            var len=stu.length;
                   //alert(len);
            var stu=data.res1;
-           // alert(stu);        
+           // alert(stu);
            var i;
            var ctitle='';
            ctitle +='<option value="">select Circular Title</option>';
@@ -320,7 +341,7 @@
             $("#tnone").show();
             $("#cititle").html(ctitle);
           }
-           
+
          } else {
             $('#msg1').html('<span style="color:red;text-align:center;">Circular Title</p>');
           $("#cititle").html('');
@@ -330,11 +351,11 @@
    });
     }
    } */
-   
+
     function circulardescription(cde1) {
       var cde= document.getElementById('cititle').value;
-      //var ctype=document.getElementById('citrcular_type').value;   
-     // alert (cde); 
+      //var ctype=document.getElementById('citrcular_type').value;
+     // alert (cde);
    $.ajax({
     url:'<?php echo base_url(); ?>circular/get_description_list',
     type:'post',
@@ -367,7 +388,7 @@
 </script>
 <script type="text/javascript">
    $().ready(function(){
-   
+
      $('.datepicker').datetimepicker({
        format: 'DD-MM-YYYY',
        icons: {
@@ -384,4 +405,3 @@
     });
    });
 </script>
-

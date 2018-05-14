@@ -25,6 +25,45 @@ Class Mailmodel extends CI_Model
       }
     }
 
+  function sendMailwithattachement($to,$subject,$email_message,$att)
+    {
+
+      $htmlContent = '
+      <html>
+      <head><title></title>
+      </head>
+      <body>
+        <p style="margin-left:50px;">'.$email_message.'</p>
+        <p style="margin-left:50px;"><a href="'. base_url().'assets/circular/'. $att.'">Download here</a></p>
+      </body>
+      </html>';
+      $headers = "MIME-Version: 1.0" . "\r\n";
+      $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+      // Additional headers
+      $headers .= 'From: ensyfi<info@ensyfi.com>' . "\r\n";
+      $sent= mail($to,$subject,$htmlContent,$headers);
+    }
+
+    function sendMail($to,$subject,$email_message)
+      {
+
+        $htmlContent = '
+        <html>
+        <head><title></title>
+        </head>
+        <body>
+          <p style="margin-left:50px;">'.$email_message.'</p>
+
+        </body>
+        </html>';
+        $headers = "MIME-Version: 1.0" . "\r\n";
+        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+        // Additional headers
+        $headers .= 'From: ensyfi<info@ensyfi.com>' . "\r\n";
+        $sent= mail($to,$subject,$htmlContent,$headers);
+      }
+
+
   function send_mail_for_teacher_substitution($tname,$sub_teacher,$sub_tname,$leave_date,$cls_id,$period_id)
   {
 
@@ -62,16 +101,18 @@ Class Mailmodel extends CI_Model
 
   }
 
-  function send_circular_via_mail($title,$notes,$cdate,$tusers_id,$stusers_id,$pusers_id,$users_id)
+  function send_circular_via_mail($title_id,$notes,$cdate,$tusers_id,$stusers_id,$pusers_id,$bmusers_id,$users_id)
   {
-		$ssql = "SELECT * FROM edu_circular_master WHERE id ='$title'";
+		$ssql = "SELECT * FROM edu_circular_master WHERE id ='$title_id'";
 		$res = $this->db->query($ssql);
 		$result =$res->result();
 		foreach($result as $rows)
 		{ }
 		$title = $rows->circular_title;
 		$notes = $rows->circular_description;
-	   	$user_type = $users_id;
+    $att = $rows->circular_doc;
+	  $user_type = $users_id;
+
 
 
 	  //-----------Admin------------------------
@@ -87,28 +128,38 @@ Class Mailmodel extends CI_Model
 					$res=$this->db->query($tsql);
 					$result1=$res->result();
 					foreach($result1 as $rows)
-					{ $tmail[]=$rows->email;}
+					{
+            $to=$rows->email;
+            $subject=$title;
+            $email_message=$notes.' '.$cdate;
+            if(empty($att)){
+              $this->sendMail($to,$subject,$email_message);
+            }else{
+              $this->sendMailwithattachement($to,$subject,$email_message,$att);
+            }
 
-				     $mail_to=implode(',',$tmail);
-					 $to=$mail_to;
+          }
 
-					 $subject=$title;
-					 $cnotes=$notes.' '.$cdate;
-					 $htmlContent = '
-						 <html>
-						 <head><title></title>
-						 </head>
-						 <body>
-						<p style="margin-left:50px;">'.$cnotes.'</p>
-						 </body>
-						 </html>';
-				 $headers = "MIME-Version: 1.0" . "\r\n";
-				 $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-				 // Additional headers
-				 $headers .= 'From: happysanz<info@happysanz.com>' . "\r\n";
-				 $sent= mail($to,$subject,$htmlContent,$headers);
               //exit;
             break;
+            case '5':
+
+                $tsql="SELECT u.user_id,u.user_type,u.user_master_id,t.teacher_id,t.name,t.phone,t.email FROM edu_users AS u,edu_teachers AS t  WHERE u.user_type='$user_type' AND u.user_master_id=t.teacher_id AND u.status='Active'";
+                $res=$this->db->query($tsql);
+                $result1=$res->result();
+                foreach($result1 as $rows)
+                {
+                  $to=$rows->email;
+                  $subject=$title;
+                  $email_message=$notes.' '.$cdate;
+                  if(empty($att)){
+                    $this->sendMail($to,$subject,$email_message);
+                  }else{
+                    $this->sendMailwithattachement($to,$subject,$email_message,$att);
+                  }
+                }
+
+                  break;
 
 			 case '3':
 
@@ -116,27 +167,16 @@ Class Mailmodel extends CI_Model
 					$res2=$this->db->query($ssql);
 					$result2=$res2->result();
 					foreach($result2 as $rows1)
-					{ $smail[]=$rows1->email;}
-
-					 $smail_to=implode(',',$smail);
-					 $to = $smail_to;
-					 $subject=$title;
-					  $cnotes=$notes.' '.$cdate;
-					 $htmlContent = '
-						 <html>
-						 <head><title></title>
-						 </head>
-						 <body>
-						 <p style="margin-left:50px;">'.$cnotes.'</p>
-						 </body>
-						 </html>';
-				 $headers = "MIME-Version: 1.0" . "\r\n";
-				 $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-				 // Additional headers
-				 $headers .= 'From: happysanz<info@happysanz.com>' . "\r\n";
-				 $sent= mail($to,$subject,$htmlContent,$headers);
-
-              //exit;
+					{
+          $to=$rows1->email;
+					$subject=$title;
+          $email_message=$notes.' '.$cdate;
+          if(empty($att)){
+            $this->sendMail($to,$subject,$email_message);
+          }else{
+            $this->sendMailwithattachement($to,$subject,$email_message,$att);
+          }
+          }
             break;
 
 			case '4':
@@ -145,25 +185,17 @@ Class Mailmodel extends CI_Model
 					$pres2=$this->db->query($psql);
 					$presult2=$pres2->result();
 					foreach($presult2 as $prows1)
-					{ $pmail[]=$prows1->email; }
-					 $pmail_to=implode(',',$pmail);
-					 $to = $pmail_to;
-					 $subject=$title;
-					 $cnotes=$notes.' '.$cdate;
-					 $htmlContent = '
-						 <html>
-						 <head><title></title>
-						 </head>
-						 <body>
-						 <p style="margin-left:50px;">'.$cnotes.'</p>
-						 </body>
-						 </html>';
-				 $headers = "MIME-Version: 1.0" . "\r\n";
-				 $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-				 // Additional headers
-				 $headers .= 'From: happysanz<info@happysanz.com>' . "\r\n";
-				 $sent= mail($to,$subject,$htmlContent,$headers);
-             // exit;
+					{
+            $to=$prows1->email;
+            $subject=$title;
+ 					  $email_message=$notes.' '.$cdate;
+            if(empty($att)){
+              $this->sendMail($to,$subject,$email_message);
+            }else{
+              $this->sendMailwithattachement($to,$subject,$email_message,$att);
+            }
+          }
+
             break;
 
 			default:
@@ -188,28 +220,46 @@ Class Mailmodel extends CI_Model
 					$tmail=$this->db->query($tesql);
 					$tres=$tmail->result();
 					foreach($tres as $trow)
-					{}
-					 $temail=$trow->email;
-                     $to=$temail;
+					{
+					 $to=$trow->email;
 					 $subject=$title;
-					  $cnotes=$notes.' '.$cdate;
-					 $htmlContent = '
-						 <html>
-						 <head><title></title>
-						 </head>
-						 <body>
-						 <p style="margin-left:50px;">'.$cnotes.'</p>
-						 </body>
-						 </html>';
-				 $headers = "MIME-Version: 1.0" . "\r\n";
-				 $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-				 // Additional headers
-				 $headers .= 'From: happysanz<info@happysanz.com>' . "\r\n";
-				 $sent= mail($to,$subject,$htmlContent,$headers);
+					 $email_message=$notes.' '.$cdate;
+           if(empty($att)){
+             $this->sendMail($to,$subject,$email_message);
+           }else{
+             $this->sendMailwithattachement($to,$subject,$email_message,$att);
+           }
+           }
+        }
 
-                }
+             }
 
-             }//teacher close
+             // Board Memebers
+             if(!empty($bmusers_id))
+             {
+              $countid=count($bmusers_id);
+               for ($i=0;$i<$countid;$i++)
+               {
+                $userid=$bmusers_id[$i];
+
+                $tesql="SELECT u.user_id,u.user_type,u.user_master_id,t.teacher_id,t.name,t.phone,t.email FROM edu_users AS u,edu_teachers AS t WHERE u.user_id='$userid' AND u.user_type='5' AND u.user_master_id=t.teacher_id";
+                $tmail=$this->db->query($tesql);
+                $tres=$tmail->result();
+                foreach($tres as $trow)
+                {
+                 $to=$trow->email;
+                 $subject=$title;
+                 $email_message=$notes.' '.$cdate;
+                 if(empty($att)){
+                   $this->sendMail($to,$subject,$email_message);
+                 }else{
+                   $this->sendMailwithattachement($to,$subject,$email_message,$att);
+                 }
+                 }
+
+            }
+         }
+
 
 
 			  //-----------------------------Students----------------------
@@ -227,23 +277,15 @@ Class Mailmodel extends CI_Model
 					$res1=$scell->result();
 					foreach($res1 as $row1)
 					{
-       				 $semail=$row1->email;
-                     $to=$semail;
-					 $subject=$title;
-					 $cnotes=$notes.' '.$cdate;
-					 $htmlContent = '
-						 <html>
-						 <head><title></title>
-						 </head>
-						 <body>
-						 <p style="margin-left:50px;">'.$cnotes.'</p>
-						 </body>
-						 </html>';
-				 $headers = "MIME-Version: 1.0" . "\r\n";
-				 $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-				 // Additional headers
-				 $headers .= 'From: happysanz<info@happysanz.com>' . "\r\n";
-				 $sent= mail($to,$subject,$htmlContent,$headers);
+   				 $to=$row1->email;
+           $subject=$title;
+           $email_message=$notes.' '.$cdate;
+           if(empty($att)){
+             $this->sendMail($to,$subject,$email_message);
+           }else{
+             $this->sendMailwithattachement($to,$subject,$email_message,$att);
+           }
+
 				}
               }
 
@@ -270,29 +312,20 @@ Class Mailmodel extends CI_Model
 					  $res3=$pcell1->result();
 					  foreach($res3 as $row3)
 					   {
-       				 $pmail=$row3->email;
-                     $to=$pmail;
-					 $subject=$title;
-					 $cnotes=$notes.' '.$cdate;
-					 $htmlContent = '
-						 <html>
-						 <head><title></title>
-						 </head>
-						 <body>
-						 <p style="margin-left:50px;">'.$cnotes.'</p>
-						 </body>
-						 </html>';
-				 $headers = "MIME-Version: 1.0" . "\r\n";
-				 $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-				 // Additional headers
-				 $headers .= 'From: happysanz<info@happysanz.com>' . "\r\n";
-				 $sent= mail($to,$subject,$htmlContent,$headers);
-				}
-              }
+       				 $to=$row3->email;
+               $subject=$title;
+               $email_message=$notes.' '.$cdate;
+               if(empty($att)){
+                 $this->sendMail($to,$subject,$email_message);
+               }else{
+                 $this->sendMailwithattachement($to,$subject,$email_message,$att);
+               }
+				      }
+          }
 			  }
-             }//Parents close
+      }
 
-  }//function close
+  }
 
 
 
@@ -316,20 +349,8 @@ Class Mailmodel extends CI_Model
             $semail=$row1->email;
             $to=$semail;
             $subject="From Ensyfi";
-
-             $htmlContent = '
-              <html>
-              <head><title></title>
-              </head>
-              <body>
-              <p style="margin-left:50px;">'.$notes.'</p>
-              </body>
-              </html>';
-          $headers = "MIME-Version: 1.0" . "\r\n";
-          $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-          // Additional headers
-          $headers .= 'From: happysanz<info@happysanz.com>' . "\r\n";
-         $send= mail($to,$subject,$htmlContent,$headers);
+            $email_message=$notes;
+            $this->sendMail($to,$subject,$email_message);
          }
          }
          $check_type_staff="SELECT * FROM edu_grouping_members WHERE group_title_id='$group_id'";
@@ -346,19 +367,8 @@ Class Mailmodel extends CI_Model
              $get_mail=$rows_mail->email;
              $to=$get_mail;
              $subject="From Ensyfi";
-              $htmlContent = '
-               <html>
-               <head><title></title>
-               </head>
-               <body>
-               <p style="margin-left:50px;">'.$notes.'</p>
-               </body>
-               </html>';
-                 $headers = "MIME-Version: 1.0" . "\r\n";
-                 $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-                 // Additional headers
-                 $headers .= 'From: ensyfi<info@ensyfi.com>' . "\r\n";
-                 $send= mail($to,$subject,$htmlContent,$headers);
+             $email_message=$notes;
+             $this->sendMail($to,$subject,$email_message);
            }
 
          }

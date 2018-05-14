@@ -86,15 +86,16 @@ Class Notificationmodel extends CI_Model
 		}
 	 }
 
-       function send_circular_via_notification($title,$notes,$tusers_id,$stusers_id,$pusers_id,$users_id)
+       function send_circular_via_notification($title_id,$notes,$tusers_id,$stusers_id,$pusers_id,$bmusers_id,$users_id)
          {
-			$ssql = "SELECT * FROM edu_circular_master WHERE id ='$title'";
+			$ssql = "SELECT * FROM edu_circular_master WHERE id ='$title_id'";
 			$res = $this->db->query($ssql);
 			$result =$res->result();
 			foreach($result as $rows)
 			{ }
 			$title = $rows->circular_title;
 			$notes = $rows->circular_description;
+      $circular_doc = $rows->circular_doc;
 
 	        if($tusers_id!='')
 			{
@@ -120,41 +121,90 @@ Class Notificationmodel extends CI_Model
 					//echo $gsmkey;
 					//sendPushNotification($data,$gsmkey);
 					$apiKey = 'AAAADRDlvEI:APA91bFi-gSDCTCnCRv1kfRd8AmWu0jUkeBQ0UfILrUq1-asMkBSMlwamN6iGtEQs72no-g6Nw0lO5h4bpN0q7JCQkuTYsdPnM1yfilwxYcKerhsThCwt10cQUMKrBrQM2B3U3QaYbWQ';
-	// Set POST request body
-	$post = array(
-				'registration_ids'  => $gsmkey,
-				'data'              => $data,
-				 );
-	// Set CURL request headers
-	$headers = array(
-				'Authorization: key=' . $apiKey,
-				'Content-Type: application/json'
-					);
-	// Initialize curl handle
-	$ch = curl_init();
-	// Set URL to GCM push endpoint
-	curl_setopt($ch, CURLOPT_URL, 'https://gcm-http.googleapis.com/gcm/send');
-	// Set request method to POST
-	curl_setopt($ch, CURLOPT_POST, true);
-	// Set custom request headers
-	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-	// Get the response back as string instead of printing it
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	// Set JSON post data
-	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post));
-	// Actually send the request
-	$result = curl_exec($ch);
+        	// Set POST request body
+        	$post = array(
+        				'registration_ids'  => $gsmkey,
+        				'data'              => $data,
+        				 );
+        	// Set CURL request headers
+        	$headers = array(
+        				'Authorization: key=' . $apiKey,
+        				'Content-Type: application/json'
+        					);
+	           // Initialize curl handle
+          	$ch = curl_init();
+          	// Set URL to GCM push endpoint
+          	curl_setopt($ch, CURLOPT_URL, 'https://gcm-http.googleapis.com/gcm/send');
+          	// Set request method to POST
+          	curl_setopt($ch, CURLOPT_POST, true);
+          	// Set custom request headers
+          	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+          	// Get the response back as string instead of printing it
+          	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+          	// Set JSON post data
+          	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post));
+          	// Actually send the request
+          	$result = curl_exec($ch);
 
-	// Handle errors
-	//if (curl_errno($ch)) {
-		//echo 'GCM error: ' . curl_error($ch);
-	//}
-	// Close curl handle
-	curl_close($ch);
+          	curl_close($ch);
 
 				 }
-				 //$sMessage="Send";
-             }//teacher close
+             }
+
+
+            // ---------------------- Board Members----------------------
+
+             if($bmusers_id!='')
+        {
+             $countid=count($bmusers_id);
+                     $data=array(
+                        'message' => $notes,
+                        'ctitle'  => $title,
+                        'vibrate'	=> 1,
+                          'sound'   => 1
+                  );
+           for($i=0;$i<$countid;$i++)
+           {
+            $userid=$bmusers_id[$i];
+            $sql="SELECT * FROM edu_notification WHERE user_id='$userid'";
+            $tgsm=$this->db->query($sql);
+              $res=$tgsm->result();
+            foreach($res as $row)
+            { } $gsmkey=array($row->gcm_key);
+            //echo $gsmkey;
+            //sendPushNotification($data,$gsmkey);
+            $apiKey = 'AAAADRDlvEI:APA91bFi-gSDCTCnCRv1kfRd8AmWu0jUkeBQ0UfILrUq1-asMkBSMlwamN6iGtEQs72no-g6Nw0lO5h4bpN0q7JCQkuTYsdPnM1yfilwxYcKerhsThCwt10cQUMKrBrQM2B3U3QaYbWQ';
+            // Set POST request body
+            $post = array(
+                  'registration_ids'  => $gsmkey,
+                  'data'              => $data,
+                   );
+            // Set CURL request headers
+            $headers = array(
+                  'Authorization: key=' . $apiKey,
+                  'Content-Type: application/json'
+                    );
+               // Initialize curl handle
+              $ch = curl_init();
+              // Set URL to GCM push endpoint
+              curl_setopt($ch, CURLOPT_URL, 'https://gcm-http.googleapis.com/gcm/send');
+              // Set request method to POST
+              curl_setopt($ch, CURLOPT_POST, true);
+              // Set custom request headers
+              curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+              // Get the response back as string instead of printing it
+              curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+              // Set JSON post data
+              curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post));
+              // Actually send the request
+              $result = curl_exec($ch);
+
+              curl_close($ch);
+
+           }
+        }
+
+
 	//----------------------------------------------Students----------------------------------------
 
 			//print_r($stusers_id);
@@ -352,6 +402,58 @@ Class Notificationmodel extends CI_Model
 					    }
 				  }
 				}
+
+        if($users_id==5)
+        {
+         //echo $users_id;
+
+          $tsql="SELECT u.user_id,u.user_type,u.user_master_id,t.teacher_id,t.name,t.phone FROM edu_users AS u,edu_teachers AS t  WHERE u.user_type='$users_id' AND u.user_master_id=t.teacher_id AND u.status='Active'";
+          $tres=$this->db->query($tsql);
+          $tresult1=$tres->result();
+          foreach($tresult1 as $trows)
+          {
+            $userid=$trows->user_id;
+
+              $sql="SELECT * FROM edu_notification WHERE user_id='$userid'";
+            $tgsm=$this->db->query($sql);
+            $tres1=$tgsm->result();
+            foreach($tres1 as $trow)
+              {
+               $gsmkey=array($trow->gcm_key);
+               //print_r($gsmkey);exit;
+              // sendPushNotification($data,$gsmkey);
+
+              $apiKey = 'AAAADRDlvEI:APA91bFi-gSDCTCnCRv1kfRd8AmWu0jUkeBQ0UfILrUq1-asMkBSMlwamN6iGtEQs72no-g6Nw0lO5h4bpN0q7JCQkuTYsdPnM1yfilwxYcKerhsThCwt10cQUMKrBrQM2B3U3QaYbWQ';
+              // Set POST request body
+              $post = array(
+                    'registration_ids'  => $gsmkey,
+                    'data'              => $data,
+                     );
+              // Set CURL request headers
+              $headers = array(
+                    'Authorization: key=' . $apiKey,
+                    'Content-Type: application/json'
+                      );
+              // Initialize curl handle
+              $ch = curl_init();
+              // Set URL to GCM push endpoint
+              curl_setopt($ch, CURLOPT_URL, 'https://gcm-http.googleapis.com/gcm/send');
+              // Set request method to POST
+              curl_setopt($ch, CURLOPT_POST, true);
+              // Set custom request headers
+              curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+              // Get the response back as string instead of printing it
+              curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+              // Set JSON post data
+              curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post));
+              // Actually send the request
+              $result = curl_exec($ch);
+              curl_close($ch);
+              }
+          }
+        }
+
+
 
 				//---------------------------Students----------------------
 				if($users_id==3)

@@ -232,19 +232,8 @@ LEFT JOIN edu_enrollment AS ee ON ee.admission_id=ea.admission_id WHERE ed.user_
   //--------------------------Circular----------------------//
 
 	 function get_circular($user_id){
-		  //$cid=$this->get_class_id_user();
-          //echo $user_id;exit;
-		  // $get_year="SELECT * FROM edu_academic_year WHERE CURDATE()>=from_month AND CURDATE<=to_month";
-		  // $result1=$this->db->query($get_year);
-		  // $all_year= $result1->result();
-		  // if($result1->num_rows()==0){ }else{
-		  // foreach($all_year as $cyear){}
-		  // $current_year=$cyear->year_id;
-
            $current_year=$this->getYear();
-
-		$com="SELECT c.id,c.user_type,c.user_id,c.circular_master_id,c.circular_date,cm.id,cm.academic_year_id,cm.circular_title,cm.circular_description,cm.status FROM edu_circular AS c,edu_circular_master AS cm WHERE c.user_id='$user_id' AND c.user_type=3 AND cm.academic_year_id='$current_year' AND c.circular_master_id=cm.id AND cm.status='Active' ORDER BY c.id DESC";
-		 //$sql="SELECT * FROM edu_communication WHERE status='A' AND FIND_IN_SET('$teacher_id',teacher_id) ";
+		 $com="SELECT c.id,c.user_type,c.user_id,c.circular_master_id,c.circular_date,cm.id,cm.academic_year_id,cm.circular_doc,cm.circular_title,cm.circular_description,cm.status FROM edu_circular AS c,edu_circular_master AS cm WHERE c.user_id='$user_id' AND c.user_type=3 AND cm.academic_year_id='$current_year' AND c.circular_master_id=cm.id AND cm.status='Active' ORDER BY c.id DESC";
 		 $resultset=$this->db->query($com);
 		 $row=$resultset->result();
 		 return $row;
@@ -334,14 +323,9 @@ LEFT JOIN edu_enrollment AS ee ON ee.admission_id=ea.admission_id WHERE ed.user_
 				$resultset=$this->db->query($query);
 				$row=$resultset->result();
 				$student_id=$row[0]->student_id;
+        $year_id=$this->getYear();
 
-				  $get_year="SELECT * FROM edu_academic_year WHERE CURDATE>=from_month AND CURDATE<=to_month";
-				  $result1=$this->db->query($get_year);
-				  $all_year= $result1->result();
-				  foreach($all_year as $cyear){}
-				  $current_year=$cyear->year_id;
-
-				 $query="SELECT * FROM edu_on_duty WHERE user_id='$user_id' AND user_type='$user_type' AND year_id='$current_year'";
+				 $query="SELECT * FROM edu_on_duty WHERE user_id='$user_id' AND user_type='$user_type' AND year_id='$year_id'";
 				 $resultset1=$this->db->query($query);
 				 return $resultset1->result();
 	       }

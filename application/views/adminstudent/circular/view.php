@@ -28,6 +28,11 @@
                                             <h5><?php echo $i; ?>. <?php echo $rows->circular_title; ?></h5>
                                             <blockquote>
                                                <p><?php echo $rows->circular_description; ?></p>
+                                               <?php if(empty($rows->circular_doc)){
+
+                                               }else{ ?>
+                                                 <a href="<?php echo base_url(); ?>assets/circular/<?php echo $rows->circular_doc; ?>">Download here</a>
+                                              <?php } ?>
                                                <small>
                                                   <cite title="Source Title">
 	<?php $dateTime=new DateTime($rows->circular_date); $fdate=date_format($dateTime,'d-m-Y' ); echo $fdate; ?></cite>
@@ -37,7 +42,7 @@
 									   <?php $i++;  }  }?>
                                     </div>
                                 </div>
-								
+
                         </div>
                             </div><!-- end content-->
                         </div><!--  end card  -->

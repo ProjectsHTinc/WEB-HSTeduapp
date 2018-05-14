@@ -86,7 +86,7 @@
                                  {
                                  $student_arr = array();
                                  $student_array_generate($stu,$student_arr);
-                                 
+
                                  $i = 1;
                                  foreach ($student_arr as $k => $s1)
                                  {
@@ -103,7 +103,7 @@
                                       $k++;
                                  echo'<td>';
                                   if ($s->pref_language!=''){
-                                    echo'('; echo' ';  echo $s->pref_language;  echo' '; echo')'; 
+                                    echo'('; echo' ';  echo $s->pref_language;  echo' '; echo')';
 								 }
                                  echo'</td>';
                                     }
@@ -117,11 +117,11 @@
                                         $em=$s->external_mark;
                                         $tm=$s->total_marks;
                                         //echo $tm;
-                                 
+
                                         foreach($result as $flag){}
                                         $ef=$flag->is_internal_external;
                                          $efsi=$flag->subject_id;
-                                 
+
                                         // if($im==0 && $em==0 && is_numeric($im) && is_numeric($em))
                                           if($ef==0)
                                          {
@@ -138,7 +138,7 @@
                                                  echo $s->total_marks; echo "&nbsp";
                                                  echo'</span>';
                                                  echo '<span class="space">';echo $s->total_grade;echo'</span>';
-                                                 }   
+                                                 }
                                               }else{
                                                 //echo"AB";
                                                 echo '<span class="space" style="color:red;">';echo $s->total_marks;echo'</span>';
@@ -172,8 +172,9 @@
                                                   echo'</span>';
                                              echo '<span class="space">';echo $s->total_grade;echo'</span>';
                                                   }
-                                            
-                                               }else{  echo $s->total_marks; }
+
+                                               }else{
+                                                   echo $s->total_marks; }
                                              echo'</span>';
                                           }
                                       }else{
@@ -231,21 +232,21 @@
         });
         $(this).find('.total-combat').html(sum);
       });
-   
+
    $('#examinationmenu').addClass('collapse in');
    $('#exam').addClass('active');
    $('#exam4').addClass('active');
-   
+
    $('#markform').validate({ // initialize the plugin
            rules: {
                totalmarks:{required:true,number:true }
            },
            messages: {
                  totalmarks: "Please Enter The Marks"
-   
+
                }
        });
-   
+
    var $table = $('#bootstrap-table');
          $(document).ready(function(){
            jQuery('#markform').addClass('collapse in');
@@ -261,7 +262,7 @@
                  pageSize:50,
                  clickToSelect: false,
                  pageList: [10,25,50,100],
-   
+
                  formatShowingRows: function(pageFrom, pageTo, totalRows){
                      //do nothing here, we don't want to show the text "showing x of y from..."
                  },
@@ -276,16 +277,16 @@
                      detailClose: 'fa fa-minus-circle'
                  }
              });
-   
+
              //activate the tooltips after the data table is initialized
              $('[rel="tooltip"]').tooltip();
-   
+
              $(window).resize(function () {
                  $table.bootstrapTable('resetView');
              });
          });
-   
-   function generatefromtable() 
+
+   function generatefromtable()
    {
     var data = [], fontSize =10, height = 0, doc;
     doc = new jsPDF('p', 'pt', 'a3', true);
@@ -305,7 +306,7 @@
     //doc.text(50, height + 20, 'hi world');
     doc.save("<?php  echo $this->session->userdata('name'); ?>( <?php echo $cls; echo $sec; ?> ).pdf");
    }
-   
+
    $(function() {
    $(".download").click(function() {
    $("#bootstrap-table").table2excel({
@@ -318,13 +319,12 @@
       exclude_inputs: true
     });
    });
-   
+
    });
-   
+
    var table = $('#bootstrap-table').DataTable( {
        responsive: true,
        paging: false
    } );
    new $.fn.dataTable.FixedHeader( table );
 </script>
-

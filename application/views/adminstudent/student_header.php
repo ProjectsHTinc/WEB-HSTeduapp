@@ -72,8 +72,7 @@
                <span class="icon-bar"></span>
                <span class="icon-bar"></span>
                </button>
-               <a class="navbar-brand title_ensyfi" href="#" style="color:white;margin-left:10px;padding-top: 30px;
-font-size: 25px;">
+               <a class="navbar-brand title_ensyfi" href="#" style="color:white;margin-left:10px;padding-top: 30px;font-size: 25px;">
 			   <?php $sql="SELECT name,user_id,user_type FROM edu_users WHERE user_id='1' AND user_type='1'";
                               $res=$this->db->query($sql);
                               $rows=$res->result();
@@ -82,23 +81,20 @@ font-size: 25px;">
             </div>
             <div class="collapse navbar-collapse" style="float:right;padding-top: 17px;">
                <ul class="nav navbar-nav navbar-right">
-                  
+
                      <li style="padding:0px 10px; padding-top:11px;">
-                     
-                     	<a href="<?php echo base_url(); ?>student/view_all_circular" class="abox"style="padding:03px 15px;border-color: white;">
-                     		<p style="color: white;text-transform:uppercase;font-size: 12px;padding-left:0px;">Circular</p>
+
+                     	<a href="<?php echo base_url(); ?>student/onduty" class="abox"style="padding:03px 15px;border-color: white;">
+                     		<p style="color: white;text-transform:uppercase;font-size: 12px;padding-left:0px;">On Duty</p>
                      	</a>
-                     
+
                      </li>
-                  
+
                   <li class="dropdown" style="padding:11px 10px;">
-                     <a href="#" class="dropdown-toggle abox" data-toggle="dropdown" style="padding:03px 15px;font-size: 12px; color: white;border-color: white;text-transform: uppercase;">
-                     Quick Links</a>
-                     <ul class="dropdown-menu">
-                        <li><a href="<?php echo base_url(); ?>student/onduty">On Duty Form</a></li>
-                        <li><a href="<?php echo base_url(); ?>student/special_class_details">Special Class </a></li>
-                        
-                     </ul>
+                    <a href="<?php echo base_url(); ?>student/special_class_details" class="abox"style="padding:03px 15px;border-color: white;">
+                      <p style="color: white;text-transform:uppercase;font-size: 12px;padding-left:0px;">Special Class</p>
+                    </a>
+
                   </li>
                   <li class="dropdown dropdown-with-icons">
                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="margin:3px;">
@@ -114,11 +110,11 @@ font-size: 25px;">
 						  $pic=$rows1->user_pic;
 						  if($pic!='')
 						  {?>
-					  <img src="<?php echo base_url(); ?>assets/students/profile/<?php echo $pic; ?>" class="img-circle img-responsive imgstyle1"/> 
+					  <img src="<?php echo base_url(); ?>assets/students/profile/<?php echo $pic; ?>" class="img-circle img-responsive imgstyle1"/>
 			        <?php }else{ ?> <img src="<?php echo base_url(); ?>assets/noimg.png" class="img-circle img-responsive imgstyle1" />
 						 <?php }} ?>
                         </div>
-                        
+
                            <b class="caret" style="margin-left:55px;color:white;"></b>
                      </a>
                      <ul class="dropdown-menu dropdown-with-icons">
@@ -146,7 +142,7 @@ font-size: 25px;">
          </div>
       </nav>
       <div class="sidebar sidemenu" data-color="purple" >
-       
+
          <div class="sidebar-wrapper" style="background-color:#323546;">
             <div class="user" style="margin-top:10px;padding-bottom:22px;">
                <div class="imgclass photo" style="margin-left:20px;">
@@ -161,14 +157,14 @@ font-size: 25px;">
                       $pic=$rows1->user_pic;
                       if($pic!='')
                       {?>
-                  <img class="img-responsive" style="width:80px;height:80px;" src="<?php echo base_url(); ?>assets/students/profile/<?php echo $pic; ?>" > 
+                  <img class="img-responsive" style="width:80px;height:80px;" src="<?php echo base_url(); ?>assets/students/profile/<?php echo $pic; ?>" >
                   <?php }else{
                      ?> <img class="img-responsive" src="<?php echo base_url(); ?>assets/noimg.png"  />
                   <?php }} ?>
                </div>
                <div class="info">
                   <a  href="" style="padding-top:25px;">
-                  <?php 
+                  <?php
                      $user_id=$this->session->userdata('user_id');
                      $user_type=$this->session->userdata('user_type');
                      $query="SELECT name FROM edu_users WHERE user_id='$user_id' AND user_type='$user_type'";
@@ -178,7 +174,7 @@ font-size: 25px;">
                      { }echo '<p>'; echo"Welcome, "; echo $rows2->name; echo '</p>';?>
                   </a>
                </div>
-            </div>   
+            </div>
             <ul class="nav">
                <li id="dashboard">
                   <a href="<?php echo base_url(); ?>">
@@ -197,12 +193,18 @@ font-size: 25px;">
                    <img class="menuimg" src="<?php echo base_url(); ?>assets/img/icons/homework&classtest.png"/>
                      <p>Home Work / Class Test</p>
                   </a>
-               
+
                </li>
                <li id="fees">
                   <a href="<?php echo base_url(); ?>student/fees_status">
                      <img class="menuimg" src="<?php echo base_url(); ?>assets/img/icons/fees.png"/>
                      <p>Fees Status</p>
+                  </a>
+               </li>
+               <li id="circular">
+                  <a href="<?php echo base_url(); ?>student/view_all_circular">
+                     <img class="menuimg" src="<?php echo base_url(); ?>assets/img/icons/fees.png"/>
+                     <p>Circular</p>
                   </a>
                </li>
                <li id="exam">
@@ -237,4 +239,3 @@ font-size: 25px;">
             </ul>
          </div>
       </div>
-
