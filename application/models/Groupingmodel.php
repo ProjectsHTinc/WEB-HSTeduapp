@@ -108,11 +108,14 @@ Class Groupingmodel extends CI_Model
           }
 
           function view_members_in_groups($id){
-            $query="SELECT egm.id,egm.group_member_id,eu.user_master_id,ee.name,c.class_name,s.sec_name,egm.status  FROM edu_grouping_members AS egm
-            LEFT JOIN edu_users AS eu ON  eu.user_id=egm.group_member_id LEFT JOIN edu_admission AS ea ON eu.user_master_id=ea.admission_id
+            $query="SELECT egm.id,egm.group_member_id,eu.user_master_id,ee.name,c.class_name,s.sec_name,egm.status  FROM edu_grouping_members AS egm LEFT JOIN edu_users AS eu ON  eu.user_id=egm.group_member_id LEFT JOIN edu_admission AS ea ON eu.user_master_id=ea.admission_id
             LEFT JOIN edu_enrollment AS ee ON ee.admission_id=ea.admission_id LEFT JOIN edu_classmaster AS cm ON ee.class_id=cm.class_sec_id
-            LEFT JOIN edu_class AS c ON cm.class=c.class_id LEFT JOIN edu_sections AS s ON cm.section=s.sec_id WHERE egm.group_title_id='$id' ORDER BY egm.id DESC
-            ";
+            LEFT JOIN edu_class AS c ON cm.class=c.class_id LEFT JOIN edu_sections AS s ON cm.section=s.sec_id WHERE egm.group_title_id='$id' ORDER BY egm.id DESC";
+            $res=$this->db->query($query);
+            return $res->result();
+          }
+          function view_members_in_groups_staff($id){
+            $query="SELECT egm.id,egm.group_member_id,egm.member_type,eu.user_master_id,eu.name,egm.status,CASE  WHEN egm.member_type ='2' THEN 'Teacher' WHEN egm.member_type = 3 THEN '' WHEN egm.member_type = 5 THEN 'Board Members'  ELSE ' ' END  AS role_name FROM edu_grouping_members AS egm LEFT JOIN edu_users AS eu ON  eu.user_id=egm.group_member_id LEFT JOIN edu_teachers AS et ON  et.teacher_id=egm.group_member_id WHERE egm.group_title_id='$id' AND  egm.member_type='2' OR  egm.member_type='5' ORDER BY egm.id DESC";
             $res=$this->db->query($query);
             return $res->result();
           }
@@ -144,15 +147,30 @@ LEFT JOIN edu_enrollment AS ee ON ee.admission_id=ea.admission_id WHERE  ee.clas
 
           }
 
+          function get_staff_list($staff_role_id){
+             $year_id=$this->getYear();
+              $query="SELECT eu.user_id,et.name,et.name FROM edu_users AS eu LEFT JOIN edu_teachers AS et ON et.teacher_id=eu.user_master_id AND eu.user_type='$staff_role_id' WHERE  et.status='Active'";
+            $resultset=$this->db->query($query);
+            if($resultset->num_rows()==0){
+              $data= array("status" => "nodata");
+              return $data;
+            }else{
+              $res= $resultset->result();
+              $data= array("status" => "success","res" => $res);
+              return $data;
+            }
 
-          function adding_members_to_group($members_id,$group_id,$status,$user_id){
+          }
+
+
+          function adding_members_to_group($members_id,$group_id,$status,$user_id,$role_id){
             $members_id_cnt=count($members_id);
             for($i=0;$i<$members_id_cnt;$i++){
               $members_id_list=$members_id[$i];
-              $check ="SELECT * FROM edu_grouping_members WHERE group_title_id='$group_id' AND group_member_id='$members_id_list'";
+             $check ="SELECT * FROM edu_grouping_members WHERE group_title_id='$group_id' AND group_member_id='$members_id_list'";
               $result=$this->db->query($check);
              if($result->num_rows()==0){
-                 $query="INSERT INTO  edu_grouping_members (group_title_id,group_member_id,status,created_at,created_by) VALUES('$group_id','$members_id_list','$status',NOW(),'$user_id')";
+                 $query="INSERT INTO  edu_grouping_members (group_title_id,group_member_id,member_type,status,created_at,created_by) VALUES('$group_id','$members_id_list','$role_id','$status',NOW(),'$user_id')";
                  $res=$this->db->query($query);
              }
              else{
@@ -185,6 +203,12 @@ LEFT JOIN edu_enrollment AS ee ON ee.admission_id=ea.admission_id WHERE  ee.clas
 
           function get_board_members(){
             $select="Select * from edu_teachers where role_type_id='5' and status='Active'";
+            $resultset=$this->db->query($select);
+            return  $res=$resultset->result();
+          }
+
+          function get_all_member_role(){
+            $select="SELECT * FROM edu_role WHERE role_id!=1 AND role_id!=3 AND role_id!=4";
             $resultset=$this->db->query($select);
             return  $res=$resultset->result();
           }

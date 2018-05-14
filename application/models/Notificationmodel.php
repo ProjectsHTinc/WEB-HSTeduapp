@@ -512,46 +512,58 @@ Class Notificationmodel extends CI_Model
 
             //Group Notification
          function send_notification($group_id,$notes,$user_id,$members_id){
-           if(empty($members_id)){
-           }else{
-               $member_id=implode(',',$members_id);
-               $mem_cnt=count($member_id);
-               $select="SELECT * from edu_users as eu where user_master_id IN($member_id) and eu.user_type='5'";
-               $resultset=$this->db->query($select);
-               $result=$resultset->result();
-               if(empty($res)){
-               }else{
-                 foreach($result as $notification_id){
-                   $notify_id=$notification_id->user_id;
-                   $sql="SELECT * FROM edu_notification where user_id='$notify_id'";
-                    $sgsm=$this->db->query($sql);
-                    $res=$sgsm->result();
-                    foreach($res as $row){
-                    $gcm_key=$row->gcm_key;
-                    $this->sendNotification($gcm_key,$notes);
-                   }
+           $check_type="SELECT * FROM edu_grouping_members WHERE group_title_id='$group_id'";
+           $get_type=$this->db->query($check_type);
+           $res_type=$get_type->result();
+           foreach($res_type as $row_type){}
+           $member_type=$row_type->member_type;
+           $group_member_id=$row_type->group_member_id;
+           if($member_type='3'){
+             $class="SELECT egm.group_member_id,ep.email,ep.mobile,ep.id FROM edu_grouping_members AS egm
+             LEFT JOIN edu_users AS eu ON eu.user_id=egm.group_member_id LEFT JOIN edu_admission AS ea ON ea.admission_id=eu.user_master_id
+             LEFT JOIN edu_parents AS ep ON FIND_IN_SET(ea.admission_id, ep.admission_id) LEFT JOIN edu_notification AS en ON en.user_id=eu.user_id
+             WHERE  egm.group_title_id='$group_id' AND ep.primary_flag='yes'";
+            $pcell=$this->db->query($class);
+            $res2=$pcell->result();
+            foreach($res2 as $result){
+            $parent_id=$result->id;
+            $sql="SELECT eu.user_id,en.gcm_key FROM edu_users as eu left join edu_notification as en on eu.user_id=en.user_id WHERE user_type='4' and user_master_id='$parent_id'";
+             $sgsm=$this->db->query($sql);
+             $res=$sgsm->result();
+             foreach($res as $row){
+             $gcm_key=$row->gcm_key;
+             $this->sendNotification($gcm_key,$notes);
+            }
 
-                 }
-               }
-           }
-
-           $class="SELECT egm.group_member_id,ep.email,ep.mobile,ep.id FROM edu_grouping_members AS egm
-           LEFT JOIN edu_users AS eu ON eu.user_id=egm.group_member_id LEFT JOIN edu_admission AS ea ON ea.admission_id=eu.user_master_id
-           LEFT JOIN edu_parents AS ep ON FIND_IN_SET(ea.admission_id, ep.admission_id) LEFT JOIN edu_notification AS en ON en.user_id=eu.user_id
-           WHERE  egm.group_title_id='$group_id' AND ep.primary_flag='yes'";
-          $pcell=$this->db->query($class);
-          $res2=$pcell->result();
-          foreach($res2 as $result){
-          $parent_id=$result->id;
-          $sql="SELECT eu.user_id,en.gcm_key FROM edu_users as eu left join edu_notification as en on eu.user_id=en.user_id WHERE user_type='4' and user_master_id='$parent_id'";
-           $sgsm=$this->db->query($sql);
-           $res=$sgsm->result();
-           foreach($res as $row){
-           $gcm_key=$row->gcm_key;
-           $this->sendNotification($gcm_key,$notes);
           }
+           }
+           $check_type_staff="SELECT * FROM edu_grouping_members WHERE group_title_id='$group_id'";
+           $get_type_staff=$this->db->query($check_type_staff);
+           $res_type_staff=$get_type_staff->result();
+           foreach($res_type_staff as $row_type_staff){}
+           $member_type_staff=$row_type_staff->member_type;
+           $group_member_id_staff=$row_type_staff->group_member_id;
+            if($member_type='2' || $member_type='5'){
+              $select="SELECT * from edu_users as eu where user_master_id IN($group_member_id_staff) and eu.user_type='5' and eu.user_type='2'";
+              $resultset=$this->db->query($select);
+              $result=$resultset->result();
+              if(empty($res)){
+              }else{
+                foreach($result as $notification_id){
+                  $notify_id=$notification_id->user_id;
+                  $sql="SELECT * FROM edu_notification where user_id='$notify_id'";
+                   $sgsm=$this->db->query($sql);
+                   $res=$sgsm->result();
+                   foreach($res as $row){
+                   $gcm_key=$row->gcm_key;
+                   $this->sendNotification($gcm_key,$notes);
+                  }
 
-        }
+                }
+              }
+            }
+
+
       }
 
 // Home Work Details

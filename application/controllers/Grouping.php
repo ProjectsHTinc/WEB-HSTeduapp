@@ -207,7 +207,7 @@ class Grouping extends CI_Controller {
 			$datas=$this->session->userdata();
 			$user_id=$this->session->userdata('user_id');
 			$user_type=$this->session->userdata('user_type');
-			if($user_type==1){
+			if($user_type==1 || $user_type==2 || $user_type==5){
 				 $del_id=$this->input->post('del_id');
 				 $data=$this->groupingmodel->delete_member($del_id);
 				 if($data['status']=="success"){
@@ -242,8 +242,10 @@ class Grouping extends CI_Controller {
 			$user_type=$this->session->userdata('user_type');
 			if($user_type==1){
 				$datas['res']=$this->groupingmodel->view_members_in_groups($id);
+				$datas['res_staff']=$this->groupingmodel->view_members_in_groups_staff($id);
 				$datas['res_group_name']=$this->groupingmodel->get_group_name($id);
 				$datas['res_class']=$this->groupingmodel->get_all_classes_for_year();
+				$datas['res_role']=$this->groupingmodel->get_all_member_role();
 				//print_r($datas['res']);exit;
 				$datas['id']=$id;
 				$this->load->view('header');
@@ -260,9 +262,21 @@ class Grouping extends CI_Controller {
 		$datas=$this->session->userdata();
 		$user_id=$this->session->userdata('user_id');
 		$user_type=$this->session->userdata('user_type');
-		if($user_type==1){
+				if($user_type==1 || $user_type==2 || $user_type==5){
 			$class_master_id=$this->input->post('class_master_id');
 			$data['res']=$this->groupingmodel->getListstudent($class_master_id);
+			echo json_encode($data['res']);
+		}else{
+				redirect('/');
+		}
+	}
+	public function get_staff_list(){
+		$datas=$this->session->userdata();
+		$user_id=$this->session->userdata('user_id');
+		$user_type=$this->session->userdata('user_type');
+		if($user_type==1 || $user_type==2 || $user_type==5){
+			$staff_role_id=$this->input->post('staff_role_id');
+			$data['res']=$this->groupingmodel->get_staff_list($staff_role_id);
 			echo json_encode($data['res']);
 		}else{
 				redirect('/');
@@ -274,11 +288,12 @@ class Grouping extends CI_Controller {
 			$datas=$this->session->userdata();
 			$user_id=$this->session->userdata('user_id');
 			$user_type=$this->session->userdata('user_type');
-			if($user_type==1){
+			if($user_type==1 || $user_type==2 || $user_type==5){
 				$members_id=$this->input->post('members_id');
 				$group_id=$this->input->post('group_id');
+				$role_id=$this->input->post('role_id');
 				$status=$this->input->post('status');
-				$data=$this->groupingmodel->adding_members_to_group($members_id,$group_id,$status,$user_id);
+				$data=$this->groupingmodel->adding_members_to_group($members_id,$group_id,$status,$user_id,$role_id);
 				if($data['status']=="success"){
 					echo "success";
 				}else if($data['status']=="already"){

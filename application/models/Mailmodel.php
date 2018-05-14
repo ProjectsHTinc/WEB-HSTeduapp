@@ -73,7 +73,7 @@ Class Mailmodel extends CI_Model
 		$notes = $rows->circular_description;
 	   	$user_type = $users_id;
 
-	  
+
 	  //-----------Admin------------------------
 	  if(!empty($user_type))
 	   {
@@ -298,60 +298,74 @@ Class Mailmodel extends CI_Model
 
     // Group Mail
     function send_mail($group_id,$notes,$user_id,$members_id){
-      if(empty($members_id)){
-      }else{
-          $member_id=implode(',',$members_id);
-          $mem_cnt=count($member_id);
-          $select="Select email from edu_teachers where role_type_id='5' and teacher_id IN ($member_id)";
-          $resultset=$this->db->query($select);
-          $res=$resultset->result();
-          if(empty($res)){
+      $check_type="SELECT * FROM edu_grouping_members WHERE group_title_id='$group_id'";
+      $get_type=$this->db->query($check_type);
+      $res_type=$get_type->result();
+       foreach($res_type as $row_type){}
+           $member_type=$row_type->member_type;
+         $group_member_id=$row_type->group_member_id;
+         if($member_type='3'){
+           $sql1="SELECT egm.group_member_id,ep.email,ep.mobile FROM edu_grouping_members AS egm
+          LEFT JOIN edu_users AS eu ON eu.user_id=egm.group_member_id LEFT JOIN edu_admission AS ea ON ea.admission_id=eu.user_master_id
+          LEFT JOIN edu_parents AS ep ON FIND_IN_SET(ea.admission_id, ep.admission_id) WHERE  egm.group_title_id='$group_id'";
 
-          }else{
-            foreach($res as $phone){
-              $to=$phone->email;
-              $subject="From KalaiMagal";
-               $htmlContent = '
-                <html>
-                <head><title></title>
-                </head>
-                <body>
-                <p style="margin-left:50px;">'.$notes.'</p>
-                </body>
-                </html>';
-            $headers = "MIME-Version: 1.0" . "\r\n";
-            $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-            $headers .= 'From: happysanz<info@happysanz.com>' . "\r\n";
-            $send= mail($to,$subject,$htmlContent,$headers);
-            }
-          }
-      }
-       $sql1="SELECT egm.group_member_id,ep.email,ep.mobile FROM edu_grouping_members AS egm
-      LEFT JOIN edu_users AS eu ON eu.user_id=egm.group_member_id LEFT JOIN edu_admission AS ea ON ea.admission_id=eu.user_master_id
-      LEFT JOIN edu_parents AS ep ON FIND_IN_SET(ea.admission_id, ep.admission_id)
-      WHERE  egm.group_title_id='$group_id'";
-       $scell=$this->db->query($sql1);
-       $res1=$scell->result();
-       foreach($res1 as $row1)
-       {
-        $semail=$row1->email;
-        $to=$semail;
-        $subject="From KalaiMagal";
+           $scell=$this->db->query($sql1);
+           $res1=$scell->result();
+           foreach($res1 as $row1)
+           {
+            $semail=$row1->email;
+            $to=$semail;
+            $subject="From Ensyfi";
 
-         $htmlContent = '
-          <html>
-          <head><title></title>
-          </head>
-          <body>
-          <p style="margin-left:50px;">'.$notes.'</p>
-          </body>
-          </html>';
-      $headers = "MIME-Version: 1.0" . "\r\n";
-      $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-      // Additional headers
-      $headers .= 'From: happysanz<info@happysanz.com>' . "\r\n";
-     $send= mail($to,$subject,$htmlContent,$headers);
-     }
+             $htmlContent = '
+              <html>
+              <head><title></title>
+              </head>
+              <body>
+              <p style="margin-left:50px;">'.$notes.'</p>
+              </body>
+              </html>';
+          $headers = "MIME-Version: 1.0" . "\r\n";
+          $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+          // Additional headers
+          $headers .= 'From: happysanz<info@happysanz.com>' . "\r\n";
+         $send= mail($to,$subject,$htmlContent,$headers);
+         }
+         }
+         $check_type_staff="SELECT * FROM edu_grouping_members WHERE group_title_id='$group_id'";
+         $get_type_staff=$this->db->query($check_type_staff);
+         $res_type_staff=$get_type_staff->result();
+         foreach($res_type_staff as $row_type_staff){}
+          $member_type_staff=$row_type_staff->member_type;
+         $group_member_id_staff=$row_type_staff->group_member_id;
+         if($member_type='2' || $member_type='5'){
+          $send_mail="SELECT * FROM edu_users AS A LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id WHERE a.user_id = '$group_member_id_staff'";
+           $get_mail=$this->db->query($send_mail);
+           $res_mail=$get_mail->result();
+           foreach($res_mail as $rows_mail){
+             $get_mail=$rows_mail->email;
+             $to=$get_mail;
+             $subject="From Ensyfi";
+              $htmlContent = '
+               <html>
+               <head><title></title>
+               </head>
+               <body>
+               <p style="margin-left:50px;">'.$notes.'</p>
+               </body>
+               </html>';
+                 $headers = "MIME-Version: 1.0" . "\r\n";
+                 $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+                 // Additional headers
+                 $headers .= 'From: ensyfi<info@ensyfi.com>' . "\r\n";
+                 $send= mail($to,$subject,$htmlContent,$headers);
+           }
+
+         }
+
+
+
+
     }
 
 	//-----------------------Send Home Work In Mail-----------------------------------------
@@ -430,7 +444,7 @@ $message= " <br> Title : " .$hwtitle. " <br> Type : " .$type. " <br> Details : "
       $abs_status=$rows->abs_atatus;
       $textmessage='Your child '.$st_name.' was marked '.$abs_status.' today, '.$abs_date.' ON '.$at_ses.' To Known more details login into http://bit.ly/2wLwdRQ';
       $to=$parents_email;
-      $subject="From KalaiMagal";
+      $subject="From ENSYFI";
 
        $htmlContent = '
         <html>

@@ -74,21 +74,8 @@
                                              <input type="hidden" name="group_id" id="group_id" class="form-control" value="">
                                           </div>
                                        </div>
-                                       <div class="form-group">
-                                          <label class="col-sm-4 control-label">Board Memebers </label>
-                                          <div class="col-sm-6">
 
-                                            <select multiple name="members_id[]" id="members_id" data-title="Select Board Members" class="selectpicker form-control">
-                                              <?php foreach($get_board_members as $res_member){ ?>
-                                                  <option value="<?php echo $res_member->teacher_id ?>"><?php echo $res_member->name ?></option>
-                                            <?php   } ?>
-
-
-                                          </select>
-                                             <input type="hidden" name="group_id" id="group_id" class="form-control" value="">
-                                          </div>
-                                       </div>
-
+                                        <input type="hidden" name="group_id" id="group_id" class="form-control" value="">
                                        <div class="form-group">
                                           <label class="col-sm-4 control-label">Notes </label>
                                           <div class="col-sm-6">
@@ -128,6 +115,9 @@
 </div>
 
 <script type="text/javascript">
+jQuery('#groupingmenu').addClass('collapse in');
+$('#grouping').addClass('active');
+$('#group2').addClass('active');
   $("#loading").hide();
     // $("#loading").show();
 $('#send_msg').validate({ // initialize the plugin

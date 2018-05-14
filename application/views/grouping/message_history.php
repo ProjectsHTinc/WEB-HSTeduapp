@@ -45,7 +45,9 @@
    </div>
 </div>
 <script type="text/javascript">
-   $('#grouping').addClass('active');
+jQuery('#groupingmenu').addClass('collapse in');
+$('#grouping').addClass('active');
+$('#group2').addClass('active');
 
    var $table = $('#bootstrap-table');
          $().ready(function(){

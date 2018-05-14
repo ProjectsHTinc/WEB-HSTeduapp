@@ -94,7 +94,7 @@
             status: "select status"
 
         },
-        
+
 
         submitHandler: function(form) {
          //alert("hi");
@@ -138,4 +138,7 @@
         }
 
     });
+    jQuery('#groupingmenu').addClass('collapse in');
+    $('#grouping').addClass('active');
+    $('#group1').addClass('active');
 </script>

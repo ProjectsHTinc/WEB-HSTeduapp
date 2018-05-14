@@ -212,4 +212,7 @@ var $table = $('#bootstrap-table');
 
 
       });
+      jQuery('#groupingmenu').addClass('collapse in');
+      $('#grouping').addClass('active');
+      $('#group1').addClass('active');
 </script>

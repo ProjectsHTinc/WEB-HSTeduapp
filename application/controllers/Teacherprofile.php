@@ -56,6 +56,25 @@ class Teacherprofile extends CI_Controller {
 		}
 	}
 
+	public function view_members($id){
+		$datas=$this->session->userdata();
+		$user_id=$this->session->userdata('user_id');
+		$user_type=$this->session->userdata('user_type');
+		if($user_type==2){
+			$datas['res']=$this->groupingmodel->view_members_in_groups($id);
+			$datas['res_staff']=$this->groupingmodel->view_members_in_groups_staff($id);
+			$datas['res_group_name']=$this->groupingmodel->get_group_name($id);
+			$datas['res_class']=$this->groupingmodel->get_all_classes_for_year();
+			$datas['res_role']=$this->groupingmodel->get_all_member_role();
+				$datas['id']=$id;
+			$this->load->view('adminteacher/teacher_header',$datas);
+			$this->load->view('adminteacher/communication/view_members',$datas);
+			$this->load->view('adminteacher/teacher_footer');
+		}else{
+			 redirect('/');
+		}
+	}
+
 
 	public function message_history(){
 		$datas=$this->session->userdata();
