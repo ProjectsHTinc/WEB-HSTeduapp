@@ -10,96 +10,157 @@ class Apimainmodel extends CI_Model {
 
 //#################### Email ####################//
 
-	public function sendMail($to,$subject,$htmlContent)
+	public function sendMail($email,$subject,$email_message)
 	{
 		// Set content-type header for sending HTML email
 		$headers = "MIME-Version: 1.0" . "\r\n";
 		$headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
 		// Additional headers
-		$headers .= 'From: happysanz<info@happysanz.com>' . "\r\n";
-		mail($to,$subject,$htmlContent,$headers);
+		$headers .= 'From: Webmaster<hello@happysanz.com>' . "\r\n";
+		mail($email,$subject,$email_message,$headers);
 	}
 
 //#################### Email End ####################//
-
-
-//#################### Email ####################//
-
-	public function sendNotification($gcm_key,$Title,$Message)
-	{
-	        $gcm_key = array($gcm_key);
-			$data = array
-			(
-				'message' 	=> $Message,
-				'title'		=> $Title,
-				'vibrate'	=> 1,
-				'sound'		=> 1
-		//		'largeIcon'	=> 'http://happysanz.net/testing/assets/students/profile/236832.png'
-		//		'smallIcon'	=> 'small_icon'
-			);
-
-			// Insert real GCM API key from the Google APIs Console
-			$apiKey = 'AAAADRDlvEI:APA91bFi-gSDCTCnCRv1kfRd8AmWu0jUkeBQ0UfILrUq1-asMkBSMlwamN6iGtEQs72no-g6Nw0lO5h4bpN0q7JCQkuTYsdPnM1yfilwxYcKerhsThCwt10cQUMKrBrQM2B3U3QaYbWQ';
-			// Set POST request body
-			$post = array(
-						'registration_ids'  => $gcm_key,
-						'data'              => $data,
-						 );
-			// Set CURL request headers
-			$headers = array(
-						'Authorization: key=' . $apiKey,
-						'Content-Type: application/json'
-							);
-			// Initialize curl handle
-			$ch = curl_init();
-			// Set URL to GCM push endpoint
-			curl_setopt($ch, CURLOPT_URL, 'https://gcm-http.googleapis.com/gcm/send');
-			// Set request method to POST
-			curl_setopt($ch, CURLOPT_POST, true);
-			// Set custom request headers
-			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-			// Get the response back as string instead of printing it
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			// Set JSON post data
-			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post));
-			// Actually send the request
-			$result = curl_exec($ch);
-
-
-			// Handle errors
-			if (curl_errno($ch)) {
-				//echo 'GCM error: ' . curl_error($ch);
-			}
-			// Close curl handle
-			curl_close($ch);
-
-			// Debug GCM response
-			//echo $result;
-	}
-
-//#################### Notification End ####################//
 
 
 //#################### SMS ####################//
 
 	public function sendSMS($Phoneno,$Message)
 	{
-		$textmsg = urlencode($Message);
-		$smsGatewayUrl = 'http://173.45.76.227/send.aspx?';
-		$api_element = 'username=kvmhss&pass=kvmhss123&route=trans1&senderid=KVMHSS';
-		$api_params = $api_element.'&numbers='.$Phoneno.'&message='.$textmsg;
-		$smsgatewaydata = $smsGatewayUrl.$api_params;
-		$url = $smsgatewaydata;
-
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_POST, false);
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		$output = curl_exec($ch);
-		curl_close($ch);
+        //Your authentication key
+        $authKey = "191431AStibz285a4f14b4";
+        
+        //Multiple mobiles numbers separated by comma
+        $mobileNumber = "$Phoneno";
+        
+        //Sender ID,While using route4 sender id should be 6 characters long.
+        $senderId = "EDUAPP";
+        
+        //Your message to send, Add URL encoding here.
+        $message = urlencode($Message);
+        
+        //Define route 
+        $route = "transactional";
+        
+        //Prepare you post parameters
+        $postData = array(
+            'authkey' => $authKey,
+            'mobiles' => $mobileNumber,
+            'message' => $message,
+            'sender' => $senderId,
+            'route' => $route
+        );
+        
+        //API URL
+        $url="https://control.msg91.com/api/sendhttp.php";
+        
+        // init the resource
+        $ch = curl_init();
+        curl_setopt_array($ch, array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $postData
+            //,CURLOPT_FOLLOWLOCATION => true
+        ));
+        
+        
+        //Ignore SSL certificate verification
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        
+        
+        //get response
+        $output = curl_exec($ch);
+        
+        //Print error if any
+        if(curl_errno($ch))
+        {
+            echo 'error:' . curl_error($ch);
+        }
+        
+        curl_close($ch);
 	}
 
 //#################### SMS End ####################//
+
+
+//#################### Notification ####################//
+
+	public function sendNotification($gcm_key,$title,$message,$mobiletype)
+	{
+	    echo $gcm_key;
+		if ($mobiletype =='1'){
+
+		    require_once 'assets/notification/Firebase.php';
+            require_once 'assets/notification/Push.php'; 
+            
+            $device_token = explode(",", $gcm_key);
+            $push = null; 
+        
+        //first check if the push has an image with it
+		    $push = new Push(
+					$title,
+					$message,
+					null
+				);
+
+// 			//if the push don't have an image give null in place of image
+// 			 $push = new Push(
+// 			 		'HEYLA',
+// 		     		'Hi Testing from maran',
+// 			 		'http://heylaapp.com/assets/notification/images/event.png'
+// 			 	);
+
+    		//getting the push from push object
+    		$mPushNotification = $push->getPush(); 
+    
+    		//creating firebase class object 
+    		$firebase = new Firebase(); 
+
+    	foreach($device_token as $token) {
+    		 $firebase->send(array($token),$mPushNotification);
+    	}
+
+		} else {
+            
+			$device_token = explode(",", $gcm_key);
+			$passphrase = 'hs123';
+		    $loction ='assets/notification/happysanz.pem';
+		   
+			$ctx = stream_context_create();
+			stream_context_set_option($ctx, 'ssl', 'local_cert', $loction);
+			stream_context_set_option($ctx, 'ssl', 'passphrase', $passphrase);
+			
+			// Open a connection to the APNS server
+			$fp = stream_socket_client('ssl://gateway.sandbox.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT, $ctx);
+			
+			if (!$fp)
+				exit("Failed to connect: $err $errstr" . PHP_EOL);
+
+			$body['aps'] = array(
+				'alert' => array(
+					'body' => $message,
+					'action-loc-key' => 'EDU App',
+				),
+				'badge' => 2,
+				'sound' => 'assets/notification/oven.caf',
+				);
+			$payload = json_encode($body);
+
+			foreach($device_token as $token) {
+			
+				// Build the binary notification
+    			$msg = chr(0) . pack("n", 32) . pack("H*", str_replace(" ", "", $token)) . pack("n", strlen($payload)) . $payload;
+        		$result = fwrite($fp, $msg, strlen($msg));
+			}
+							
+				fclose($fp);
+		}
+		
+	}
+
+//#################### Notification End ####################//
 
 
 //#################### Current Year ####################//
@@ -1388,13 +1449,13 @@ class Apimainmodel extends CI_Model {
                     {
                     	$sParent_id = $rows->id;
 
-                    	$sql = "SELECT eu.user_id,en.gcm_key FROM edu_users as eu left join edu_notification as en on eu.user_id=en.user_id WHERE user_type='4' and user_master_id='$sParent_id'";
+                    	$sql = "SELECT eu.user_id,en.gcm_key,en.mobile_type FROM edu_users as eu left join edu_notification as en on eu.user_id=en.user_id WHERE user_type='4' and user_master_id='$sParent_id'";
                     	$sgsm  = $this->db->query($sql);
                     	$res = $sgsm->result();
 
                     	foreach($res as $row){
                     	    $sGcm_key = $row->gcm_key;
-                    	    $this->sendNotification($sGcm_key,$subject,$message_details);
+                    	    $this->sendNotification($sGcm_key,$subject,$message_details,$mobile_type);
                     	}
 
                     }

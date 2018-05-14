@@ -1383,7 +1383,313 @@ class Apiteachermodel extends CI_Model {
 			return $response;
       	}
 
-//#################### Attendance Status Change End ####################//		
+//#################### Attendance Status Change End ####################//	
+
+
+
+//#################### list Class teacher All hwork ####################//
+	public function daywisectHomework ($class_id)
+	{
+			$year_id = $this->getYear();
+  			$sql = "SELECT DATE_FORMAT(created_at, '%Y-%m-%d') AS hw_date, SUM( CASE WHEN hw_type = 'HW' THEN 1 ELSE 0 END ) AS hw_count, SUM( CASE WHEN hw_type = 'HT' THEN 1 ELSE 0 END ) AS ht_count FROM edu_homework WHERE class_id ='$class_id' AND year_id = '$year_id' GROUP BY DATE_FORMAT(created_at, '%Y-%m-%d') ORDER by DATE_FORMAT(created_at, '%Y-%m-%d') DESC ";
+    		$result = $this->db->query($sql);
+    		$hw_result = $result->result();
+
+				if($hw_result) {
+					$response = array("status" => "success", "msg" => "View All Days for Homework", "hwDates"=>$hw_result);
+				} else {
+					$response = array("status" => "error");
+				}
+				
+			return $response;
+
+	}
+//#################### list Class teacher All hwork End ####################//	
+
+
+//#################### list Class teacher All hwork for days ####################//
+	public function daywisectAllhomework ($class_id,$hw_date)
+	{
+			$year_id = $this->getYear();
+  			$sql = "SELECT h.hw_id,h.hw_type,h.title,h.created_at,h.test_date,h.due_date,h.hw_details,h.send_option_status,s.subject_id,s.subject_name,t.name FROM edu_homework AS h,edu_subject AS s,edu_teachers AS t WHERE class_id='$class_id' AND h.year_id='$year_id' AND h.subject_id=s.subject_id AND DATE_FORMAT(h.created_at,'%Y-%m-%d')='$hw_date'  AND h.teacher_id=t.teacher_id";
+    		$result = $this->db->query($sql);
+    		$hw_result = $result->result();
+
+				if($hw_result) {
+					$response = array("status" => "success", "msg" => "View All Homework - Day", "hwdayDetails"=>$hw_result);
+				} else {
+					$response = array("status" => "error", "msg" => "No Records Found");
+				}
+				
+			return $response;
+
+	}
+//#################### list Class teacher All hwork for days ####################//	
+
+
+//#################### send all HW sms to Parents ####################//
+	 public function send_allhw_sms($user_id,$createdate,$clssid)
+	 {
+		 $year_id = $this->getYear();
+		 
+		 $sQuery = "SELECT h.title,h.hw_details,h.hw_type,h.test_date,s.subject_name FROM edu_homework AS h,edu_subject AS s WHERE h.class_id='$clssid' AND h.year_id='$year_id' AND DATE_FORMAT(h.created_at,'%Y-%m-%d')='$createdate' AND h.subject_id=s.subject_id";
+		  $sms1 = $this->db->query($sQuery);
+		  $sms2 = $sms1->result();
+
+		  foreach ($sms2 as $value)
+          {
+            $hwtitle=$value->title;
+		    $hwdetails=$value->hw_details;
+			$subname=$value->subject_name;
+			$ht=$value->hw_type;
+			$tdat=$value->test_date;
+
+			if($ht=='HW'){ $type="Home Work" ; }else{ $type="Class Test" ; }
+
+			$message = "Title : " .$hwtitle. ",Type : " .$type. ", Details : " .$hwdetails .", Subject : ".$subname."--" ;
+			$home_work_details[]= $message;
+		  }
+		  	$hwdetails = implode('--',$home_work_details);
+		  
+			$sql = "SELECT p.mobile FROM edu_parents AS p,edu_enrollment AS e WHERE e.class_id='$clssid' AND FIND_IN_SET( e.admission_id,p.admission_id) GROUP BY p.name";
+			$result = $this->db->query($sql);
+			$p_resulr = $result->result();
+		  
+		  	foreach($p_resulr as $rows)
+		  	{  
+				$parents_num = $rows->mobile;
+				$this->sendSMS($parents_num,$hwdetails);
+			}
+			   
+		  }
+//#################### send all HW sms to Parents END ####################//
+
+//#################### send all HW Email to Parents ####################//
+	 public function send_allhw_email($user_id,$createdate,$clssid)
+	 {
+		$year_id = $this->getYear();
+		 
+		 $sQuery = "SELECT h.title,h.hw_details,h.hw_type,h.test_date,s.subject_name FROM edu_homework AS h,edu_subject AS s WHERE h.class_id='$clssid' AND h.year_id='$year_id' AND DATE_FORMAT(h.created_at,'%Y-%m-%d')='$createdate' AND h.subject_id=s.subject_id";
+		  $sms1 = $this->db->query($sQuery);
+		  $sms2 = $sms1->result();
+
+		  foreach ($sms2 as $value)
+          {
+            $hwtitle = $value->title;
+		    $hwdetails = $value->hw_details;
+			$subname = $value->subject_name;
+			$ht = $value->hw_type;
+			$tdat = $value->test_date;
+
+			if($ht=='HW'){ $type="Home Work" ; }else{ $type="Class Test" ; }
+
+			$message= " <br> Title : " .$hwtitle. " <br> Type : " .$type. " <br> Details : " .$hwdetails ." <br> Subject : ".$subname." <br> ";
+			$home_work_details[]= $message;
+		  }
+		  	$hwdetails = implode('--',$home_work_details);
+		  
+			$sql = "SELECT p.email FROM edu_parents AS p,edu_enrollment AS e WHERE e.class_id='$clssid' AND FIND_IN_SET( e.admission_id,p.admission_id) GROUP BY p.name";
+			$result = $this->db->query($sql);
+			$p_resulr = $result->result();
+		  
+		  	foreach($p_resulr as $rows)
+		  	{  
+				$subject="HomeWork / Class Test Details";
+				$parents_email = $rows->email;
+				$this->sendMail($parents_email,$subject,$hwdetails);
+			}
+
+  		}
+
+//#################### send all HW  Email to Parents END ####################//
+
+//#################### ssend all HW Notification to Parents ####################//		
+		
+	 public function send_allhw_notification($user_id,$createdate,$clssid)
+	 {
+     		$year_id = $this->getYear();
+		 
+		 $sQuery = "SELECT h.title,h.hw_details,h.hw_type,h.test_date,s.subject_name FROM edu_homework AS h,edu_subject AS s WHERE h.class_id='$clssid' AND h.year_id='$year_id' AND DATE_FORMAT(h.created_at,'%Y-%m-%d')='$createdate' AND h.subject_id=s.subject_id";
+		  $sms1 = $this->db->query($sQuery);
+		  $sms2 = $sms1->result();
+
+		  foreach ($sms2 as $value)
+          {
+            $hwtitle = $value->title;
+		    $hwdetails = $value->hw_details;
+			$subname = $value->subject_name;
+			$ht = $value->hw_type;
+			$tdat = $value->test_date;
+
+			if($ht=='HW'){ $type="Home Work" ; }else{ $type="Class Test" ; }
+
+			$message = "Title : " .$hwtitle. ",Type : " .$type. ", Details : " .$hwdetails .", Subject : ".$subname."--" ;
+			$home_work_details[]= $message;
+		  }
+		  	$hwdetails = implode('--',$home_work_details);
+		  
+			$sql = "SELECT p.id,u.user_id FROM edu_parents AS p,edu_enrollment AS e,edu_users AS u WHERE e.class_id='$clssid' AND FIND_IN_SET(e.admission_id,p.admission_id) AND p.primary_flag='Yes' AND p.id=u.user_master_id AND u.user_type='4' GROUP BY p.id";
+
+		  	$result = $this->db->query($sql);
+			$p_resulr = $result->result();
+		  
+		  	foreach($p_resulr as $rows)
+		  	{
+			$user_id = $rows->user_id;
+			$psql = "SELECT user_id,gcm_key,mobile_type FROM edu_notification WHERE user_id='$user_id'";
+			$pagsm = $this->db->query($psql);
+			$pares = $pagsm->result();
+			   foreach($pares as $parow)
+			   {
+				   	$subject="HomeWork / Class Test Details";
+					$gcm_key = $parow->gcm_key;
+					$mobile_type = $parow->mobile_type;
+					$this->sendNotification($gcm_key,$subject,$hwdetails,$mobile_type);
+				}
+		  }
+    }
+		
+//#################### send all HW Notification to Parents END ####################//		
+
+//#################### Homeworks Status Change ####################//		
+	 public function updateAllhworkstatus($user_id,$createdate,$clssid)
+		{
+			$query="UPDATE edu_homework SET send_option_status='1',updated_by='$user_id',updated_at=NOW() WHERE class_id='$clssid' AND DATE_FORMAT(created_at, '%Y-%m-%d')='$createdate'";
+			$res=$this->db->query($query);
+			
+			$response = array("status" => "success", "msg" => "HW Send to Parents");
+			return $response;
+     	}
+//#################### Homeworks Status Change End ####################//
+
+//#################### send Single HW sms to Parents ####################//
+	 public function send_singlehw_sms($user_id,$hw_id,$clssid)
+	 {
+		 $year_id = $this->getYear();
+		 
+		  $sQuery = "SELECT h.title,h.hw_details,h.hw_type,h.test_date,s.subject_name FROM edu_homework AS h,edu_subject AS s WHERE h.class_id='$clssid' AND h.year_id='$year_id' AND h.hw_id='$hw_id' AND h.subject_id=s.subject_id";
+		  $sms1 = $this->db->query($sQuery);
+		  $sms2 = $sms1->result();
+
+		  foreach ($sms2 as $value)
+          {
+           $hwtitle=$value->title;
+		    $hwdetails=$value->hw_details;
+			$subname=$value->subject_name;
+			$ht=$value->hw_type;
+			$tdat=$value->test_date;
+
+			if($ht=='HW'){ $type="Home Work" ; }else{ $type="Class Test" ; }
+
+			$hwdetails = "Title : " .$hwtitle. ",Type : " .$type. ", Details : " .$hwdetails .", Subject : ".$subname ;
+		  }
+		  
+			$sql = "SELECT p.mobile FROM edu_parents AS p,edu_enrollment AS e WHERE e.class_id='$clssid' AND FIND_IN_SET( e.admission_id,p.admission_id) GROUP BY p.name";
+			$result = $this->db->query($sql);
+			$p_resulr = $result->result();
+		  
+		  	foreach($p_resulr as $rows)
+		  	{  
+				$parents_num = $rows->mobile;
+				//$this->sendSMS($parents_num,$hwdetails);
+			}
+			   
+		  }
+//#################### send single HW sms to Parents END ####################//
+
+//#################### send single HW Email to Parents ####################//
+	 public function send_singlehw_email($user_id,$hw_id,$clssid)
+	 {
+		$year_id = $this->getYear();
+		 
+		 $sQuery = "SELECT h.title,h.hw_details,h.hw_type,h.test_date,s.subject_name FROM edu_homework AS h,edu_subject AS s WHERE h.class_id='$clssid' AND h.year_id='$year_id' AND hw_id='$hw_id' AND h.subject_id=s.subject_id";
+		  $sms1 = $this->db->query($sQuery);
+		  $sms2 = $sms1->result();
+
+		  foreach ($sms2 as $value)
+          {
+            $hwtitle = $value->title;
+		    $hwdetails = $value->hw_details;
+			$subname = $value->subject_name;
+			$ht = $value->hw_type;
+			$tdat = $value->test_date;
+
+			if($ht=='HW'){ $type="Home Work" ; }else{ $type="Class Test" ; }
+			$message = " <br> Title : " .$hwtitle. " <br> Type : " .$type. " <br> Details : " .$hwdetails ." <br> Subject : ".$subname;
+		  }
+
+		  
+			$sql = "SELECT p.email FROM edu_parents AS p,edu_enrollment AS e WHERE e.class_id='$clssid' AND FIND_IN_SET( e.admission_id,p.admission_id) GROUP BY p.name";
+			$result = $this->db->query($sql);
+			$p_resulr = $result->result();
+		  
+		  	foreach($p_resulr as $rows)
+		  	{  
+				$subject="HomeWork / Class Test Details";
+				$parents_email = $rows->email;
+				//$this->sendMail($parents_email,$subject,$message);
+			}
+
+  		}
+
+//#################### send all HW  Email to Parents END ####################//
+
+//#################### ssend single HW Notification to Parents ####################//		
+		
+	 public function send_singlehw_notification($user_id,$hw_id,$clssid)
+	 {
+     		$year_id = $this->getYear();
+		 
+		 $sQuery = "SELECT h.title,h.hw_details,h.hw_type,h.test_date,s.subject_name FROM edu_homework AS h,edu_subject AS s WHERE h.class_id='$clssid' AND h.year_id='$year_id' AND hw_id = '$hw_id' AND h.subject_id=s.subject_id";
+		  $sms1 = $this->db->query($sQuery);
+		  $sms2 = $sms1->result();
+
+		  foreach ($sms2 as $value)
+          {
+            $hwtitle = $value->title;
+		    $hwdetails = $value->hw_details;
+			$subname = $value->subject_name;
+			$ht = $value->hw_type;
+			$tdat = $value->test_date;
+
+			if($ht=='HW'){ $type="Home Work" ; }else{ $type="Class Test" ; }
+			$message = "Title : " .$hwtitle. ",Type : " .$type. ", Details : " .$hwdetails .", Subject : ".$subname;
+		  }
+		  
+			$sql = "SELECT p.id,u.user_id FROM edu_parents AS p,edu_enrollment AS e,edu_users AS u WHERE e.class_id='$clssid' AND FIND_IN_SET(e.admission_id,p.admission_id) AND p.primary_flag='Yes' AND p.id=u.user_master_id AND u.user_type='4' GROUP BY p.id";
+
+		  	$result = $this->db->query($sql);
+			$p_resulr = $result->result();
+		  
+		  	foreach($p_resulr as $rows)
+		  	{
+			$user_id = $rows->user_id;
+			$psql = "SELECT user_id,gcm_key,mobile_type FROM edu_notification WHERE user_id='$user_id'";
+			$pagsm = $this->db->query($psql);
+			$pares = $pagsm->result();
+			   foreach($pares as $parow)
+			   {
+				   	$subject="HomeWork / Class Test Details";
+					$gcm_key = $parow->gcm_key;
+					$mobile_type = $parow->mobile_type;
+					//$this->sendNotification($gcm_key,$subject,$hwdetails,$mobile_type);
+				}
+		  }
+    }
+		
+//#################### send all HW Notification to Parents END ####################//		
+
+//#################### Homeworks Status Change ####################//		
+	 public function updateSinglehwhworkstatus($user_id,$hw_id,$clssid)
+		{
+			$query="UPDATE edu_homework SET send_option_status='1',updated_by='$user_id',updated_at=NOW() WHERE hw_id='$hw_id'";
+			$res=$this->db->query($query);
+			
+			$response = array("status" => "success", "msg" => "HW Send to Parents");
+			return $response;
+     	}
+//#################### Homeworks Status Change End ####################//
+
 }
 
 ?>

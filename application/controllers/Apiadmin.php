@@ -1080,7 +1080,7 @@ class Apiadmin extends CI_Controller {
 
 	public function add_groupmaster()
 	{
-	//	$_POST = json_decode(file_get_contents("php://input"), TRUE);
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
 
 		if(!$this->checkMethod())
 		{
@@ -1388,7 +1388,7 @@ class Apiadmin extends CI_Controller {
 
 	public function add_gn_members()
 	{
-		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
 
 		if(!$this->checkMethod())
 		{
@@ -1428,7 +1428,7 @@ class Apiadmin extends CI_Controller {
 
 	public function list_gn_members()
 	{
-		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
 
 		if(!$this->checkMethod())
 		{
@@ -1459,7 +1459,7 @@ class Apiadmin extends CI_Controller {
 //-----------------------------------------------//
 	public function group_msg_send()
 	{
-		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
 
 		if(!$this->checkMethod())
 		{
@@ -1542,24 +1542,33 @@ class Apiadmin extends CI_Controller {
 
 	public function add_circular()
 	{
-		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
+		
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "Add Circular";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
 
 		 $user_id = $this->input->post("user_id");
 		 $circular_title = $this->input->post("circular_title");
 		 $circular_description = $this->input->post("circular_description");
 		 $status  = $this->input->post("status");
 		
-		$profile = $_FILES["circular_doc"]["name"];
-		$userFileName = time().'-'.$profile;
-		$uploadPicdir = 'assets/circular/';
-		$profilepic = $uploadPicdir.$userFileName;
-		move_uploaded_file($_FILES['circular_doc']['tmp_name'], $profilepic);
-		
-		$data['result']=$this->apiadminmodel->addCircular($user_id,$circular_title,$circular_description,$userFileName,$status);
+		$data['result']=$this->apiadminmodel->addCircular($user_id,$circular_title,$circular_description,$status);
 		$response = $data['result'];
 		echo json_encode($response);
 	}
-
 //-----------------------------------------------//
 
 //-----------------------------------------------//
@@ -1632,23 +1641,52 @@ class Apiadmin extends CI_Controller {
 	{
 		$_POST = json_decode(file_get_contents("php://input"), TRUE);
 		
+		if(!$this->checkMethod())
+		{
+			return FALSE;
+		}
+
+		if($_POST == FALSE)
+		{
+			$res = array();
+			$res["opn"] = "Update Circular";
+			$res["scode"] = 204;
+			$res["message"] = "Input error";
+
+			echo json_encode($res);
+			return;
+		}
+		
 		$user_id = $this->input->post("user_id");
 		$circular_id = $this->input->post("circular_id");
 		$circular_title = $this->input->post("circular_title");
 		$circular_description = $this->input->post("circular_description");
 		$status  = $this->input->post("status");
+
+		$data['result']=$this->apiadminmodel->updateCircular($user_id,$circular_id,$circular_title,$circular_description,$status);
+	
+		$response = $data['result'];
+		echo json_encode($response);
+	}
+
+//-----------------------------------------------//
+
+//-----------------------------------------------//
+
+	public function update_circular_doc()
+	{
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
 		
-		
-		if(empty($_FILES["circular_doc"]["name"])){
-			$userFileName="";
-		}else{
-			$profile = $_FILES["circular_doc"]["name"];
-			$userFileName = time().'-'.$profile;
-			$uploadPicdir = 'assets/circular/';
-			$profilepic = $uploadPicdir.$userFileName;
-			move_uploaded_file($_FILES['circular_doc']['tmp_name'], $profilepic);
-		}
-		$data['result']=$this->apiadminmodel->updateCircular($user_id,$circular_id,$circular_title,$circular_description,$userFileName,$status);
+		$user_id = $this->input->post("user_id");
+		$circular_id = $this->input->post("circular_id");
+
+		$profile = $_FILES["circular_doc"]["name"];
+		$userFileName = time().'-'.$profile;
+		$uploadPicdir = 'assets/circular/';
+		$profilepic = $uploadPicdir.$userFileName;
+		move_uploaded_file($_FILES['circular_doc']['tmp_name'], $profilepic);
+
+		$data['result']=$this->apiadminmodel->updateCirculardoc($user_id,$circular_id,$userFileName);
 	
 		$response = $data['result'];
 		echo json_encode($response);
@@ -1692,7 +1730,7 @@ class Apiadmin extends CI_Controller {
 //-----------------------------------------------//
 	public function circular_msg_send()
 	{
-		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
+		$_POST = json_decode(file_get_contents("php://input"), TRUE);
 
 		if(!$this->checkMethod())
 		{

@@ -395,7 +395,7 @@ Class Mailmodel extends CI_Model
 			if($ht=='HW'){ $type="Home Work" ; }else{ $type="Class Test" ; }
 
 			//$message="Title : " .$hwtitle. ",Type : " .$type. ", Details : " .$hwdetails .", Subject : ".$subname.", ";
-$message= " <br> Title : " .$hwtitle. " <br> Type : " .$type. " <br> Details : " .$hwdetails ." <br> Subject : ".$subname." <br> ";
+			$message= " <br> Title : " .$hwtitle. " <br> Type : " .$type. " <br> Details : " .$hwdetails ." <br> Subject : ".$subname." <br> ";
 			$home_work_details[]=$message;
 		  }
 			//print_r($home_work_details);
