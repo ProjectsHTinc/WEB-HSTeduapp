@@ -29,19 +29,19 @@ class Apimainmodel extends CI_Model {
 	{
         //Your authentication key
         $authKey = "191431AStibz285a4f14b4";
-        
+
         //Multiple mobiles numbers separated by comma
         $mobileNumber = "$Phoneno";
-        
+
         //Sender ID,While using route4 sender id should be 6 characters long.
         $senderId = "EDUAPP";
-        
+
         //Your message to send, Add URL encoding here.
         $message = urlencode($Message);
-        
-        //Define route 
+
+        //Define route
         $route = "transactional";
-        
+
         //Prepare you post parameters
         $postData = array(
             'authkey' => $authKey,
@@ -50,10 +50,10 @@ class Apimainmodel extends CI_Model {
             'sender' => $senderId,
             'route' => $route
         );
-        
+
         //API URL
         $url="https://control.msg91.com/api/sendhttp.php";
-        
+
         // init the resource
         $ch = curl_init();
         curl_setopt_array($ch, array(
@@ -63,22 +63,22 @@ class Apimainmodel extends CI_Model {
             CURLOPT_POSTFIELDS => $postData
             //,CURLOPT_FOLLOWLOCATION => true
         ));
-        
-        
+
+
         //Ignore SSL certificate verification
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        
-        
+
+
         //get response
         $output = curl_exec($ch);
-        
+
         //Print error if any
         if(curl_errno($ch))
         {
             echo 'error:' . curl_error($ch);
         }
-        
+
         curl_close($ch);
 	}
 
@@ -93,11 +93,11 @@ class Apimainmodel extends CI_Model {
 		if ($mobiletype =='1'){
 
 		    require_once 'assets/notification/Firebase.php';
-            require_once 'assets/notification/Push.php'; 
-            
+            require_once 'assets/notification/Push.php';
+
             $device_token = explode(",", $gcm_key);
-            $push = null; 
-        
+            $push = null;
+
         //first check if the push has an image with it
 		    $push = new Push(
 					$title,
@@ -113,28 +113,28 @@ class Apimainmodel extends CI_Model {
 // 			 	);
 
     		//getting the push from push object
-    		$mPushNotification = $push->getPush(); 
-    
-    		//creating firebase class object 
-    		$firebase = new Firebase(); 
+    		$mPushNotification = $push->getPush();
+
+    		//creating firebase class object
+    		$firebase = new Firebase();
 
     	foreach($device_token as $token) {
     		 $firebase->send(array($token),$mPushNotification);
     	}
 
 		} else {
-            
+
 			$device_token = explode(",", $gcm_key);
 			$passphrase = 'hs123';
 		    $loction ='assets/notification/happysanz.pem';
-		   
+
 			$ctx = stream_context_create();
 			stream_context_set_option($ctx, 'ssl', 'local_cert', $loction);
 			stream_context_set_option($ctx, 'ssl', 'passphrase', $passphrase);
-			
+
 			// Open a connection to the APNS server
 			$fp = stream_socket_client('ssl://gateway.sandbox.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT, $ctx);
-			
+
 			if (!$fp)
 				exit("Failed to connect: $err $errstr" . PHP_EOL);
 
@@ -149,15 +149,15 @@ class Apimainmodel extends CI_Model {
 			$payload = json_encode($body);
 
 			foreach($device_token as $token) {
-			
+
 				// Build the binary notification
     			$msg = chr(0) . pack("n", 32) . pack("H*", str_replace(" ", "", $token)) . pack("n", strlen($payload)) . $payload;
         		$result = fwrite($fp, $msg, strlen($msg));
 			}
-							
+
 				fclose($fp);
 		}
-		
+
 	}
 
 //#################### Notification End ####################//
@@ -188,10 +188,10 @@ class Apimainmodel extends CI_Model {
 	public function getTerm()
 	{
 	    $year_id = $this->getYear();
-		$sqlTerm = "SELECT * FROM edu_terms WHERE NOW() >= from_date AND NOW() <= to_date AND year_id = '$year_id' AND status = 'Active'";
+	 	$sqlTerm = "SELECT * FROM edu_terms WHERE NOW() >= from_date AND NOW() <= to_date AND year_id = '$year_id' AND status = 'Active'";
 		$term_result = $this->db->query($sqlTerm);
 		$ress_term = $term_result->result();
-		
+
 		if($term_result->num_rows()==1)
 		{
 			foreach ($term_result->result() as $rows)
@@ -326,7 +326,7 @@ class Apimainmodel extends CI_Model {
 
 						$sqldays = "SELECT A.day_id, B.list_day FROM `edu_timetable` A, `edu_days` B WHERE A.day_id = B.d_id AND A.teacher_id = '$teacher_id' AND A.year_id = '$year_id' AND A.term_id = '$term_id' GROUP BY day_id ORDER BY A.day_id";
 						$day_res = $this->db->query($sqldays);
-						
+
 						if($day_res->num_rows()==0){
 							 $day_result = array("status" => "error", "msg" => "TimeTable days not found");
 
@@ -1507,16 +1507,16 @@ class Apimainmodel extends CI_Model {
 	public function dispLeaves ($user_type,$class_id,$sec_id,$class_sec_id)
 	{
 			$year_id = $this->getYear();
-	
-			if ($user_type == '1') { 
+
+			if ($user_type == '1') {
 				$class_query = "SELECT * from edu_classmaster WHERE class='$class_id' AND section = '$sec_id'";
 				$class_res = $this->db->query($class_query);
 				$class_result = $class_res->result();
-		
-					foreach($class_result as $rows){ 
+
+					foreach($class_result as $rows){
 						$class_sec_id = $rows->class_sec_id;
 					}
-			} 
+			}
 
 		     $leave_query = "SELECT * FROM (SELECT
 								el.leave_date AS START,
@@ -1529,9 +1529,9 @@ class Apimainmodel extends CI_Model {
 								edu_leaves AS el
 							WHERE
 								lm.leave_id = el.leave_mas_id AND lm.leave_type = 'Special Holiday' AND FIND_IN_SET('$class_sec_id', lm.leave_classes) AND lm.status = 'Active'
-								
+
 							UNION
-							
+
 							SELECT
 								eh.leave_list_date AS START,
 								eh.day,
@@ -1545,17 +1545,17 @@ class Apimainmodel extends CI_Model {
 								lm.leave_id = eh.leave_masid
 							WHERE
 								FIND_IN_SET('$class_sec_id', lm.leave_classes) AND lm.status = 'Active') val ORDER by START";
-			
+
 			$leave_res = $this->db->query($leave_query);
 			$leave_result= $leave_res->result();
-			
+
 			 if($leave_res->num_rows()==0){
 				 $response = array("status" => "error", "msg" => "Leaves Not Found");
 			}else{
 				$response = array("status" => "success", "msg" => "View Leaves", "leaveDetails"=>$leave_result);
-			} 
+			}
 
-			return $response;		
+			return $response;
 	}
 //#################### Leaves End ####################//
 
@@ -1563,17 +1563,17 @@ class Apimainmodel extends CI_Model {
 	public function disp_upcomingLeaves ($user_type,$class_id,$sec_id,$class_sec_id)
 	{
 			$year_id = $this->getYear();
-			
-			if ($user_type == '1') { 
+
+			if ($user_type == '1') {
 				$class_query = "SELECT * from edu_classmaster WHERE class='$class_id' AND section = '$sec_id'";
 				$class_res = $this->db->query($class_query);
 				$class_result = $class_res->result();
-		
-					foreach($class_result as $rows){ 
+
+					foreach($class_result as $rows){
 						$class_sec_id = $rows->class_sec_id;
 					}
-			} 
-			
+			}
+
 		     $leave_query = "SELECT * FROM ( SELECT
 							el.leave_date AS START,
 							el.days AS day,
@@ -1585,9 +1585,9 @@ class Apimainmodel extends CI_Model {
 							edu_leaves AS el
 						WHERE
 							lm.leave_id = el.leave_mas_id AND lm.leave_type = 'Special Holiday' AND FIND_IN_SET('$class_sec_id', lm.leave_classes) AND lm.status = 'Active'  AND el.leave_date >=CURDATE()
-							
+
 						UNION
-						
+
 						SELECT
 							eh.leave_list_date AS START,
 							eh.day,
@@ -1601,17 +1601,17 @@ class Apimainmodel extends CI_Model {
 							lm.leave_id = eh.leave_masid
 						WHERE
 							FIND_IN_SET('$class_sec_id', lm.leave_classes) AND lm.status = 'Active' AND eh.leave_list_date >=CURDATE()) val ORDER by START";
-			
+
 			$leave_res = $this->db->query($leave_query);
 			$leave_result= $leave_res->result();
-			
+
 			 if($leave_res->num_rows()==0){
 				 $response = array("status" => "error", "msg" => "Leaves Not Found");
 			}else{
 				$response = array("status" => "success", "msg" => "View Leaves", "upcomingleavesDetails"=>$leave_result);
-			} 
+			}
 
-			return $response;		
+			return $response;
 	}
 //#################### Leaves End ####################//
 
@@ -1620,10 +1620,10 @@ class Apimainmodel extends CI_Model {
 	public function dispTimetable_days($class_id)
 	{
 	    $year_id = $this->getYear();
-		$term_id = $this->getTerm();
-		
-		$sqldays = "SELECT A.day_id, B.list_day FROM `edu_timetable` A, `edu_days` B WHERE A.day_id = B.d_id AND A.class_id = '$class_id' AND A.year_id = '$year_id' AND A.term_id = '$term_id' GROUP BY day_id ORDER BY A.day_id";
-		
+		 $term_id = $this->getTerm();
+
+		 $sqldays = "SELECT A.day_id, B.list_day FROM `edu_timetable` A, `edu_days` B WHERE A.day_id = B.d_id AND A.class_id = '$class_id' AND A.year_id = '$year_id' AND A.term_id = '$term_id' GROUP BY day_id ORDER BY A.day_id";
+
 			$day_res = $this->db->query($sqldays);
 			$day_result= $day_res->result();
 			$day_count = $day_res->num_rows();
@@ -1638,16 +1638,16 @@ class Apimainmodel extends CI_Model {
 	}
 
 	//#################### Timetable days End ####################//
-	
+
 	//#################### Timetable ####################//
 
 	public function dispTimetable($class_id,$day_id)
 	{
 	    $year_id = $this->getYear();
 		$term_id = $this->getTerm();
-		
-		$sqltimetable = "SELECT A.class_id, A.day_id, A.period, B.subject_name, C.name, A.from_time, A.to_time, A.is_break FROM edu_timetable AS A LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id LEFT JOIN edu_subject AS B ON A.subject_id = B.subject_id WHERE A.year_id = '$year_id' AND A.term_id = '$term_id' AND A.class_id = '$class_id' AND A.day_id = '$day_id' ORDER BY A.period";
-		
+
+		$sqltimetable = "SELECT A.class_id, A.day_id, A.period, IFNULL(B.subject_name,'') as subject_name, IFNULL( C.name,'') as name, A.from_time, A.to_time, A.is_break FROM edu_timetable AS A LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id LEFT JOIN edu_subject AS B ON A.subject_id = B.subject_id WHERE A.year_id = '$year_id' AND A.term_id = '$term_id' AND A.class_id = '$class_id' AND A.day_id = '$day_id' ORDER BY A.period";
+
 			$timetable_res = $this->db->query($sqltimetable);
 			$timetable_result= $timetable_res->result();
 			$timetable_count = $timetable_res->num_rows();
@@ -1661,7 +1661,7 @@ class Apimainmodel extends CI_Model {
 		return $response;
 	}
 
-	//#################### Timetable End ####################//	  
+	//#################### Timetable End ####################//
 }
 
 ?>

@@ -31,7 +31,7 @@
                            <td>
                              <a href="#myModal" data-toggle="modal" data-target="#myModal"  data-id="<?php echo $rowsclass->id; ?>" rel="tooltip" title="SEND"  class="open-AddBookDialog btn btn-simple btn-warning btn-icon edit">
                               <i class="fa fa-paper-plane"> </i></a>
-                              <a href="<?php echo base_url(); ?>teacherProfile/view_members/<?php echo   $rowsclass->id; ?>" rel="tooltip" title="View Members" >
+                              <a href="<?php echo base_url(); ?>teacherprofile/view_members/<?php echo   $rowsclass->id; ?>" rel="tooltip" title="View Members" >
                                  <i class="fa fa-th">  </i></a>
                            </td>
                         </tr>
@@ -60,7 +60,7 @@
                                           <input type="hidden" name="group_id" id="group_id" class="form-control" value="">
                                        </div>
                                     </div>
-                      
+
                                     <input type="hidden" name="group_id" id="group_id" class="form-control" value="">
                                     <div class="form-group">
                                        <label class="col-sm-4 control-label">Notes </label>
