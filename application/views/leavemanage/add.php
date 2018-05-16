@@ -164,7 +164,7 @@
            $('#weeks').hide();
            $('#days').hide();
            $('#leave_years').hide();
-   		    $('#leave_class').show();
+   		    $('#leave_class').hide();
            $('#leaves_name').show();
            $('#leaves_details').show();
            $('#leaves_date').show();

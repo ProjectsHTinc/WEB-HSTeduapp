@@ -30,7 +30,7 @@
 
                                       </div>
                                   </fieldset>
-								                  <fieldset id="">
+								                  <!-- <fieldset id="">
                                       <div class="form-group">
                                           <label class="col-sm-2 control-label">Classes</label>
                                           <div class="col-sm-4">
@@ -64,7 +64,7 @@
 
                                           </div>
                                       </div>
-                                  </fieldset>
+                                  </fieldset> -->
 
                                     <fieldset  id="leaves_date">
                                         <div class="form-group">

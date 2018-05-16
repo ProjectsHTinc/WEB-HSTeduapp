@@ -34,7 +34,7 @@ Class Leavemodel extends CI_Model
 
         }
 
-                 $query="INSERT INTO edu_leavemaster (leave_year,leave_type,leave_classes,status,created_at,updated_at) VALUES ('$years','$leave_type','$class_name','$leave_status',NOW(),NOW())";
+                 $query="INSERT INTO edu_leavemaster (leave_year,leave_type,status,created_at,updated_at) VALUES ('$years','$leave_type','$leave_status',NOW(),NOW())";
 
                 $resultset1 = $this->db->query($query);
 

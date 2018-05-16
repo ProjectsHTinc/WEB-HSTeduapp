@@ -309,7 +309,7 @@ LEFT JOIN edu_enrollment AS ee ON ee.admission_id=ea.admission_id WHERE ed.user_
 
 			//$query="SELECT leave_date AS start,leaves_name as title,leave_type AS description FROM edu_leavemaster AS lm INNER JOIN edu_leaves AS c ON lm.leave_id=c.leave_mas_id WHERE lm.leave_type='Special Holiday' AND lm.status='A'";
 
-			$sql1="SELECT lm.leave_id,lm.leave_type AS description,lm.leave_classes,lm.status,el.leaves_name AS title,el.leave_mas_id,el.leave_date AS start,el.days,el.week FROM edu_leavemaster AS lm,edu_leaves AS el WHERE lm.leave_id=el.leave_mas_id AND lm.leave_type='Special Holiday' AND FIND_IN_SET('$cls_id',lm.leave_classes) AND lm.status='Active'";
+			$sql1="SELECT lm.leave_id,lm.leave_type AS description,lm.leave_classes,lm.status,el.leaves_name AS title,el.leave_mas_id,el.leave_date AS start,el.days,el.week FROM edu_leavemaster AS lm,edu_leaves AS el WHERE lm.leave_id=el.leave_mas_id AND lm.leave_type='Special Holiday'  AND lm.status='Active'";
 			$res=$this->db->query($sql1);
 			return $res->result();
 
