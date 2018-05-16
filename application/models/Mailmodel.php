@@ -360,7 +360,7 @@ Class Mailmodel extends CI_Model
           $member_type_staff=$row_type_staff->member_type;
          $group_member_id_staff=$row_type_staff->group_member_id;
          if($member_type='2' || $member_type='5'){
-          $send_mail="SELECT * FROM edu_users AS A LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id WHERE a.user_id = '$group_member_id_staff'";
+          $send_mail="SELECT * FROM edu_users AS A LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id WHERE A.user_id = '$group_member_id_staff'";
            $get_mail=$this->db->query($send_mail);
            $res_mail=$get_mail->result();
            foreach($res_mail as $rows_mail){

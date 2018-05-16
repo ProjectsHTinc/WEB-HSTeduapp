@@ -353,15 +353,23 @@ Class Circularmodel extends CI_Model
 
 	function create_circular_masters($year_id,$ctile,$cdescription,$status,$user_id,$circular_doc)
 	{
-		$sql1="INSERT INTO edu_circular_master(academic_year_id,circular_title,circular_description,circular_doc,status, created_by,created_at) VALUES ('$year_id','$ctile','$cdescription','$circular_doc','$status','$user_id',NOW())";
-		$resultset=$this->db->query($sql1);
-		 if($resultset){
-			$data = array("status" => "success");
-      return $data;
+    $get_year="SELECT * FROM edu_circular_master WHERE circular_title='$ctile'";
+    $result1=$this->db->query($get_year);
+    if($result1->num_rows()==0){
+      $sql1="INSERT INTO edu_circular_master(academic_year_id,circular_title,circular_description,circular_doc,status, created_by,created_at) VALUES ('$year_id','$ctile','$cdescription','$circular_doc','$status','$user_id',NOW())";
+      $resultset=$this->db->query($sql1);
+       if($resultset){
+        $data = array("status" => "success");
+        return $data;
+      }else{
+        $data = array("status" => "Failed");
+         return $data;
+       }
     }else{
-      $data = array("status" => "Failed");
-			 return $data;
-     }
+      $data = array("status" => "already");
+       return $data;
+    }
+
 	}
 
 	function update_circular_masters($cid,$year_id,$ctile,$cdescription,$status,$user_id,$circular_doc)

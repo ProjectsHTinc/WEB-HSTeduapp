@@ -1646,7 +1646,7 @@ class Apimainmodel extends CI_Model {
 	    $year_id = $this->getYear();
 		$term_id = $this->getTerm();
 
-		$sqltimetable = "SELECT A.class_id, A.day_id, A.period, IFNULL(B.subject_name,'') as subject_name, IFNULL( C.name,'') as name, A.from_time, A.to_time, A.is_break FROM edu_timetable AS A LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id LEFT JOIN edu_subject AS B ON A.subject_id = B.subject_id WHERE A.year_id = '$year_id' AND A.term_id = '$term_id' AND A.class_id = '$class_id' AND A.day_id = '$day_id' ORDER BY A.period";
+		$sqltimetable = "SELECT A.class_id, A.day_id, A.period, A.subject_id, IFNULL(B.subject_name,'') as subject_name, IFNULL( C.name,'') as name, A.from_time, A.to_time, A.is_break,A.break_name FROM edu_timetable AS A LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id LEFT JOIN edu_subject AS B ON A.subject_id = B.subject_id WHERE A.year_id = '$year_id' AND A.term_id = '$term_id' AND A.class_id = '$class_id' AND A.day_id = '$day_id' ORDER BY A.period";
 
 			$timetable_res = $this->db->query($sqltimetable);
 			$timetable_result= $timetable_res->result();
@@ -1662,6 +1662,30 @@ class Apimainmodel extends CI_Model {
 	}
 
 	//#################### Timetable End ####################//
+
+
+
+
+  function groupmessagehistory($group_id){
+    $query="SELECT egh.group_title_id,egm.group_title,egh.notes,egh.notification_type,egh.created_by,eu.name,egh.created_at FROM edu_grouping_history AS egh
+    LEFT JOIN edu_grouping_master AS egm  ON egh.group_title_id=egm.id LEFT JOIN edu_users as eu ON eu.user_id=egh.created_by WHERE egh.group_title_id='$group_id' order by egh.id desc;";
+    $resultset=$this->db->query($query);
+    $res=$resultset->result();
+    $res_history_cnt = $resultset->num_rows();
+
+    if($res_history_cnt>0)
+    {
+       $response = array("status" => "success", "msg" => "History Found", "msg_history"=>$res);
+    } else {
+      $response = array("status" => "error", "msg" => "No Records Found");
+    }
+    return $response;
+
+  }
 }
+
+
+
+
 
 ?>

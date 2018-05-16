@@ -294,7 +294,7 @@ LEFT JOIN edu_enrollment AS ee ON ee.admission_id=ea.admission_id WHERE ed.user_
 	   {
 		   $year_id=$this->getYear();
 
-		    $query="SELECT student_id FROM edu_users WHERE user_id='$user_id'";
+		  $query="SELECT student_id FROM edu_users WHERE user_id='$user_id'";
 			$resultset=$this->db->query($query);
 			$row=$resultset->result();
 			$student_id=$row[0]->student_id;

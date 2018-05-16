@@ -9,8 +9,21 @@ Class Teachereventmodel extends CI_Model
 
   }
 
-		  //GET Teacher Id in user table
+   function getYear()
+    {
+      $sqlYear = "SELECT * FROM edu_academic_year WHERE CURDATE() >= from_month AND CURDATE() <= to_month AND status = 'Active'";
+      $year_result = $this->db->query($sqlYear);
+      $ress_year = $year_result->result();
 
+      if($year_result->num_rows()==1)
+      {
+        foreach ($year_result->result() as $rows)
+        {
+            $year_id = $rows->year_id;
+        }
+        return $year_id;
+      }
+    }
 
       function get_teacher_event($user_id){
           $get_teacher ="SELECT et.teacher_id FROM edu_users AS ed LEFT JOIN edu_teachers AS et ON ed.teacher_id=et.teacher_id WHERE user_id='$user_id'";
@@ -93,7 +106,12 @@ Class Teachereventmodel extends CI_Model
 
 
 
-
+        function get_all_special_leave_staff(){
+          $year_id=$this->getYear();
+          $sql1="SELECT lm.leave_id,lm.leave_type AS description,lm.leave_classes,lm.status,el.leaves_name AS title,el.leave_mas_id,el.leave_date AS start,el.days,el.week FROM edu_leavemaster AS lm,edu_leaves AS el WHERE lm.leave_id=el.leave_mas_id AND lm.leave_type='Special Holiday'  AND lm.status='Active'";
+          $res=$this->db->query($sql1);
+          return $res->result();
+        }
 
 
 

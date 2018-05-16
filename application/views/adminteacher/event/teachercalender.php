@@ -94,6 +94,11 @@
 		url: '<?php echo base_url() ?>teacherevent/view_all_reminder',
 		color: 'red',
 		textColor: 'white'
+	},
+	{
+	url: '<?php echo base_url() ?>teacherevent/get_all_special_leave_staff',
+	color: 'Green',
+	textColor: 'white'
 	}
  ],
 			eventMouseover: function(calEvent, jsEvent) {

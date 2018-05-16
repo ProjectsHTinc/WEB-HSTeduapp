@@ -116,21 +116,15 @@ class Teacherevent extends CI_Controller {
 
 
 
+		public function get_all_special_leave_staff()
+		{
+				$datas     = $this->session->userdata();
+				$user_id   = $this->session->userdata('user_id');
+				$user_type = $this->session->userdata('user_type');
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+				$datas['res'] = $this->teachereventmodel->get_all_special_leave_staff();
+				echo json_encode($datas['res']);
+		}
 
 
 
