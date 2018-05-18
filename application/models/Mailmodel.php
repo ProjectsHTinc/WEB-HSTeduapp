@@ -106,6 +106,9 @@ Class Mailmodel extends CI_Model
 		$ssql = "SELECT * FROM edu_circular_master WHERE id ='$title_id'";
 		$res = $this->db->query($ssql);
 		$result =$res->result();
+    if($res->num_rows()==0){
+      echo "";
+    }else{
 		foreach($result as $rows)
 		{ }
 		$title = $rows->circular_title;
@@ -258,7 +261,9 @@ Class Mailmodel extends CI_Model
                  }
 
             }
-         }
+          }
+        }
+
 
 
 
@@ -288,8 +293,9 @@ Class Mailmodel extends CI_Model
 
 				}
               }
+            }
 
-             }//Students close
+
 
 	  //-----------------------------Parents----------------------
 
@@ -322,10 +328,13 @@ Class Mailmodel extends CI_Model
                }
 				      }
           }
-			  }
+        }
       }
+    }
 
-  }
+
+
+
 
 
 
@@ -333,7 +342,12 @@ Class Mailmodel extends CI_Model
     function send_mail($group_id,$notes,$user_id,$members_id){
       $check_type="SELECT * FROM edu_grouping_members WHERE group_title_id='$group_id'";
       $get_type=$this->db->query($check_type);
-      $res_type=$get_type->result();
+        $res_type=$get_type->result();
+      if($get_type->num_rows()==0){
+        echo "";
+      }else{
+
+
        foreach($res_type as $row_type){}
            $member_type=$row_type->member_type;
          $group_member_id=$row_type->group_member_id;
@@ -372,6 +386,7 @@ Class Mailmodel extends CI_Model
            }
 
          }
+       }
 
 
 

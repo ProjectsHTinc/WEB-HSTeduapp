@@ -164,6 +164,7 @@ Class Smsmodel extends CI_Model
   {
     $ssql = "SELECT * FROM edu_circular_master WHERE id ='$title_id'";
 		$res = $this->db->query($ssql);
+
 		$result =$res->result();
 		foreach($result as $rows)
 		{ }
@@ -393,6 +394,9 @@ Class Smsmodel extends CI_Model
 		{
       $check_type="SELECT * FROM edu_grouping_members WHERE group_title_id='$group_id'";
       $get_type=$this->db->query($check_type);
+      if($get_type->num_rows()==0){
+        echo "";
+      }else{
       $res_type=$get_type->result();
        foreach($res_type as $row_type){}
            $member_type=$row_type->member_type;
@@ -426,6 +430,7 @@ Class Smsmodel extends CI_Model
            }
 
          }
+       }
       }
 
 
