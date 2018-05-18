@@ -88,7 +88,6 @@ class Apiteachermodel extends CI_Model {
 
 	public function sendNotification($gcm_key,$title,$message,$mobiletype)
 	{
-	    echo $gcm_key;
 		if ($mobiletype =='1'){
 
 		    require_once 'assets/notification/Firebase.php';
@@ -1591,7 +1590,7 @@ class Apiteachermodel extends CI_Model {
 		  	foreach($p_resulr as $rows)
 		  	{  
 				$parents_num = $rows->mobile;
-				//$this->sendSMS($parents_num,$hwdetails);
+				$this->sendSMS($parents_num,$hwdetails);
 			}
 			   
 		  }
@@ -1627,7 +1626,7 @@ class Apiteachermodel extends CI_Model {
 		  	{  
 				$subject="HomeWork / Class Test Details";
 				$parents_email = $rows->email;
-				//$this->sendMail($parents_email,$subject,$message);
+				$this->sendMail($parents_email,$subject,$message);
 			}
 
   		}
@@ -1672,7 +1671,7 @@ class Apiteachermodel extends CI_Model {
 				   	$subject="HomeWork / Class Test Details";
 					$gcm_key = $parow->gcm_key;
 					$mobile_type = $parow->mobile_type;
-					//$this->sendNotification($gcm_key,$subject,$hwdetails,$mobile_type);
+					$this->sendNotification($gcm_key,$subject,$hwdetails,$mobile_type);
 				}
 		  }
     }

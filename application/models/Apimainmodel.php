@@ -89,7 +89,7 @@ class Apimainmodel extends CI_Model {
 
 	public function sendNotification($gcm_key,$title,$message,$mobiletype)
 	{
-	    echo $gcm_key;
+
 		if ($mobiletype =='1'){
 
 		    require_once 'assets/notification/Firebase.php';
@@ -933,19 +933,19 @@ class Apimainmodel extends CI_Model {
 			$event_res = $this->db->query($event_query);
 			$event_result= $event_res->result();
 			$event_count = $event_res->num_rows();
-/*
+			/*
 			foreach($event_result as $rows){
-				$event_id = $rows->event_id;
-
-					$gallery_query = "SELECT * FROM `edu_events_galllery` WHERE event_id ='$event_id'";
-					$gallery_res = $this->db->query($gallery_query);
-					$gallery_result= $gallery_res->result();
-
-					if($gallery_res->num_rows()!=0){
-						//echo $gallery_result;
-					}
+			$event_id = $rows->event_id;
+			
+				$gallery_query = "SELECT * FROM `edu_events_galllery` WHERE event_id ='$event_id'";
+				$gallery_res = $this->db->query($gallery_query);
+				$gallery_result= $gallery_res->result();
+			
+				if($gallery_res->num_rows()!=0){
+					//echo $gallery_result;
+				}
 			}
-*/
+			*/
 			 if($event_res->num_rows()==0){
 				 $response = array("status" => "error", "msg" => "Events Not Found");
 			}else{

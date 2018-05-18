@@ -89,7 +89,6 @@ class Apiadminmodel extends CI_Model {
 
 	public function sendNotification($gcm_key,$title,$message,$mobiletype)
 	{
-	    echo $gcm_key;
 		if ($mobiletype =='1'){
 
 		    require_once 'assets/notification/Firebase.php';
@@ -423,7 +422,7 @@ class Apiadminmodel extends CI_Model {
           //#################### GET STUDENT &  CLASSTEST DETAILS ####################//
 
             function get_classtest_details($hw_id){
-              echo $get_all_hw="SELECT eh.title,eh.hw_type,eh.subject_id,es.subject_name,eh.hw_details,eh.test_date,eh.mark_status FROM edu_homework AS eh LEFT JOIN edu_subject AS es ON es.subject_id=eh.subject_id WHERE eh.hw_id='$hw_id'";
+               $get_all_hw="SELECT eh.title,eh.hw_type,eh.subject_id,es.subject_name,eh.hw_details,eh.test_date,eh.mark_status FROM edu_homework AS eh LEFT JOIN edu_subject AS es ON es.subject_id=eh.subject_id WHERE eh.hw_id='$hw_id'";
               $result_hw=$this->db->query($get_all_hw);
               if($result_hw->num_rows()==0){
                   $data=array("status"=>"error","msg"=>"nodata");
@@ -1705,7 +1704,7 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 			//------------------------Teacher----------------------
 				if($all_id==2)
 				{
-					$tsql = "SELECT u.user_id,t.name,t.phone FROM edu_users AS u,edu_teachers AS t  WHERE u.user_type='$all_id' AND u.user_master_id=t.teacher_id AND u.status='Active'";
+					$tsql = "SELECT u.user_id,t.name,t.phone FROM edu_users AS u,edu_teachers AS t WHERE u.user_type='$all_id' AND u.user_master_id=t.teacher_id AND u.status='Active'";
 					$res=$this->db->query($tsql);
 					$result=$res->result();
 					foreach($result as $rows)
@@ -1861,7 +1860,7 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 	function send_circular_email($circular_id,$all_id,$tusers_id,$musers_id,$susers_id,$pusers_id)
 	{	
 
-	     $ssql = "SELECT * FROM edu_circular_master WHERE id ='$circular_id'";
+	    $ssql = "SELECT * FROM edu_circular_master WHERE id ='$circular_id'";
 		$res = $this->db->query($ssql);
 		$result =$res->result();
 			foreach($result as $rows){ }
@@ -2315,7 +2314,7 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 					foreach($res1 as $row1)
 					 {
 					    $userid=$row1->user_id;
-						echo $query = "INSERT INTO edu_circular(user_type,user_id,circular_master_id,circular_type,circular_date,status,created_by,created_at) VALUES ('$susers_id','$userid','$circular_id','$circular_type','$circular_date','$status','$user_id',NOW())";
+						 $query = "INSERT INTO edu_circular(user_type,user_id,circular_master_id,circular_type,circular_date,status,created_by,created_at) VALUES ('$susers_id','$userid','$circular_id','$circular_type','$circular_date','$status','$user_id',NOW())";
 						$resultset = $this->db->query($query);
 					}
 				 }
@@ -2346,7 +2345,7 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 						foreach($res3 as $row3)
 						{
 							$userid=$row3->user_id;
-							echo $query = "INSERT INTO edu_circular(user_type,user_id,circular_master_id,circular_type,circular_date,status,created_by,created_at) VALUES ('$pusers_id','$userid','$circular_id','$circular_type','$circular_date','$status','$user_id',NOW())";
+							$query = "INSERT INTO edu_circular(user_type,user_id,circular_master_id,circular_type,circular_date,status,created_by,created_at) VALUES ('$pusers_id','$userid','$circular_id','$circular_type','$circular_date','$status','$user_id',NOW())";
 						$resultset = $this->db->query($query);
 							
 						}
