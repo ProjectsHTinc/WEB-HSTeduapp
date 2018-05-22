@@ -313,7 +313,7 @@ class Apiteachermodel extends CI_Model {
     				 $response = array("status" => "error", "msg" => "No Records Found");
     			}else{
 
-			        $attend_query = "SELECT COUNT(ah.student_id)/2 as leaves,en.enroll_id, en.class_id, en.name, c.class_name, s.sec_name, ah.abs_date, ah.a_status, ah.attend_period, at.at_id FROM edu_enrollment en
+			        $attend_query = "SELECT COUNT(ah.student_id) as leaves,en.enroll_id, en.class_id, en.name, c.class_name, s.sec_name, ah.abs_date, ah.a_status, ah.attend_period, at.at_id FROM edu_enrollment en
                     INNER JOIN edu_attendance_history AS ah ON en.enroll_id = ah.student_id
                     INNER JOIN edu_attendence AS at ON ah.attend_id = at.at_id
                     INNER JOIN edu_classmaster AS cm ON en.class_id = cm.class_sec_id
@@ -323,7 +323,7 @@ class Apiteachermodel extends CI_Model {
 
                     UNION ALL
 
-                    SELECT count(en.enroll_id)/2 as leaves,en.enroll_id, en.class_id, en.name, c.class_name, s.sec_name, '' as abs_date, 'P' as a_status, '' as attend_period,'' as at_id FROM edu_enrollment en 
+                    SELECT count(en.enroll_id) as leaves,en.enroll_id, en.class_id, en.name, c.class_name, s.sec_name, '' as abs_date, 'P' as a_status, '' as attend_period,'' as at_id FROM edu_enrollment en 
                     INNER JOIN edu_classmaster AS cm ON en.class_id = cm.class_sec_id
                     INNER JOIN edu_class AS c ON cm.class=c.class_id 
                     INNER JOIN edu_sections AS s ON cm.section=s.sec_id WHERE en.class_id='$class_id' AND en.admit_year = '$year_id' AND en.enroll_id 
