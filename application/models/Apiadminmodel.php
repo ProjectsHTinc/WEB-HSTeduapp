@@ -166,7 +166,7 @@ class Apiadminmodel extends CI_Model {
 
 	public function getYear()
 	{
-		$sqlYear = "SELECT * FROM edu_academic_year WHERE NOW() >= from_month AND NOW() <= to_month AND status = 'Active'";
+		$sqlYear = "SELECT * FROM edu_academic_year WHERE CURDATE() >= from_month AND CURDATE() <= to_month AND status = 'Active'";
 		$year_result = $this->db->query($sqlYear);
 		$ress_year = $year_result->result();
 
@@ -188,7 +188,7 @@ class Apiadminmodel extends CI_Model {
 	public function getTerm()
 	{
 	    $year_id = $this->getYear();
-		$sqlTerm = "SELECT * FROM edu_terms WHERE NOW() >= from_date AND NOW() <= to_date AND year_id = '$year_id' AND status = 'Active'";
+		$sqlTerm = "SELECT * FROM edu_terms WHERE CURDATE() >= from_date AND CURDATE() <= to_date AND year_id = '$year_id' AND status = 'Active'";
 		$term_result = $this->db->query($sqlTerm);
 		$ress_term = $term_result->result();
 		
@@ -422,7 +422,7 @@ class Apiadminmodel extends CI_Model {
           //#################### GET STUDENT &  CLASSTEST DETAILS ####################//
 
             function get_classtest_details($hw_id){
-               $get_all_hw="SELECT eh.title,eh.hw_type,eh.subject_id,es.subject_name,eh.hw_details,eh.test_date,eh.mark_status FROM edu_homework AS eh LEFT JOIN edu_subject AS es ON es.subject_id=eh.subject_id WHERE eh.hw_id='$hw_id'";
+              $get_all_hw="SELECT eh.title,eh.hw_type,eh.subject_id,es.subject_name,eh.hw_details,eh.test_date,eh.mark_status FROM edu_homework AS eh LEFT JOIN edu_subject AS es ON es.subject_id=eh.subject_id WHERE eh.hw_id='$hw_id'";
               $result_hw=$this->db->query($get_all_hw);
               if($result_hw->num_rows()==0){
                   $data=array("status"=>"error","msg"=>"nodata");
@@ -498,10 +498,15 @@ class Apiadminmodel extends CI_Model {
             function get_teacher($teacher_id){
               $sql="SELECT et.name,et.sex,et.age,et.class_teacher,c.class_name,s.sec_name,et.subject,esu.subject_name,et.teacher_id,et.profile_pic FROM edu_teachers  AS et INNER JOIN edu_classmaster AS cm ON et.class_teacher=cm.class_sec_id INNER JOIN edu_class AS c ON cm.class=c.class_id
               INNER JOIN edu_sections AS s ON cm.section=s.sec_id INNER JOIN edu_subject AS esu ON et.subject=esu.subject_id WHERE et.status='Active' AND et.teacher_id='$teacher_id'";
-              $res_detail=$this->db->query($sql);
-
-
-
+              $res=$this->db->query($sql);
+              if($res->num_rows()==0){
+                  $data=array("status"=>"error","msg"=>"nodata");
+                  return $data;
+              }else{
+                $result=$res->result();
+                $data=array("status"=>"success","msg"=>"success","data"=>$result);
+                return $data;
+              }
 
             }
 
@@ -1290,7 +1295,7 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 
 			if($staff_count>0)
 			{
-				$response = array("status" => "sucess", "msg" => "Records Found", "gnStafflist"=>$staff_result);
+				$response = array("status" => "sucess", "msg" => "Records Found", "gnMemberlist"=>$staff_result);
 			} else {
 				$response = array("status" => "error", "msg" => "No Records Found");
 			}
@@ -1328,7 +1333,7 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 
 			if($stud_count>0)
 			{
-				$response = array("status" => "sucess", "msg" => "Records Found", "gnStudentlist"=>$stud_result);
+				$response = array("status" => "sucess", "msg" => "Records Found", "gnMemberlist"=>$stud_result);
 			} else {
 				$response = array("status" => "error", "msg" => "No Records Found");
 			}
@@ -1356,7 +1361,7 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 					 $user_id = $rows->group_member_id;
 					
 					if ($member_type =='2' || $member_type == '5'){
-						$sqlgroup = "SELECT * FROM edu_users AS A LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id WHERE a.user_id = '$user_id'";
+						$sqlgroup = "SELECT * FROM edu_users AS A LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id WHERE A.user_id = '$user_id'";
 						$group_res = $this->db->query($sqlgroup);
 						$group_result= $group_res->result();
 						$group_count = $group_res->num_rows();
@@ -1409,7 +1414,7 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 					$user_id = $rows->group_member_id;
 					
 					if ($member_type =='2' || $member_type = '5'){
-						$sqlgroup = "SELECT * FROM edu_users AS A LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id WHERE a.user_id = '$user_id'";
+						$sqlgroup = "SELECT * FROM edu_users AS A LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id WHERE A.user_id = '$user_id'";
 						$group_res = $this->db->query($sqlgroup);
 						$group_result= $group_res->result();
 						$group_count = $group_res->num_rows();
@@ -1558,8 +1563,8 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 
 
 	//####################  Group Notification History ####################//
-	public function save_group_history($group_id,$circular_type,$notes,$user_id){
-             $query="INSERT INTO  edu_grouping_history (group_title_id,notes,notification_type,status,created_at,created_by) VALUES('$group_id','$notes','$circular_type','Active',NOW(),'$user_id')";
+	public function save_group_history($group_id,$notification_type,$snotes,$user_id){
+            $query="INSERT INTO  edu_grouping_history (group_title_id,notes,notification_type,status,created_at,created_by) VALUES('$group_id','$snotes','$notification_type','Active',NOW(),'$user_id')";
             $res=$this->db->query($query);
             if($res){
               $response = array("status" => "sucess", "msg" => "Group Notification Send Sucessfully");
@@ -1704,7 +1709,7 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 			//------------------------Teacher----------------------
 				if($all_id==2)
 				{
-					$tsql = "SELECT u.user_id,t.name,t.phone FROM edu_users AS u,edu_teachers AS t WHERE u.user_type='$all_id' AND u.user_master_id=t.teacher_id AND u.status='Active'";
+					$tsql = "SELECT u.user_id,t.name,t.phone FROM edu_users AS u,edu_teachers AS t  WHERE u.user_type='$all_id' AND u.user_master_id=t.teacher_id AND u.status='Active'";
 					$res=$this->db->query($tsql);
 					$result=$res->result();
 					foreach($result as $rows)
@@ -1860,7 +1865,7 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 	function send_circular_email($circular_id,$all_id,$tusers_id,$musers_id,$susers_id,$pusers_id)
 	{	
 
-	    $ssql = "SELECT * FROM edu_circular_master WHERE id ='$circular_id'";
+	     $ssql = "SELECT * FROM edu_circular_master WHERE id ='$circular_id'";
 		$res = $this->db->query($ssql);
 		$result =$res->result();
 			foreach($result as $rows){ }
@@ -2314,7 +2319,7 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 					foreach($res1 as $row1)
 					 {
 					    $userid=$row1->user_id;
-						 $query = "INSERT INTO edu_circular(user_type,user_id,circular_master_id,circular_type,circular_date,status,created_by,created_at) VALUES ('$susers_id','$userid','$circular_id','$circular_type','$circular_date','$status','$user_id',NOW())";
+						$query = "INSERT INTO edu_circular(user_type,user_id,circular_master_id,circular_type,circular_date,status,created_by,created_at) VALUES ('$susers_id','$userid','$circular_id','$circular_type','$circular_date','$status','$user_id',NOW())";
 						$resultset = $this->db->query($query);
 					}
 				 }
@@ -2345,7 +2350,7 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 						foreach($res3 as $row3)
 						{
 							$userid=$row3->user_id;
-							$query = "INSERT INTO edu_circular(user_type,user_id,circular_master_id,circular_type,circular_date,status,created_by,created_at) VALUES ('$pusers_id','$userid','$circular_id','$circular_type','$circular_date','$status','$user_id',NOW())";
+							 $query = "INSERT INTO edu_circular(user_type,user_id,circular_master_id,circular_type,circular_date,status,created_by,created_at) VALUES ('$pusers_id','$userid','$circular_id','$circular_type','$circular_date','$status','$user_id',NOW())";
 						$resultset = $this->db->query($query);
 							
 						}
@@ -2358,6 +2363,31 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
            
      }
 	//####################  Circular History End ####################//
+	
+	function get_class_circular_view($user_type){
+			$year_id=$this->getYear();
+			if ($user_type =='2'){
+				 $query="SELECT c.id,c.user_type,c.user_id,c.circular_master_id,c.circular_date,c.circular_type,cm.*,u.user_id,u.name FROM edu_circular AS c,edu_users AS u,edu_circular_master AS cm WHERE c.user_type='2' AND  cm.id=c.circular_master_id AND c.user_id=u.user_id AND cm.academic_year_id = '$year_id' AND  cm.status='Active' ORDER BY c.id DESC";
+			}
+			if ($user_type =='3'){
+				$query="SELECT cm.*, c.circular_date, c.circular_type, c.user_type, e.class_id, cl.class_name, se.sec_name FROM edu_circular AS c, edu_users AS u, edu_admission AS a, edu_enrollment AS e, edu_circular_master AS cm, edu_classmaster AS clm, edu_class AS cl, edu_sections AS se WHERE c.user_type = '$user_type' AND u.user_type = c.user_type AND cm.id = c.circular_master_id AND c.user_id = u.user_id AND u.user_master_id = a.admission_id AND u.student_id = a.admission_id AND a.admission_id = e.admission_id AND clm.class_sec_id = e.class_id AND clm.class = cl.class_id AND clm.section = se.sec_id AND cm.academic_year_id = '$year_id' AND cm.status = 'Active' GROUP BY e.class_id, cm.circular_title, c.circular_type, c.circular_date ORDER BY c.id DESC";
+			}
+			if ($user_type =='4'){
+				$query="SELECT cm.*, c.circular_date, c.circular_type, c.user_type, e.class_id, cl.class_name, se.sec_name FROM edu_circular AS c, edu_users AS u, edu_admission AS a, edu_enrollment AS e, edu_circular_master AS cm, edu_classmaster AS clm, edu_class AS cl, edu_sections AS se WHERE c.user_type = '$user_type' AND u.user_type = c.user_type AND cm.id = c.circular_master_id AND c.user_id = u.user_id AND u.user_master_id = a.parnt_guardn_id AND a.admission_id = e.admission_id AND clm.class_sec_id = e.class_id AND clm.class = cl.class_id AND clm.section = se.sec_id AND cm.academic_year_id = '$year_id' AND cm.status = 'Active' GROUP BY e.class_id, cm.circular_title, c.circular_type, c.circular_date ORDER BY c.id DESC";
+			}
+			if ($user_type =='5'){
+				 $query="SELECT c.id,c.user_type,c.user_id,c.circular_master_id,c.circular_date,c.circular_type,cm.*,u.user_id,u.name FROM edu_circular AS c,edu_users AS u,edu_circular_master AS cm WHERE c.user_type='5' AND  cm.id=c.circular_master_id AND c.user_id=u.user_id AND cm.academic_year_id = '$year_id' AND  cm.status='Active' ORDER BY c.id DESC";
+			}
+            $result_query=$this->db->query($query);
+            if($result_query->num_rows()==0){
+                $data=array("status"=>"error","msg"=>"nodata");
+                return $data;
+            }else{
+              $result=$result_query->result();
+              $data=array("status"=>"success","msg"=>"circularfound","circularDetails"=>$result);
+              return $data;
+            }
+          }
 
 }
 

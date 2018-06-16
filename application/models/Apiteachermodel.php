@@ -1322,7 +1322,7 @@ class Apiteachermodel extends CI_Model {
 			   $abs_status=$rows->abs_atatus;
 
 			   $textmessage='Your child '.$st_name.' was marked '.$abs_status.' today '.$abs_date.'. To Known more details login into http://bit.ly/2wLwdRQ';
-			   $this->sendSMS($phone,$textmessage);
+			   $this->sendSMS($parents_num,$textmessage);
 			}
 		  }
 //#################### send attendance sms to Parents END ####################//

@@ -362,7 +362,7 @@ class Apiadmin extends CI_Controller {
     // GET  TEACHER DETAIlS
     public function get_teacher()
     {
-    	 $_POST = json_decode(file_get_contents("php://input"), TRUE);
+    	 //$_POST = json_decode(file_get_contents("php://input"), TRUE);
     
     	if(!$this->checkMethod())
     	{
@@ -380,7 +380,7 @@ class Apiadmin extends CI_Controller {
     		return;
     	}
     
-    	echo $teacher_id=$this->input->post('teacher_id');
+    	$teacher_id=$this->input->post('teacher_id');
     	$data['result']=$this->apiadminmodel->get_teacher($teacher_id);
     	$response = $data['result'];
     	echo json_encode($response);
@@ -1481,12 +1481,14 @@ class Apiadmin extends CI_Controller {
 		$group_id = '';
 		$notes = '';
 		$circular_type = '';
+		
 		$user_id = $this->input->post("user_id");
 		$group_id = $this->input->post("group_id");
 		$notes = $this->input->post("notes");
-		$circular_type = $this->input->post('notification_type');
+		$snotes     = $this->db->escape_str($this->input->post('notes'));
+		$notification_type = $this->input->post('notification_type');
 		
-		$cir = explode(',',$circular_type);
+		$cir = explode(',',$notification_type);
 	    $cir_cnt = count($cir);
 
 				
@@ -1532,7 +1534,7 @@ class Apiadmin extends CI_Controller {
 						$data = $this->apiadminmodel->gn_send_mail($group_id,$notes,$user_id);
 				  }
 			  }
-				$data['result']= $this->apiadminmodel->save_group_history($group_id,$circular_type,$notes,$user_id);
+				$data['result']= $this->apiadminmodel->save_group_history($group_id,$notification_type,$snotes,$user_id);
 				$response = $data['result'];
 				echo json_encode($response);
 	}
@@ -1813,6 +1815,35 @@ class Apiadmin extends CI_Controller {
 				echo json_encode($response);
 	}
 	//-----------------------------------------------//
+	
+	
+    //-----------------------------------------------//
+	// GET ALL Cricular class wise
+		public function get_class_circular_view()
+		{
+			$_POST = json_decode(file_get_contents("php://input"), TRUE);
 
+			if(!$this->checkMethod())
+			{
+				return FALSE;
+			}
+
+			if($_POST == FALSE)
+			{
+				$res = array();
+				$res["opn"] = "SOMETHING WENT WRONG ";
+				$res["scode"] = 204;
+				$res["message"] = "Input error";
+
+				echo json_encode($res);
+				return;
+			}
+
+			$user_type=$this->input->post('user_type');
+			$data['result']=$this->apiadminmodel->get_class_circular_view($user_type);
+			$response = $data['result'];
+			echo json_encode($response);
+		}
+	//-----------------------------------------------//
 
 }
