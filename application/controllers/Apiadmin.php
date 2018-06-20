@@ -1410,14 +1410,17 @@ class Apiadmin extends CI_Controller {
 		$group_id = '';
 		$group_member_id = '';
 		$group_user_type = '';
+		$class_sec_id = '';
 		$status = '';
+		
 		$user_id = $this->input->post("user_id");
 		$group_id = $this->input->post("group_id");
 		$group_member_id = $this->input->post("group_member_id");
 		$group_user_type = $this->input->post("group_user_type");
+		$class_sec_id = $this->input->post("class_sec_id");
 		$status = $this->input->post("status");
 
-		$data['result']=$this->apiadminmodel->addgnMembers($user_id,$group_id,$group_member_id,$group_user_type,$status);
+		$data['result']=$this->apiadminmodel->addgnMembers($user_id,$group_id,$group_member_id,$group_user_type,$class_sec_id,$status);
 		$response = $data['result'];
 		echo json_encode($response);
 	}

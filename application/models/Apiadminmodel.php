@@ -1516,26 +1516,36 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 
 
 	//####################  Group Members Add ####################//
-	public function addgnMembers($user_id,$group_id,$group_member_id,$group_user_type,$status)
+	public function addgnMembers($user_id,$group_id,$group_member_id,$group_user_type,$class_sec_id,$status)
 	{
+	
+		if ($group_user_type=='3'|| $group_user_type =='4') {
+			$gnMembsql = "SELECT * FROM edu_grouping_members WHERE member_type = '$group_user_type' AND group_title_id ='$group_id' AND class_sec_id = '$class_sec_id'";
+		} else {
 			$gnMembsql = "SELECT * FROM edu_grouping_members WHERE member_type = '$group_user_type' AND group_title_id ='$group_id'";
+		}
 			$gnMembres = $this->db->query($gnMembsql);
 			$gnMembresult= $gnMembres->result();
 			$gnMembcount = $gnMembres->num_rows();
 		
 			if($gnMembcount>0)
 			{
-				$squery = "DELETE FROM `edu_grouping_members` WHERE member_type = '$group_user_type' AND group_title_id ='$group_id'";
+				if ($group_user_type=='3'|| $group_user_type =='4') {
+					$squery = "DELETE FROM `edu_grouping_members` WHERE member_type = '$group_user_type' AND group_title_id ='$group_id' AND class_sec_id = '$class_sec_id'";
+				} else {
+					$squery = "DELETE FROM `edu_grouping_members` WHERE member_type = '$group_user_type' AND group_title_id ='$group_id'";
+				}
 				$resultset=$this->db->query($squery);
 			}
 		
 			$smember_id = explode(",", $group_member_id);
-				foreach($smember_id as $member_id)
-				{
-					
-					$sql = "INSERT INTO edu_grouping_members(group_title_id,group_member_id,member_type,status,created_by,created_at) VALUES ('$group_id','$member_id','$group_user_type','$status','$user_id',NOW())";
-					$resultset=$this->db->query($sql);
-				}				
+			
+			foreach($smember_id as $member_id)
+			{
+				
+				$sql = "INSERT INTO edu_grouping_members(group_title_id,group_member_id,member_type,class_sec_id,status,created_by,created_at) VALUES ('$group_id','$member_id','$group_user_type','$class_sec_id','$status','$user_id',NOW())";
+				$resultset=$this->db->query($sql);
+			}				
 			
 			$response = array("status" => "success", "msg" => "Group Members Added");
 			return $response;
