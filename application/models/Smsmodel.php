@@ -57,19 +57,19 @@ Class Smsmodel extends CI_Model
  }
 
 
-   public function sendSMS($Phoneno,$Message)
+   public function sendSMS($phone,$notes)
    {
          //Your authentication key
          $authKey = "191431AStibz285a4f14b4";
 
          //Multiple mobiles numbers separated by comma
-         $mobileNumber = "$Phoneno";
+         $mobileNumber = "$phone";
 
          //Sender ID,While using route4 sender id should be 6 characters long.
          $senderId = "EDUAPP";
 
          //Your message to send, Add URL encoding here.
-         $message = urlencode($Message);
+         $message = urlencode($notes);
 
          //Define route
          $route = "transactional";
@@ -310,7 +310,7 @@ Class Smsmodel extends CI_Model
 					foreach($presult2 as $prows1)
 					{
             $notes =urlencode($notes);
-            $phone = $rows1->mobile;
+            $phone = $prows1->mobile;
             $this->sendSMS($phone,$notes);
 
 				    }
@@ -421,7 +421,7 @@ Class Smsmodel extends CI_Model
           $member_type_staff=$row_type_staff->member_type;
          $group_member_id_staff=$row_type_staff->group_member_id;
          if($member_type='2' || $member_type='5'){
-          $send_mail="SELECT * FROM edu_users AS A LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id WHERE a.user_id = '$group_member_id_staff'";
+          $send_mail="SELECT * FROM edu_users AS a LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id WHERE a.user_id = '$group_member_id_staff'";
            $get_mail=$this->db->query($send_mail);
            $res_mail=$get_mail->result();
            foreach($res_mail as $rows_mail){
@@ -441,7 +441,7 @@ Class Smsmodel extends CI_Model
 		{
 		   $year_id=$this->getYear();
 
-		   $pcell="SELECT p.mobile FROM edu_parents AS p,edu_enrollment AS e WHERE e.class_id='$clssid' AND FIND_IN_SET( e.admission_id,p.admission_id) GROUP BY p.name";
+		   $pcell="SELECT p.mobile FROM edu_parents AS p,edu_enrollment AS e WHERE e.class_id='$clssid' AND FIND_IN_SET( e.admission_id,p.admission_id) AND e.admit_year='$year_id' GROUP BY p.name";
 		  $pcell1=$this->db->query($pcell);
 		  $pcel2=$pcell1->result();
 		  foreach($pcel2 as $res)
