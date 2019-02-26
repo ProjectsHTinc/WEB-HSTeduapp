@@ -514,6 +514,7 @@ class Apiadminmodel extends CI_Model {
             //#################### GET   TEACHER CLASS DETAILS  ####################//
             function get_teacher_class_details($teacher_id){
                 $year_id = $this->getYear();
+				$term_id = $this->getTerm();
                 
                 $teacher_query = "SELECT t.teacher_id,t.name,t.sex,t.age,t.nationality,t.religion,t.community_class, t.community,t.address,t.email,t.phone,t.sec_email,t.sec_phone,t.profile_pic,t.update_at,t.subject,t.class_name AS class_taken,t.class_teacher FROM edu_teachers AS t WHERE t.teacher_id = '$teacher_id'";
 				$teacher_res = $this->db->query($teacher_query);
@@ -548,7 +549,53 @@ class Apiadminmodel extends CI_Model {
 						}else{
 							$class_sub_result = $class_sub_res->result();
 						}
-						$timetable_query = "SELECT tt.table_id,tt.class_id,tt.subject_id,s.subject_name,tt.teacher_id,t.name,tt.day_id,tt.period,tt.from_time, tt.to_time, tt.is_break,ss.sec_name,c.class_name FROM edu_timetable AS tt LEFT JOIN edu_subject AS s ON tt.subject_id=s.subject_id LEFT JOIN edu_teachers AS t ON tt.teacher_id=t.teacher_id INNER JOIN edu_classmaster AS cm ON tt.class_id=cm.class_sec_id INNER JOIN edu_class AS c ON cm.class=c.class_id INNER JOIN edu_sections AS ss ON cm.section=ss.sec_id WHERE tt.teacher_id ='$teacher_id' AND tt.year_id='$year_id' ORDER BY tt.day_id, tt.period";
+						
+						$sqldays = "SELECT A.day_id, B.list_day FROM `edu_timetable` A, `edu_days` B WHERE A.day_id = B.d_id AND A.teacher_id = '$teacher_id' AND A.year_id = '$year_id' AND A.term_id = '$term_id' GROUP BY day_id ORDER BY A.day_id";
+						$day_res = $this->db->query($sqldays);
+
+						if($day_res->num_rows()==0){
+							 $day_result = array("status" => "error", "msg" => "TimeTable days not found");
+
+						}else{
+							 $day_result = array("status" => "success", "msg" => "TimeTable Days","data"=> $day_res->result());
+						}
+						
+						$timetable_query = "SELECT
+									tt.table_id,
+									tt.class_id,
+									c.class_name,
+									ss.sec_name,
+									tt.subject_id,
+									tt.teacher_id,
+									tt.day_id,
+									tt.period,
+									t.name,
+									s.subject_name,
+									tt.from_time,
+									tt.to_time,
+									tt.is_break
+								FROM
+									edu_timetable AS tt
+								LEFT JOIN edu_subject AS s
+								ON
+									tt.subject_id = s.subject_id
+								LEFT JOIN edu_teachers AS t
+								ON
+									tt.teacher_id = t.teacher_id
+								INNER JOIN edu_classmaster AS cm
+								ON
+									tt.class_id = cm.class_sec_id
+								INNER JOIN edu_class AS c
+								ON
+									cm.class = c.class_id
+								INNER JOIN edu_sections AS ss
+								ON
+									cm.section = ss.sec_id
+								WHERE
+									tt.teacher_id = '$teacher_id' AND tt.year_id = '$year_id' AND tt.term_id = '$term_id'
+								ORDER BY
+									tt.day_id,
+									tt.period";
 						$timetable_res = $this->db->query($timetable_query);
 
 						 if($timetable_res->num_rows()==0){
@@ -559,7 +606,7 @@ class Apiadminmodel extends CI_Model {
 						}
 
 
-						$data = array("status" => "success", "msg" => "Class and Sections",'teacherProfile'=>$teacher_profile,"class_name"=>$class_sub_result,"timeTable"=>$timetable_result);
+						$data = array("status" => "success", "msg" => "Class and Sections",'teacherProfile'=>$teacher_profile,"class_name"=>$class_sub_result,"timeTabledays"=>$day_result,"timeTable"=>$timetable_result);
 						return $data;
                 }
 
