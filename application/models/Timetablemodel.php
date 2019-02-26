@@ -49,12 +49,21 @@ Class Timetablemodel extends CI_Model
              $subject_id_period='0';
              $teacher_id_period='0';
              $break_name_txt=$break_name;
+             $pr_cnt='0';
            }else{
              $subject_id_period=$subject_id;
              $teacher_id_period=$teacher_id;
              $break_name_txt='';
+             $get_period="SELECT count(*) as count FROM edu_timetable WHERE year_id='$year_id' AND term_id='$term_id' AND class_id='$class_id' AND day_id='$day_id' AND is_break='0'";
+             $get_cnt= $this->db->query($get_period);
+             $per_cnt   = $get_cnt->result();
+             foreach($per_cnt as $period_cont){}
+              $pr_cnt=$period_cont->count +1;
            }
-           $query     = "INSERT INTO edu_timetable (year_id,term_id,class_id,from_time,to_time,is_break,break_name,subject_id,teacher_id,day_id,period,status,created_at,updated_at) VALUES('$year_id','$term_id','$class_id','$from_time','$to_time','$break_id','$break_name_txt','$subject_id_period','$teacher_id_period','$day_id','$period_id','Active',NOW(),NOW())";
+
+
+
+           $query     = "INSERT INTO edu_timetable (year_id,term_id,class_id,from_time,to_time,is_break,break_name,subject_id,teacher_id,day_id,period,status,created_at,updated_at) VALUES('$year_id','$term_id','$class_id','$from_time','$to_time','$break_id','$break_name_txt','$subject_id_period','$teacher_id_period','$day_id','$pr_cnt','Active',NOW(),NOW())";
              $resultset = $this->db->query($query);
              if ($resultset) {
                  echo "success";
@@ -67,12 +76,20 @@ Class Timetablemodel extends CI_Model
                $subject_id_period='0';
                $teacher_id_period='0';
                $break_name_txt=$break_name;
+                  $pr_cnt='0';
              }else{
                $subject_id_period=$subject_id;
                $teacher_id_period=$teacher_id;
                $break_name_txt=' ';
+               $get_period="SELECT count(*) as count FROM edu_timetable WHERE year_id='$year_id' AND term_id='$term_id' AND class_id='$class_id' AND day_id='$day_id' AND is_break='0'";
+                 $get_cnt= $this->db->query($get_period);
+                 $per_cnt   = $get_cnt->result();
+                 foreach($per_cnt as $period_cont){}
+                  $pr_cnt=$period_cont->count +1;
              }
-             $query     = "INSERT INTO edu_timetable (year_id,term_id,class_id,from_time,to_time,is_break,break_name,subject_id,teacher_id,day_id,period,status,created_at,updated_at) VALUES('$year_id','$term_id','$class_id','$from_time','$to_time','$break_id','$break_name','$subject_id_period','$teacher_id_period','$day_id','$period_id','Active',NOW(),NOW())";
+
+
+             $query     = "INSERT INTO edu_timetable (year_id,term_id,class_id,from_time,to_time,is_break,break_name,subject_id,teacher_id,day_id,period,status,created_at,updated_at) VALUES('$year_id','$term_id','$class_id','$from_time','$to_time','$break_id','$break_name','$subject_id_period','$teacher_id_period','$day_id','$pr_cnt','Active',NOW(),NOW())";
                $resultset = $this->db->query($query);
                if ($resultset) {
                    echo "success";
