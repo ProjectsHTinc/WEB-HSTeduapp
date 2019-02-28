@@ -382,10 +382,13 @@ class Apimainmodel extends CI_Model {
 
 						$stud_query = "SELECT
                                         A.enroll_id,
+										A.status,
                                         A.admission_id,
                                         A.class_id,
                                         A.name,
+										E.sex,
                                         F.subject_name as pref_language,
+										E.status,
                                         CONCAT(C.class_name, ' ', D.sec_name) AS class_section
                                     FROM
                                         edu_enrollment A,
