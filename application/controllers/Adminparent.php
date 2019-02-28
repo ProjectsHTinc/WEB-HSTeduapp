@@ -83,7 +83,7 @@ class Adminparent extends CI_Controller
                 } else {
                     $data['restime'] = $datas['restime']['time'];
                     $this->load->view('adminparent/parent_header');
-                    $this->load->view('adminparent/timetable/view', $data);
+                    $this->load->view('adminparent/timetable/view_timetable', $data);
                     $this->load->view('adminparent/parent_footer');
                 }
             } else {
