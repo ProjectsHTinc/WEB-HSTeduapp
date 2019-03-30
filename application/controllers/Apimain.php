@@ -669,7 +669,7 @@ class Apimain extends CI_Controller {
 		echo json_encode($response);
 	}
 
-
+//-----------------------------------------------//
 
 		public function grp_messsage_history()
 		{
@@ -838,31 +838,6 @@ class Apimain extends CI_Controller {
 		$response = $data['result'];
 		echo json_encode($response);
 	}
-
-	public function class_timetable()
-		{
-			$_POST = json_decode(file_get_contents("php://input"), TRUE);
-
-			if(!$this->checkMethod())
-			{
-				return FALSE;
-			}
-
-			if($_POST == FALSE)
-			{
-				$res = array();
-				$res["opn"] = "Input error";
-				$res["scode"] = 204;
-				$res["message"] = "Input error";
-
-				echo json_encode($res);
-				return;
-			}
-			$class_id = $this->input->post("class_id");
-			$data['result']=$this->apimainmodel->class_timetable($class_id);
-			$response = $data['result'];
-			echo json_encode($response);
-		}
 
 //-----------------------------------------------//
 

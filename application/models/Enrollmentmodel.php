@@ -6,6 +6,7 @@ Class Enrollmentmodel extends CI_Model
   public function __construct()
   {
       parent::__construct();
+       $this->load->model('smsmodel');
 
   }
 
@@ -30,7 +31,7 @@ Class Enrollmentmodel extends CI_Model
         function ad_enrollment($admisnid,$admit_year,$formatted_date,$admisn_no,$name,$class,$quota_id,$groups_id,$activity_id,$status){
         	//echo $admisn_no; echo'<br>'; echo $admisnid;
 			$year_id=$this->getYear();
-          $check_email="SELECT * FROM edu_enrollment WHERE admit_year='$admit_year' AND admit_year='$year_id' AND admisn_no='$admisn_no'";
+         $check_email="SELECT * FROM edu_enrollment WHERE admit_year='$admit_year'  AND admission_id='$admisnid'";
           $result=$this->db->query($check_email);
           if($result->num_rows()==0){
 
@@ -39,7 +40,8 @@ Class Enrollmentmodel extends CI_Model
 			  //echo $OTP;
               $md5pwd=md5($OTP);
 
-			  $admisn="select name,admission_id,admisn_no from edu_admission WHERE admisn_no='".$admisn_no."'"; 
+			 // $admisn="select name,admission_id,admisn_no from edu_admission WHERE admisn_no='".$admisn_no."'"; 
+			   $admisn="select name,admission_id,admisn_no from edu_admission WHERE admission_id='".$admisnid."'"; 
      	      $resultset = $this->db->query($admisn);
 		      foreach ($resultset->result() as $rows)
 		      {}
@@ -80,7 +82,7 @@ Class Enrollmentmodel extends CI_Model
 			   <body style="background-color:beige;">
 				 <table cellspacing="0" style=" width: 300px; height: 200px;">
 					   <tr>
-						   <th>Email:</th><td>'.$email.'</td>
+						   <th>Name:</th><td>'.$name.'</td>
 					   </tr>
 					   <tr>
 						   <th>Username :</th><td>'.$user_id.'</td>
@@ -101,35 +103,28 @@ Class Enrollmentmodel extends CI_Model
 			   $headers .= 'From: happysanz<info@happysanz.com>' . "\r\n";
 			   mail($to,$subject,$htmlContent,$headers);
 			 }
-			 if(!empty($cell))
-			 {
-				$userdetails="Name : " .$sname. ",Username".$user_id.",Password :".$OTP.",";
-				//echo $userdetails;
-				$textmsg =urlencode($userdetails."To Known more details login into http://bit.ly/2wLwdRQ");
-				$smsGatewayUrl = 'http://173.45.76.227/send.aspx?';
-				$api_element = 'username=kvmhss&pass=kvmhss123&route=trans1&senderid=KVMHSS';
-				$api_params = $api_element.'&numbers='.$cell.'&message='.$textmsg;
-				$smsgatewaydata = $smsGatewayUrl.$api_params;
-				$url = $smsgatewaydata;
-				//echo $url;
-				$ch = curl_init();
-				curl_setopt($ch, CURLOPT_POST, false);
-				curl_setopt($ch, CURLOPT_URL, $url);
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-				$output = curl_exec($ch);
-				curl_close($ch);
-			 }
+			      if(!empty($cell))
+                {
+                  $userdetails="Dear : " .$name. ", Username : " .$user_id.", Password : ".$OTP.", ";
+                  $notes =utf8_encode($userdetails."To known more  detail click here  http://bit.ly/2wLwdRQ");
+                  $phone=$cell;
+                  $this->smsmodel->sendSMS($phone,$notes);
+        
+                }
 
               $stude_insert="INSERT INTO edu_users (name,user_name,user_password,user_type,user_master_id,student_id,created_date,updated_date,status) VALUES ('$name','$user_id','$md5pwd','3','$admisnid','$admisnid',NOW(),NOW(),'$status')";
               $resultset=$this->db->query($stude_insert);
-
-      		 $query2="UPDATE edu_admission SET enrollment='1' WHERE admission_id='$admisnid'";
+           
+      		  $query2="UPDATE edu_admission SET enrollment='1' WHERE admission_id='$admisnid'";
       		 $resultset=$this->db->query($query2);
+      	 
+      		
+      	
 
             $data= array("status" => "success");
             return $data;
           }else{
-            $data= array("status" => "Admission Already Exist");
+            $data= array("status" => "Registration Already Exist");
             return $data;
           }
 

@@ -80,17 +80,14 @@ Class Adminparentmodel extends CI_Model
     function get_special_leave_all($user_id, $user_type)
     {
 
-         $query     = "SELECT parent_id,user_type,user_master_id,user_id FROM edu_users WHERE user_id='$user_id' AND user_type='$user_type'";
+        $query     = "SELECT parent_id,user_type,user_master_id,user_id FROM edu_users WHERE user_id='$user_id' AND user_type='$user_type'";
         $resultset = $this->db->query($query);
         $row       = $resultset->result();
         foreach ($row as $rows) {
         }
         $parent_id = $rows->user_master_id;
 
-        // $query = "SELECT el.leave_date AS start,el.leaves_name as title,lm.leave_type AS description,lm.status,lm.leave_type,lm.leave_classes,el.leave_mas_id,en.admission_id,en.class_id,p.admission_id,p.id FROM edu_leavemaster AS lm,edu_leaves AS el,edu_enrollment AS en,edu_parents AS p WHERE lm.leave_id=el.leave_mas_id AND lm.leave_type='Special Holiday' AND lm.leave_classes=en.class_id AND p.id='$parent_id' AND FIND_IN_SET(en.admission_id,p.admission_id) GROUP By p.id";
-
-        	$query="SELECT lm.leave_id,lm.leave_type AS description,lm.leave_classes,lm.status,el.leaves_name AS title,el.leave_mas_id,el.leave_date AS start,el.days,el.week FROM edu_leavemaster AS lm,edu_leaves AS el WHERE lm.leave_id=el.leave_mas_id AND lm.leave_type='Special Holiday'  AND lm.status='Active'";
-
+        $query = "SELECT el.leave_date AS start,el.leaves_name as title,lm.leave_type AS description,lm.status,lm.leave_type,lm.leave_classes,el.leave_mas_id,en.admission_id,en.class_id,p.admission_id,p.    parent_id FROM edu_leavemaster AS lm,edu_leaves AS el,edu_enrollment AS en,edu_parents AS p WHERE lm.leave_id=el.leave_mas_id AND lm.leave_type='Special Holiday' AND lm.leave_classes=en.class_id AND p.parent_id='$parent_id' AND FIND_IN_SET(en.admission_id,p.admission_id) GROUP By p.parent_id";
         $res   = $this->db->query($query);
         return $res->result();
     }
@@ -225,7 +222,7 @@ left join edu_enrollment as ee on ee.admission_id=ep.admission_id WHERE eu.user_
         foreach ($row as $rows) {
         }
         $class_id   = $rows->class_id;
-		$student_id   = $rows->admission_id;
+		 $student_id   = $rows->admission_id;
         $year_id    = $this->getYear();
         $query      = "SELECT *  FROM `edu_attendance_history` WHERE student_id = '$student_id'";
         $resultset1 = $this->db->query($query);
@@ -244,7 +241,7 @@ left join edu_enrollment as ee on ee.admission_id=ep.admission_id WHERE eu.user_
         foreach ($row as $rows) {
         }
         //$class_id   = $rows->class_id;
-		$enroll_id   = $rows->enroll_id;
+		  $enroll_id   = $rows->enroll_id;
 
         $query      = "SELECT *  FROM `edu_attendance_history` WHERE `student_id` = '$enroll_id'";
         $resultset1 = $this->db->query($query);
@@ -266,6 +263,14 @@ left join edu_enrollment as ee on ee.admission_id=ep.admission_id WHERE eu.user_
         $resultset1 = $this->db->query($query);
         return $resultset1->result();
     }
+
+
+    function get_absent_leave_days_student_for_students($enroll_id){
+      $query      = "SELECT *  FROM `edu_attendance_history` WHERE `student_id` = '$enroll_id'";
+      $resultset1 = $this->db->query($query);
+      return $resultset1->result();
+    }
+
 
     function get_fees_status_details($enroll_id)
     //echo $enroll_id;

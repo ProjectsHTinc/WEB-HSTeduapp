@@ -160,7 +160,7 @@ Class Yearsmodel extends CI_Model
 
     function getall_years()
     {
-        $query  = "SELECT * FROM edu_academic_year where status='Active'";
+        $query  = "SELECT * FROM edu_academic_year";
         $result = $this->db->query($query);
         return $result->result();
     }
@@ -170,7 +170,7 @@ Class Yearsmodel extends CI_Model
     function getall_terms()
     {
         $year_id = $this->getYear();
-        $query   = "SELECT * FROM edu_terms WHERE year_id='$year_id' AND status='Active'";
+        $query   = "SELECT * FROM edu_terms WHERE year_id='$year_id'";
         $result  = $this->db->query($query);
         return $result->result();
     }

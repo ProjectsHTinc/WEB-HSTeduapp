@@ -1130,7 +1130,7 @@ class Apiteacher extends CI_Controller {
 
 	public function daywisect_homework()
 	{
- 		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
+ 	    $_POST = json_decode(file_get_contents("php://input"), TRUE);
 
 		if(!$this->checkMethod())
 		{
@@ -1162,7 +1162,7 @@ class Apiteacher extends CI_Controller {
 
 	public function daywisect_allhomework()
 	{
- 		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
+ 		$_POST = json_decode(file_get_contents("php://input"), TRUE);
 
 		if(!$this->checkMethod())
 		{
@@ -1196,7 +1196,7 @@ class Apiteacher extends CI_Controller {
 
 	public function send_allhw_parents()
 	{
- 		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
+ 		$_POST = json_decode(file_get_contents("php://input"), TRUE);
 
 		if(!$this->checkMethod())
 		{
@@ -1278,11 +1278,13 @@ class Apiteacher extends CI_Controller {
 
 //-----------------------------------------------//
 
+
+
 //-----------------------------------------------//
 
 	public function send_singlehw_parents()
 	{
- 		//$_POST = json_decode(file_get_contents("php://input"), TRUE);
+ 		$_POST = json_decode(file_get_contents("php://input"), TRUE);
 
 		if(!$this->checkMethod())
 		{

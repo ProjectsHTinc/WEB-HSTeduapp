@@ -290,7 +290,13 @@ Class Circularmodel extends CI_Model
 
 	 function get_all_circular()
 	 {
-		$query123="SELECT c.id,c.user_type,c.user_id,c.circular_master_id,c.circular_date,c.circular_type,cm.*,u.user_id,u.name FROM edu_circular AS c,edu_users AS u,edu_circular_master AS cm WHERE c.user_type=2 AND  cm.id=c.circular_master_id AND c.user_id=u.user_id AND cm.status='Active' ORDER BY c.id DESC LIMIT 0,20";
+		  $get_year="SELECT * FROM edu_academic_year WHERE CURDATE()>=from_month AND CURDATE()<=to_month";
+		  $result1=$this->db->query($get_year);
+		  $all_year= $result1->result();
+		  foreach($all_year as $cyear){}
+		  $current_year=$cyear->year_id;
+		  
+		$query123="SELECT c.id,c.user_type,c.user_id,c.circular_master_id,c.circular_date,c.circular_type,cm.*,u.user_id,u.name FROM edu_circular AS c,edu_users AS u,edu_circular_master AS cm WHERE c.user_type='2' AND  cm.id=c.circular_master_id AND c.user_id=u.user_id AND cm.academic_year_id = '$current_year' AND  cm.status='Active' ORDER BY c.id DESC";
          $res112=$this->db->query($query123);
          $result123=$res112->result();
 		 return $result123;
@@ -298,7 +304,13 @@ Class Circularmodel extends CI_Model
 
 	 function get_parents_circular()
 	 {
-	 $query="SELECT c.id,c.user_type,c.user_id,c.circular_master_id,c.	circular_date,c.circular_type,cm.*,u.user_id,u.user_type,u.user_master_id,u.parent_id,a.admission_id,a.parnt_guardn_id,a.admisn_no,e.admission_id,e.admisn_no,e.class_id FROM edu_circular AS c,edu_users AS u,edu_admission AS a,edu_enrollment AS e,edu_circular_master AS cm WHERE c.user_type=4 AND u.user_type=c.user_type AND cm.id=c.circular_master_id AND c.user_id=u.user_id AND u.user_master_id=a.parnt_guardn_id AND u.parent_id=a.parnt_guardn_id AND a.admission_id=e.admission_id AND a.admisn_no=e.admisn_no AND cm.status='Active' GROUP BY e.class_id,cm.circular_title,c.circular_type,c.circular_date ORDER BY c.id DESC";
+	       $get_year="SELECT * FROM edu_academic_year WHERE CURDATE()>=from_month AND CURDATE()<=to_month";
+		  $result1=$this->db->query($get_year);
+		  $all_year= $result1->result();
+		  foreach($all_year as $cyear){}
+		  $current_year=$cyear->year_id;
+		 
+		 $query="SELECT cm.*, c.circular_date, c.circular_type, c.user_type, e.class_id FROM edu_circular AS c, edu_users AS u, edu_admission AS a, edu_enrollment AS e, edu_circular_master AS cm WHERE c.user_type = '4' AND u.user_type = c.user_type AND cm.id = c.circular_master_id AND c.user_id = u.user_id AND u.user_master_id = a.parnt_guardn_id AND a.admission_id = e.admission_id AND cm.academic_year_id = '$current_year' AND cm.status = 'Active' GROUP BY e.class_id, cm.circular_title, c.circular_type, c.circular_date ORDER BY c.id DESC";
          $res=$this->db->query($query);
          $result1=$res->result();
 		 return $result1;
@@ -307,10 +319,16 @@ Class Circularmodel extends CI_Model
 
 	 function get_students_circular()
 	 {
-	 $query="SELECT c.id,c.user_type,c.user_id,c.circular_master_id,c.	circular_date,c.circular_type,cm.*,u.user_id,u.user_type,u.user_master_id,u.student_id,a.admission_id,a.admisn_no,e.admission_id,e.admisn_no,e.class_id FROM edu_circular AS c,edu_users AS u,edu_admission AS a,edu_enrollment AS e,edu_circular_master AS cm WHERE c.user_type=3 AND u.user_type=c.user_type AND cm.id=c.circular_master_id AND c.user_id=u.user_id AND u.user_master_id=a.admission_id AND u.student_id=a.admission_id AND a.admission_id=e.admission_id AND a.admisn_no=e.admisn_no AND cm.status='Active' GROUP BY e.class_id,cm.circular_title,c.circular_type,c.circular_date ORDER BY c.id DESC LIMIT 0,20";
+	 $get_year="SELECT * FROM edu_academic_year WHERE CURDATE()>=from_month AND CURDATE()<=to_month";
+		  $result1=$this->db->query($get_year);
+		  $all_year= $result1->result();
+		  foreach($all_year as $cyear){}
+		  $current_year=$cyear->year_id;
+		  
+	 $query="SELECT cm.*, c.circular_date, c.circular_type, c.user_type, e.class_id FROM edu_circular AS c, edu_users AS u, edu_admission AS a, edu_enrollment AS e, edu_circular_master AS cm WHERE c.user_type = '3' AND u.user_type = c.user_type AND cm.id = c.circular_master_id AND c.user_id = u.user_id AND u.user_master_id = a.admission_id AND u.student_id = a.admission_id AND a.admission_id = e.admission_id AND cm.academic_year_id = '$current_year' AND cm.status = 'Active' GROUP BY e.class_id, cm.circular_title, c.circular_type, c.circular_date ORDER BY c.id DESC ";
          $res=$this->db->query($query);
          $result1=$res->result();
-		 return $result1;
+		 return $result1; 
 	 }
 
 	 function get_current_years()

@@ -71,8 +71,8 @@ body{
 
 
 						<?php
-									  if($pic!='')
-									  {
+						  if($pic!='')
+							{
 								?>
                                   <div class="header text-center">
 					                <img src="http://<?php echo $server_url; ?>/<?php echo $sid; ?>/assets/admin/profile/<?php echo $pic; ?>" class="img-circle" style="width:150px;height: 150px;"> </div>

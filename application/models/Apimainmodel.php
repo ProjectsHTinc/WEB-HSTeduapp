@@ -167,7 +167,7 @@ class Apimainmodel extends CI_Model {
 
 	public function getYear()
 	{
-		$sqlYear = "SELECT * FROM edu_academic_year WHERE NOW() >= from_month AND NOW() <= to_month AND status = 'Active'";
+		$sqlYear = "SELECT * FROM edu_academic_year WHERE CURDATE() >= from_month AND CURDATE() <= to_month AND status = 'Active'";
 		$year_result = $this->db->query($sqlYear);
 		$ress_year = $year_result->result();
 
@@ -188,7 +188,7 @@ class Apimainmodel extends CI_Model {
 	public function getTerm()
 	{
 	    $year_id = $this->getYear();
-	 	$sqlTerm = "SELECT * FROM edu_terms WHERE NOW() >= from_date AND NOW() <= to_date AND year_id = '$year_id' AND status = 'Active'";
+	 	$sqlTerm = "SELECT * FROM edu_terms WHERE CURDATE() >= from_date AND CURDATE() <= to_date AND year_id = '$year_id' AND status = 'Active'";
 		$term_result = $this->db->query($sqlTerm);
 		$ress_term = $term_result->result();
 
@@ -256,7 +256,7 @@ class Apimainmodel extends CI_Model {
 
 						$teacher_id = $rows->teacher_id;
 
-						$sqlYear = "SELECT * FROM edu_academic_year WHERE NOW() >= from_month AND NOW() <= to_month AND status = 'Active'";
+						$sqlYear = "SELECT * FROM edu_academic_year WHERE CURDATE() >= from_month AND CURDATE() <= to_month AND status = 'Active'";
                 		$year_result = $this->db->query($sqlYear);
                 		$ress_year = $year_result->result();
 
@@ -347,6 +347,7 @@ class Apimainmodel extends CI_Model {
 									s.subject_name,
 									tt.from_time,
 									tt.to_time,
+									tt.break_name,
 									tt.is_break
 								FROM
 									edu_timetable AS tt
@@ -936,19 +937,19 @@ class Apimainmodel extends CI_Model {
 			$event_res = $this->db->query($event_query);
 			$event_result= $event_res->result();
 			$event_count = $event_res->num_rows();
-			/*
+/*
 			foreach($event_result as $rows){
-			$event_id = $rows->event_id;
+				$event_id = $rows->event_id;
 
-				$gallery_query = "SELECT * FROM `edu_events_galllery` WHERE event_id ='$event_id'";
-				$gallery_res = $this->db->query($gallery_query);
-				$gallery_result= $gallery_res->result();
+					$gallery_query = "SELECT * FROM `edu_events_galllery` WHERE event_id ='$event_id'";
+					$gallery_res = $this->db->query($gallery_query);
+					$gallery_result= $gallery_res->result();
 
-				if($gallery_res->num_rows()!=0){
-					//echo $gallery_result;
-				}
+					if($gallery_res->num_rows()!=0){
+						//echo $gallery_result;
+					}
 			}
-			*/
+*/
 			 if($event_res->num_rows()==0){
 				 $response = array("status" => "error", "msg" => "Events Not Found");
 			}else{
@@ -996,7 +997,7 @@ class Apimainmodel extends CI_Model {
                                 edu_circular A,
                                 edu_circular_master B
                             WHERE
-                                A.user_id = '$user_id' AND B.academic_year_id = '$year_id' AND A.circular_master_id = B.id AND A.status = 'Active'";
+                                A.user_id = '$user_id' AND B.academic_year_id = '$year_id' AND A.circular_master_id = B.id";
 
 			$circular_res = $this->db->query($circular_query);
 			$circular_result= $circular_res->result();
@@ -1664,60 +1665,8 @@ class Apimainmodel extends CI_Model {
 		return $response;
 	}
 
-  function class_timetable($class_id){
-  $year_id = $this->getYear();
-  $term_id = $this->getTerm();
-
-
-     // $sqltimetable = "SELECT A.table_id,A.teacher_id,A.class_id, A.day_id, A.period, A.subject_id, IFNULL(B.subject_name,'') as subject_name, IFNULL( C.name,'') as name, A.from_time, A.to_time, A.is_break,A.break_name FROM edu_timetable AS A LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id LEFT JOIN edu_subject AS B ON A.subject_id = B.subject_id WHERE A.year_id = '$year_id' AND A.term_id = '$term_id' AND A.class_id = '$class_id' ORDER BY A.day_id,A.from_time";
-$sqltimetable ="SELECT
-  tt.table_id,
-  tt.class_id,
-  c.class_name,
-  ss.sec_name,
-  tt.subject_id,
-  tt.teacher_id,
-  tt.day_id,
-  tt.period,
-  t.name,
-  s.subject_name,
-  tt.from_time,
-  tt.to_time,
-  tt.is_break
-FROM
-  edu_timetable AS tt
-LEFT JOIN edu_subject AS s
-ON
-  tt.subject_id = s.subject_id
-LEFT JOIN edu_teachers AS t
-ON
-  tt.teacher_id = t.teacher_id
-INNER JOIN edu_classmaster AS cm
-ON
-  tt.class_id = cm.class_sec_id
-INNER JOIN edu_class AS c
-ON
-  cm.class = c.class_id
-INNER JOIN edu_sections AS ss
-ON
-  cm.section = ss.sec_id
-WHERE
-  tt.class_id = '$class_id' AND tt.year_id = '$year_id' AND tt.term_id = '$term_id'  ORDER BY tt.day_id,tt.period";
-
-    $timetable_res = $this->db->query($sqltimetable);
-    $timetable_result= $timetable_res->result();
-    $timetable_count = $timetable_res->num_rows();
-
-  if($timetable_count>0)
-  {
-     $response = array("status" => "success", "msg" => "Timetable Days", "timeTable"=>$timetable_result);
-  } else {
-    $response = array("status" => "error", "msg" => "No Records Found");
-  }
-  return $response;
-  }
-
 	//#################### Timetable End ####################//
+
 
 
 

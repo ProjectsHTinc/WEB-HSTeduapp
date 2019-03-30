@@ -1410,9 +1410,7 @@ class Apiadmin extends CI_Controller {
 		$group_id = '';
 		$group_member_id = '';
 		$group_user_type = '';
-		$class_sec_id = '';
 		$status = '';
-		
 		$user_id = $this->input->post("user_id");
 		$group_id = $this->input->post("group_id");
 		$group_member_id = $this->input->post("group_member_id");

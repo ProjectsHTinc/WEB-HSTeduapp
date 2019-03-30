@@ -47,7 +47,15 @@
 												echo count($total);
 											}?> </p>
 										</div>
-										<div class="noote" style=" display: inline-flex;   ">
+										<div class="Words">
+									Absent & Leave -
+																				<?php if(empty($ableavedays)){
+
+									} else{
+										echo count($ableavedays);
+									}?>
+																				</div>
+										<div class="noote" style="    display: inline-flex;   ">
 										<div class="notice">
 											<p class="red">1</p>
 										</div>

@@ -88,6 +88,7 @@ class Apiteachermodel extends CI_Model {
 
 	public function sendNotification($gcm_key,$title,$message,$mobiletype)
 	{
+
 		if ($mobiletype =='1'){
 
 		    require_once 'assets/notification/Firebase.php';
@@ -165,7 +166,7 @@ class Apiteachermodel extends CI_Model {
 
 	public function getYear()
 	{
-		$sqlYear = "SELECT * FROM edu_academic_year WHERE NOW() >= from_month AND NOW() <= to_month AND status = 'Active'";
+		$sqlYear = "SELECT * FROM edu_academic_year WHERE CURDATE() >= from_month AND CURDATE() <= to_month AND status = 'Active'";
 		$year_result = $this->db->query($sqlYear);
 		$ress_year = $year_result->result();
 		
@@ -187,7 +188,7 @@ class Apiteachermodel extends CI_Model {
 	public function getTerm()
 	{
 	    $year_id = $this->getYear();
-		$sqlTerm = "SELECT * FROM edu_terms WHERE NOW() >= from_date AND NOW() <= to_date AND year_id = '$year_id' AND status = 'Active'";
+		$sqlTerm = "SELECT * FROM edu_terms WHERE CURDATE()>= from_date AND CURDATE()<= to_date AND year_id = '$year_id' AND status = 'Active'";
 		$term_result = $this->db->query($sqlTerm);
 		$ress_term = $term_result->result();
 		
@@ -361,7 +362,7 @@ class Apiteachermodel extends CI_Model {
 			$last_day   = date('t',strtotime($first_date));
 			$last_date = date('Y-m-d',mktime(0, 0, 0, $from_month ,$last_day, $from_year));
 
-			$attend_query = "SELECT COUNT(ah.student_id)as leaves,en.enroll_id, en.class_id, en.name, c.class_name, s.sec_name, ah.abs_date, ah.a_status, ah.attend_period, at.at_id FROM edu_enrollment en
+			$attend_query = "SELECT COUNT(ah.student_id) as leaves,en.enroll_id, en.class_id, en.name, c.class_name, s.sec_name, ah.abs_date, ah.a_status, ah.attend_period, at.at_id FROM edu_enrollment en
 				INNER JOIN edu_attendance_history AS ah ON en.enroll_id = ah.student_id
 				INNER JOIN edu_attendence AS at ON ah.attend_id = at.at_id
 				INNER JOIN edu_classmaster AS cm ON en.class_id = cm.class_sec_id
@@ -1310,7 +1311,7 @@ class Apiteachermodel extends CI_Model {
 //#################### send attendance sms to Parents ####################//
 	 public function send_attendance_sms($attend_id)
 	 {
-			 $query = "SELECT ee.name,ep.mobile,ee.admission_id,eah.abs_date,eah.student_id,eah.a_status,eah.attend_period,CASE WHEN attend_period = 0 THEN 'MORNING' ELSE 'AFTERNOON' END  AS a_session,CASE WHEN a_status = 'L' THEN 'Leave' WHEN a_status = 'A' THEN 'Absent' ELSE 'OnDuty' END  AS abs_atatus FROM edu_attendance_history AS eah LEFT JOIN edu_enrollment AS ee ON ee.enroll_id=eah.student_id LEFT JOIN edu_parents AS ep ON ee.admission_id=ep.admission_id WHERE eah.attend_id='$attend_id' AND ep.primary_flag='Yes'";
+			$query = "SELECT ee.name,ep.mobile,ee.admission_id,eah.abs_date,eah.student_id,eah.a_status,eah.attend_period,CASE WHEN attend_period = 0 THEN 'MORNING' ELSE 'AFTERNOON' END  AS a_session,CASE WHEN a_status = 'L' THEN 'Leave' WHEN a_status = 'A' THEN 'Absent' ELSE 'OnDuty' END  AS abs_atatus FROM edu_attendance_history AS eah LEFT JOIN edu_enrollment AS ee ON ee.enroll_id=eah.student_id LEFT JOIN edu_parents AS ep ON ee.admission_id=ep.admission_id WHERE eah.attend_id='$attend_id' AND ep.primary_flag='Yes'";
 	
 			$result=$this->db->query($query);
 			$res=$result->result();
@@ -1618,7 +1619,7 @@ class Apiteachermodel extends CI_Model {
 		  }
 
 		  
-			$sql = "SELECT p.email FROM edu_parents AS p,edu_enrollment AS e WHERE e.class_id='$clssid' AND FIND_IN_SET( e.admission_id,p.admission_id) GROUP BY p.name";
+			$sql = "SELECT p.email FROM edu_parents AS p,edu_enrollment AS e WHERE e.class_id='$clssid' AND FIND_IN_SET(e.admission_id,p.admission_id) GROUP BY p.name";
 			$result = $this->db->query($sql);
 			$p_resulr = $result->result();
 		  

@@ -514,7 +514,7 @@ class Apiadminmodel extends CI_Model {
             //#################### GET   TEACHER CLASS DETAILS  ####################//
             function get_teacher_class_details($teacher_id){
                 $year_id = $this->getYear();
-				$term_id = $this->getTerm();
+                $term_id = $this->getTerm();
                 
                 $teacher_query = "SELECT t.teacher_id,t.name,t.sex,t.age,t.nationality,t.religion,t.community_class, t.community,t.address,t.email,t.phone,t.sec_email,t.sec_phone,t.profile_pic,t.update_at,t.subject,t.class_name AS class_taken,t.class_teacher FROM edu_teachers AS t WHERE t.teacher_id = '$teacher_id'";
 				$teacher_res = $this->db->query($teacher_query);
@@ -549,8 +549,8 @@ class Apiadminmodel extends CI_Model {
 						}else{
 							$class_sub_result = $class_sub_res->result();
 						}
-						
-						$sqldays = "SELECT A.day_id, B.list_day FROM `edu_timetable` A, `edu_days` B WHERE A.day_id = B.d_id AND A.teacher_id = '$teacher_id' AND A.year_id = '$year_id' AND A.term_id = '$term_id' GROUP BY day_id ORDER BY A.day_id";
+
+                        $sqldays = "SELECT A.day_id, B.list_day FROM `edu_timetable` A, `edu_days` B WHERE A.day_id = B.d_id AND A.teacher_id = '$teacher_id' AND A.year_id = '$year_id' AND A.term_id = '$term_id' GROUP BY day_id ORDER BY A.day_id";
 						$day_res = $this->db->query($sqldays);
 
 						if($day_res->num_rows()==0){
@@ -559,6 +559,7 @@ class Apiadminmodel extends CI_Model {
 						}else{
 							 $day_result = array("status" => "success", "msg" => "TimeTable Days","data"=> $day_res->result());
 						}
+						
 						
 						$timetable_query = "SELECT
 									tt.table_id,
@@ -1560,7 +1561,7 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 	//####################  Group Notification End ####################//
 
 
-	//####################  Group Members Add ####################//
+//####################  Group Members Add ####################//
 	public function addgnMembers($user_id,$group_id,$group_member_id,$group_user_type,$class_sec_id,$status)
 	{
 	
@@ -1597,10 +1598,39 @@ LEFT JOIN edu_terms AS et ON  efm.term_id=et.term_id WHERE efm.class_master_id='
 	}
 	//#################### Group Members End  ####################//
 	
+// 	//####################  Group Members Add ####################//
+// 	public function addgnMembers($user_id,$group_id,$group_member_id,$group_user_type,$status)
+// 	{
+// 			$gnMembsql = "SELECT * FROM edu_grouping_members WHERE member_type = '$group_user_type' AND group_title_id ='$group_id'";
+// 			$gnMembres = $this->db->query($gnMembsql);
+// 			$gnMembresult= $gnMembres->result();
+// 			$gnMembcount = $gnMembres->num_rows();
+		
+// 			if($gnMembcount>0)
+// 			{
+// 				$squery = "DELETE FROM `edu_grouping_members` WHERE member_type = '$group_user_type' AND group_title_id ='$group_id'";
+// 				$resultset=$this->db->query($squery);
+// 			}
+		
+// 			$smember_id = explode(",", $group_member_id);
+// 				foreach($smember_id as $member_id)
+// 				{
+					
+// 					$sql = "INSERT INTO edu_grouping_members(group_title_id,group_member_id,member_type,status,created_by,created_at) VALUES ('$group_id','$member_id','$group_user_type','$status','$user_id',NOW())";
+// 					$resultset=$this->db->query($sql);
+// 				}				
+			
+// 			$response = array("status" => "success", "msg" => "Group Members Added");
+// 			return $response;
+// 	}
+// 	//#################### Group Members End  ####################//
+	
 	
 	//####################  List Group Members ####################//
 	public function listgnMembers($group_id)
 	{
+	        $year_id = $this->getYear();
+	        
 			$sqlstaff = "SELECT A.id,B.name,C.user_type_name FROM `edu_grouping_members` A, edu_users B, edu_role C WHERE A.group_member_id = B.user_id AND A.member_type = C.role_id AND `group_title_id` = '$group_id' ORDER by A.member_type";
 			$staff_res = $this->db->query($sqlstaff);
 			$staff_result= $staff_res->result();

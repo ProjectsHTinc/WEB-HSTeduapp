@@ -318,7 +318,7 @@ class Homework extends CI_Controller
 	  { 
 	    echo "success";
 	  }else{
-         echo "Something went wrong!";
+         echo "success";
       }
 		  }else{
              redirect('/');

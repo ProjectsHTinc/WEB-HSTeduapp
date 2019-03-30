@@ -57,19 +57,19 @@ Class Smsmodel extends CI_Model
  }
 
 
-   public function sendSMS($phone,$notes)
+   public function sendSMS($Phoneno,$Message)
    {
          //Your authentication key
          $authKey = "191431AStibz285a4f14b4";
 
          //Multiple mobiles numbers separated by comma
-         $mobileNumber = "$phone";
+         $mobileNumber = "$Phoneno";
 
          //Sender ID,While using route4 sender id should be 6 characters long.
          $senderId = "EDUAPP";
 
          //Your message to send, Add URL encoding here.
-         $message = urlencode($notes);
+         $message = urlencode($Message);
 
          //Define route
          $route = "transactional";
@@ -162,6 +162,7 @@ Class Smsmodel extends CI_Model
 
   function send_circular_via_sms($title_id,$notes,$tusers_id,$stusers_id,$pusers_id,$bmusers_id,$users_id)
   {
+       $year_id=$this->getYear();
     $ssql = "SELECT * FROM edu_circular_master WHERE id ='$title_id'";
 		$res = $this->db->query($ssql);
 
@@ -221,7 +222,7 @@ Class Smsmodel extends CI_Model
 				 for ($i=0;$i<$scountid;$i++)
 				 {
 					$clsid=$stusers_id[$i];
-    				$sql1="SELECT e.enroll_id,e.admission_id,e.admisn_no,e.name,e.class_id,a.admission_id,a.admisn_no,a.name,a.mobile FROM edu_enrollment AS e,edu_admission AS a WHERE e.class_id='$clsid' AND e.admission_id=a.admission_id ";
+    				$sql1="SELECT e.enroll_id,e.admission_id,e.admisn_no,e.name,e.class_id,a.admission_id,a.admisn_no,a.name,a.mobile FROM edu_enrollment AS e,edu_admission AS a WHERE e.class_id='$clsid' AND e.admit_year='$year_id' AND e.admission_id=a.admission_id ";
 					$scell=$this->db->query($sql1);
 					$res1=$scell->result();
 					foreach($res1 as $row1)
@@ -245,7 +246,7 @@ Class Smsmodel extends CI_Model
 			 {
 				$classid=$pusers_id[$i];
 
-				 $pgid="SELECT e.enroll_id,e.admission_id,e.admisn_no,e.name,e.class_id FROM edu_enrollment AS e WHERE e.class_id='$classid'";
+				 $pgid="SELECT e.enroll_id,e.admission_id,e.admisn_no,e.name,e.class_id FROM edu_enrollment AS e WHERE e.class_id='$classid' AND e.admit_year='$year_id'";
 				 $pcell=$this->db->query($pgid);
 				 $res2=$pcell->result();
 				 foreach($res2 as $row2)
@@ -310,7 +311,7 @@ Class Smsmodel extends CI_Model
 					foreach($presult2 as $prows1)
 					{
             $notes =urlencode($notes);
-            $phone = $prows1->mobile;
+            $phone = $rows1->mobile;
             $this->sendSMS($phone,$notes);
 
 				    }
@@ -361,29 +362,12 @@ Class Smsmodel extends CI_Model
           $res=$result1->result();
           foreach($res as $rows){
             $name=$rows->name;
-            $number=$rows->phone;
+            $phone=$rows->phone;
             $textmessage='Wishing you a Birthday filled with joy and a year filled with happiness and good health Happy Birthday '.$name.'';
-            $textmsg =urlencode($textmessage);
-            $smsGatewayUrl = 'http://173.45.76.227/send.aspx?';
-            $api_element = 'username=kvmhss&pass=kvmhss123&route=trans1&senderid=KVMHSS';
-            $api_params = $api_element.'&numbers='.$number.'&message='.$textmsg;
-            $smsgatewaydata = $smsGatewayUrl.$api_params;
-            $url = $smsgatewaydata;
-
-           $ch = curl_init();
-           curl_setopt($ch, CURLOPT_POST, false);
-           curl_setopt($ch, CURLOPT_URL, $url);
-           curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-           $output = curl_exec($ch);
-           curl_close($ch);
-
-           if(!$output)
-           {
-                $output =  file_get_contents($smsgatewaydata);
-              }
-
-
-          }
+            $notes =utf8_encode($textmessage);
+            $this->sendSMS($phone,$notes);
+           
+           }
 
          }
 
@@ -421,7 +405,7 @@ Class Smsmodel extends CI_Model
           $member_type_staff=$row_type_staff->member_type;
          $group_member_id_staff=$row_type_staff->group_member_id;
          if($member_type='2' || $member_type='5'){
-          $send_mail="SELECT * FROM edu_users AS a LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id WHERE a.user_id = '$group_member_id_staff'";
+          $send_mail="SELECT * FROM edu_users AS A LEFT JOIN edu_teachers AS C ON A.teacher_id = C.teacher_id WHERE A.user_id = '$group_member_id_staff'";
            $get_mail=$this->db->query($send_mail);
            $res_mail=$get_mail->result();
            foreach($res_mail as $rows_mail){
@@ -441,7 +425,8 @@ Class Smsmodel extends CI_Model
 		{
 		   $year_id=$this->getYear();
 
-		   $pcell="SELECT p.mobile FROM edu_parents AS p,edu_enrollment AS e WHERE e.class_id='$clssid' AND FIND_IN_SET( e.admission_id,p.admission_id) AND e.admit_year='$year_id' GROUP BY p.name";
+		    $pcell="SELECT p.mobile FROM edu_parents AS p,edu_enrollment AS e WHERE e.class_id='$clssid' AND e.admit_year='$year_id' AND FIND_IN_SET( e.admission_id,p.admission_id) GROUP BY p.name";
+		  
 		  $pcell1=$this->db->query($pcell);
 		  $pcel2=$pcell1->result();
 		  foreach($pcel2 as $res)
@@ -449,7 +434,13 @@ Class Smsmodel extends CI_Model
 		     //echo $num=implode(',',$cell); echo"<br>";
 		  }
 
-		  $sms="SELECT h.title,h.hw_details,h.hw_type,h.test_date,s.subject_name FROM edu_homework AS h,edu_subject AS s WHERE h.class_id='$clssid' AND h.year_id='$year_id' AND DATE_FORMAT(h.created_at,'%Y-%m-%d')='$createdate' AND h.subject_id=s.subject_id";
+		  //$sms="SELECT h.title,h.hw_details,h.hw_type,h.test_date,s.subject_name FROM edu_homework AS h,edu_subject AS s WHERE h.class_id='$clssid' AND h.year_id='$year_id' AND DATE_FORMAT(h.created_at,'%Y-%m-%d')='$createdate' AND h.subject_id=s.subject_id";
+		    $sms="SELECT h.title,h.hw_details,h.hw_type,h.test_date,s.subject_name,IFNULL(c.class_name, '') AS class_name,IFNULL(se.sec_name, '') AS sec_name FROM edu_homework AS h
+        LEFT JOIN edu_subject AS s ON s.subject_id=h.subject_id
+        LEFT JOIN edu_classmaster AS cm ON h.class_id=cm.class_sec_id
+        LEFT JOIN edu_class AS c ON cm.class=c.class_id
+        LEFT JOIN edu_sections AS se ON  cm.section=se.sec_id
+        WHERE h.class_id='$clssid' AND h.year_id='$year_id' AND DATE_FORMAT(h.created_at,'%Y-%m-%d')='$createdate' AND h.subject_id=s.subject_id";
 		  $sms1=$this->db->query($sms);
 		  $sms2= $sms1->result();
 		  //return $sms2;
@@ -460,37 +451,30 @@ Class Smsmodel extends CI_Model
 			$subname=$value->subject_name;
 			$ht=$value->hw_type;
 			$tdat=$value->test_date;
+			$class_name=$value->class_name.'-'.$value->sec_name;
 
 			if($ht=='HW'){ $type="Home Work" ; }else{ $type="Class Test" ; }
 
-			$message="Title : " .$hwtitle. ",Type : " .$type. ", Details : " .$hwdetails .", Subject : ".$subname.",";
+		
+		//	 $message="Subject : " .$subname. ", Details : " .$hwdetails .",";
+		     $message=$subname.'-'.$hwdetails.'.';
 			$home_work_details[]=$message;
 		  }
 			//print_r($home_work_details);
-		    $hdetails=implode('',$home_work_details);
-			$num=implode(',',$cell);
-			$count1=count($cell);
+		 		     $hdetails=implode('',$home_work_details);
+			   $phone=implode(',',$cell);
+			   $count1=count($cell);
 
-				$textmsg =urlencode($hdetails);
-				$smsGatewayUrl = 'http://173.45.76.227/send.aspx?';
-				$api_element = 'username=kvmhss&pass=kvmhss123&route=trans1&senderid=KVMHSS';
-				$api_params = $api_element.'&numbers='.$num.'&message='.$textmsg;
-				$smsgatewaydata = $smsGatewayUrl.$api_params;
+				 //$textmsg =urlencode($hdetails);
+                 $notes =utf8_encode("Dear parents Class: $class_name'-'$hdetails" );
 
-				$url = $smsgatewaydata;
-
-			   $ch = curl_init();
-			   curl_setopt($ch, CURLOPT_POST, false);
-			   curl_setopt($ch, CURLOPT_URL, $url);
-			   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			   $output = curl_exec($ch);
-			   curl_close($ch);
-
-			   if(!$output)
-			   {
-				  $output =  file_get_contents($smsgatewaydata);
-			   }else{  $data= array("status"=>"success");
-		      return $data; }
+                $stat=$this->sendSMS($phone,$notes);
+               if($notes){
+                 $data= array("status" => "success");
+                }else{
+                   $data= array("status" => "failed");
+                }
+       
 	}
 
 
